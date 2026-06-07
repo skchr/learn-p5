@@ -26,7 +26,7 @@ export default function About() {
         </Text>
         <View className="bg-surface-dim dark:bg-surface-dim-dark rounded-full px-3 py-1 mt-2">
           <Text className="font-mono text-xs text-text-secondary dark:text-text-secondary-dark">
-            v0.2.2
+            v0.2.3
           </Text>
         </View>
         <Text className="font-body text-base text-center text-text-secondary dark:text-text-secondary-dark mt-6 max-w-[300px]">
