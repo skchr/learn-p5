@@ -1,19 +1,50 @@
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Header from "../../components/Header";
+import { useThemeColor } from "../../hooks/useThemeColor";
+import { fontFamily, fontSize, fontWeight } from "../../styles/typography";
 
 export default function Reference() {
+  const surface = useThemeColor("surface");
+  const onSurface = useThemeColor("onSurface");
+  const textSecondary = useThemeColor("textSecondary");
+
   return (
-    <View className="flex-1 bg-surface dark:bg-surface-dark">
+    <View style={[styles.container, { backgroundColor: surface }]}>
       <Header title="Reference" />
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-4xl mb-4">📚</Text>
-        <Text className="font-headline text-2xl font-bold text-on-surface dark:text-on-surface-dark">
-          Coming Soon
-        </Text>
-        <Text className="font-body text-base text-text-secondary dark:text-text-secondary-dark mt-2 text-center">
+      <View style={styles.content}>
+        <Text style={styles.emoji}>📚</Text>
+        <Text style={[styles.heading, { color: onSurface }]}>Coming Soon</Text>
+        <Text style={[styles.subtitle, { color: textSecondary }]}>
           Browse the full p5.js API reference and documentation.
         </Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  emoji: {
+    fontSize: 36,
+    marginBottom: 16,
+  },
+  heading: {
+    fontFamily: fontFamily.headline,
+    fontSize: fontSize["2xl"],
+    fontWeight: fontWeight.bold,
+  },
+  subtitle: {
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.base,
+    marginTop: 8,
+    textAlign: "center",
+  },
+});

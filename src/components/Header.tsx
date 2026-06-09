@@ -1,6 +1,9 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDrawerContext } from "../contexts/DrawerContext";
+import { useThemeColor } from "../hooks/useThemeColor";
+import { fontFamily, fontSize, fontWeight } from "../styles/typography";
+import { spacing, borderRadius } from "../styles/spacing";
 
 interface HeaderProps {
   title: string;
@@ -11,29 +14,31 @@ interface HeaderProps {
 export default function Header({ title, subtitle, right }: HeaderProps) {
   const insets = useSafeAreaInsets();
   const { openDrawer } = useDrawerContext();
+  const surface = useThemeColor("surface");
+  const onSurface = useThemeColor("onSurface");
+  const textSecondary = useThemeColor("textSecondary");
+  const surfaceDim = useThemeColor("surfaceDim");
 
   return (
     <View
-      style={{ paddingTop: insets.top + 8 }}
-      className="flex-row items-center justify-between px-4 pb-3 bg-surface dark:bg-surface-dark"
+      style={[
+        styles.container,
+        { paddingTop: insets.top + 8, backgroundColor: surface },
+      ]}
     >
-      <View className="flex-row items-center gap-3">
+      <View style={styles.leftGroup}>
         <Pressable
           onPress={openDrawer}
-          className="w-10 h-10 items-center justify-center rounded-full bg-surface-dim dark:bg-surface-dim-dark"
+          style={[styles.menuButton, { backgroundColor: surfaceDim }]}
           accessibilityRole="button"
           accessibilityLabel="Open navigation menu"
         >
-          <Text className="text-xl text-on-surface dark:text-on-surface-dark font-bold leading-none">
-            ☰
-          </Text>
+          <Text style={[styles.menuIcon, { color: onSurface }]}>☰</Text>
         </Pressable>
         <View>
-          <Text className="font-headline text-xl font-bold text-on-surface dark:text-on-surface-dark">
-            {title}
-          </Text>
+          <Text style={[styles.title, { color: onSurface }]}>{title}</Text>
           {subtitle && (
-            <Text className="font-body text-xs text-text-secondary dark:text-text-secondary-dark -mt-0.5">
+            <Text style={[styles.subtitle, { color: textSecondary }]}>
               {subtitle}
             </Text>
           )}
@@ -43,3 +48,40 @@ export default function Header({ title, subtitle, right }: HeaderProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing[4],
+    paddingBottom: spacing[3],
+  },
+  leftGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing[3],
+  },
+  menuButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: borderRadius.full,
+  },
+  menuIcon: {
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.bold,
+    lineHeight: undefined,
+  },
+  title: {
+    fontFamily: fontFamily.headline,
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.bold,
+  },
+  subtitle: {
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.xs,
+    marginTop: -2,
+  },
+});

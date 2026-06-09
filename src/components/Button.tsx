@@ -1,4 +1,6 @@
-import { Text, Pressable } from "react-native";
+import { Text, Pressable, View, StyleSheet } from "react-native";
+import { useThemeColor } from "../hooks/useThemeColor";
+import { fontFamily, fontSize, fontWeight } from "../styles/typography";
 
 type Variant = "primary" | "outline";
 
@@ -10,18 +12,6 @@ interface ButtonProps {
   accessibilityLabel?: string;
 }
 
-const variantStyles: Record<Variant, string> = {
-  primary:
-    "bg-primary border-2 border-outline dark:border-outline-dark active:translate-y-1 active:translate-x-1",
-  outline:
-    "bg-white dark:bg-transparent border-2 border-primary active:translate-y-0.5",
-};
-
-const textStyles: Record<Variant, string> = {
-  primary: "text-on-primary font-headline font-black text-xl uppercase tracking-wider",
-  outline: "text-primary font-headline font-bold text-xl uppercase tracking-widest",
-};
-
 export default function Button({
   title,
   onPress,
@@ -29,6 +19,10 @@ export default function Button({
   disabled = false,
   accessibilityLabel,
 }: ButtonProps) {
+  const primary = useThemeColor("primary");
+  const onPrimary = useThemeColor("onPrimary");
+  const outline = useThemeColor("outline");
+
   return (
     <Pressable
       onPress={onPress}
@@ -36,16 +30,64 @@ export default function Button({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
       accessibilityState={{ disabled }}
-      className={`w-full py-4 px-6 items-center justify-center rounded-none min-h-[52px]
-        ${variantStyles[variant]}
-        ${disabled ? "opacity-50" : "active:opacity-90"}
-      `}
     >
-      <Text
-        className={`${textStyles[variant]} ${disabled ? "opacity-50" : ""}`}
-      >
-        {title}
-      </Text>
+      {({ pressed }) => (
+        <View
+          style={[
+            styles.base,
+            variant === "primary"
+              ? { backgroundColor: primary, borderColor: outline }
+              : { backgroundColor: onPrimary, borderColor: primary },
+            disabled && styles.disabled,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text
+            style={[
+              variant === "primary"
+                ? { color: onPrimary }
+                : { color: primary },
+              styles.textBase,
+              variant === "primary" ? styles.primaryText : styles.outlineText,
+              disabled && styles.disabled,
+            ]}
+          >
+            {title}
+          </Text>
+        </View>
+      )}
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  base: {
+    width: "100%",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 0,
+    minHeight: 52,
+    borderWidth: 2,
+  },
+  textBase: {
+    fontFamily: fontFamily.headline,
+    fontSize: fontSize.xl,
+    textTransform: "uppercase",
+  },
+  primaryText: {
+    fontWeight: fontWeight.black,
+    letterSpacing: 0.8,
+  },
+  outlineText: {
+    fontWeight: fontWeight.bold,
+    letterSpacing: 1,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  pressed: {
+    opacity: 0.9,
+  },
+});

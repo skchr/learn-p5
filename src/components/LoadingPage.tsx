@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import Animated, {
   useSharedValue,
@@ -34,10 +35,7 @@ export default function LoadingPage({ onFinish }: { onFinish: () => void }) {
   }, []);
 
   return (
-    <Animated.View
-      className="flex-1 items-center justify-center bg-surface"
-      style={style}
-    >
+    <Animated.View style={[styles.container, style]}>
       <Svg width={200} height={91} viewBox="0 0 250 114">
         {paths.map((d, i) => (
           <Path key={i} d={d} fill={Colors.light.primary} />
@@ -46,3 +44,12 @@ export default function LoadingPage({ onFinish }: { onFinish: () => void }) {
     </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.light.surface,
+  },
+});
