@@ -1,4 +1,7 @@
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { useThemeColor } from "../hooks/useThemeColor";
+import { fontFamily, fontSize, fontWeight } from "../styles/typography";
+import { spacing, borderRadius } from "../styles/spacing";
 
 interface StatItem {
   icon: string;
@@ -11,19 +14,23 @@ interface StatsCardProps {
 }
 
 export default function StatsCard({ items }: StatsCardProps) {
+  const surfaceDim = useThemeColor("surfaceDim");
+  const onSurface = useThemeColor("onSurface");
+  const textSecondary = useThemeColor("textSecondary");
+
   return (
-    <View className="flex-row gap-4">
+    <View style={styles.container}>
       {items.map((item, i) => (
         <View
           key={i}
-          className="flex-1 flex-row items-center gap-2 bg-surface-dim dark:bg-surface-dim-dark rounded-xl px-4 py-3"
+          style={[styles.item, { backgroundColor: surfaceDim }]}
         >
-          <Text className="text-lg">{item.icon}</Text>
+          <Text style={styles.icon}>{item.icon}</Text>
           <View>
-            <Text className="font-headline text-lg font-bold text-on-surface dark:text-on-surface-dark">
+            <Text style={[styles.value, { color: onSurface }]}>
               {item.value}
             </Text>
-            <Text className="font-body text-xs text-text-secondary dark:text-text-secondary-dark">
+            <Text style={[styles.label, { color: textSecondary }]}>
               {item.label}
             </Text>
           </View>
@@ -32,3 +39,31 @@ export default function StatsCard({ items }: StatsCardProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    gap: spacing[4],
+  },
+  item: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing[2],
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  icon: {
+    fontSize: fontSize.lg,
+  },
+  value: {
+    fontFamily: fontFamily.headline,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+  },
+  label: {
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.xs,
+  },
+});

@@ -1,4 +1,7 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useThemeColor } from "../hooks/useThemeColor";
+import { fontFamily, fontSize, fontWeight } from "../styles/typography";
+import { spacing, borderRadius } from "../styles/spacing";
 
 interface RecentSketchCardProps {
   title: string;
@@ -13,29 +16,71 @@ export default function RecentSketchCard({
   thumbnailLabel,
   onPress,
 }: RecentSketchCardProps) {
+  const surfaceDim = useThemeColor("surfaceDim");
+  const onSurface = useThemeColor("onSurface");
+  const textSecondary = useThemeColor("textSecondary");
+  const primary = useThemeColor("primary");
+
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center gap-3 bg-surface-dim dark:bg-surface-dim-dark rounded-xl px-4 py-3"
+      style={[styles.card, { backgroundColor: surfaceDim }]}
       accessibilityRole="button"
       accessibilityLabel={`${title}, ${timeAgo}`}
     >
-      <View className="w-12 h-12 rounded-lg bg-primary/20 items-center justify-center">
-        <Text className="text-xs font-mono text-primary font-bold text-center leading-tight">
+      <View style={[styles.thumbnail, { backgroundColor: `${primary}1A` }]}>
+        <Text style={[styles.thumbnailText, { color: primary }]}>
           {thumbnailLabel}
         </Text>
       </View>
-      <View className="flex-1">
-        <Text className="font-headline text-base font-bold text-on-surface dark:text-on-surface-dark">
-          {title}
-        </Text>
-        <Text className="font-body text-xs text-text-secondary dark:text-text-secondary-dark mt-0.5">
+      <View style={styles.content}>
+        <Text style={[styles.title, { color: onSurface }]}>{title}</Text>
+        <Text style={[styles.timeAgo, { color: textSecondary }]}>
           {timeAgo}
         </Text>
       </View>
-      <Text className="text-lg text-text-secondary dark:text-text-secondary-dark">
-        open_in_new
-      </Text>
+      <Text style={[styles.icon, { color: textSecondary }]}>open_in_new</Text>
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing[3],
+    borderRadius: borderRadius.xl,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  thumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: borderRadius.lg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  thumbnailText: {
+    fontSize: fontSize.xs,
+    fontFamily: fontFamily.mono,
+    fontWeight: fontWeight.bold,
+    textAlign: "center",
+    lineHeight: 14,
+  },
+  content: {
+    flex: 1,
+  },
+  title: {
+    fontFamily: fontFamily.headline,
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
+  },
+  timeAgo: {
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.xs,
+    marginTop: 2,
+  },
+  icon: {
+    fontSize: fontSize.lg,
+  },
+});
