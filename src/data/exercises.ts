@@ -1,3 +1,10 @@
+export interface Course {
+  id: string;
+  title: string;
+  exerciseIds: string[];
+  completedIds: string[];
+}
+
 export interface Exercise {
   id: string;
   courseId: string;
@@ -7,6 +14,15 @@ export interface Exercise {
   initialCode: string;
   tokens: string[];
 }
+
+export const courses: Course[] = [
+  {
+    id: "intro",
+    title: "Introduction",
+    exerciseIds: ["geometric-abstraction"],
+    completedIds: [],
+  },
+];
 
 const initialCode = `function setup() {
   createCanvas(400, 400);
@@ -41,10 +57,25 @@ const exercises: Record<string, Exercise> = {
   },
 };
 
-export function getExercise(courseId: string, exerciseId: string): Exercise | undefined {
+export function getCourses(): Course[] {
+  return courses;
+}
+
+export function getExercise(
+  courseId: string,
+  exerciseId: string
+): Exercise | undefined {
   const exercise = exercises[exerciseId];
   if (exercise && exercise.courseId === courseId) {
     return exercise;
   }
   return undefined;
+}
+
+export function getExercisesByCourse(courseId: string): Exercise[] {
+  const course = courses.find((c) => c.id === courseId);
+  if (!course) return [];
+  return course.exerciseIds
+    .map((id) => exercises[id])
+    .filter((e): e is Exercise => e !== undefined);
 }
