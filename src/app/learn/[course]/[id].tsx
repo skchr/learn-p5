@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect, useReducer, useMemo } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useRef, useEffect, useReducer, useMemo, useCallback } from "react";
+import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -82,6 +82,17 @@ export default function Exercise() {
   const runCounter = useRef(0);
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
+  const systemKeyboardRef = useRef(false);
+  const codeInputRef = useRef<TextInput>(null);
+
+  const toggleSystemKeyboard = useCallback(() => {
+    systemKeyboardRef.current = !systemKeyboardRef.current;
+    if (systemKeyboardRef.current) {
+      setTimeout(() => codeInputRef.current?.focus(), 100);
+    } else {
+      codeInputRef.current?.blur();
+    }
+  }, []);
 
   const styles = useMemo(
     () =>
@@ -384,9 +395,14 @@ export default function Exercise() {
           onChange={(c) => dispatch({ type: "SET_CODE", code: c })}
           onRun={handleRun}
           isRunning={state.isRunning}
+          inputRef={codeInputRef}
         />
 
-        <ProgrammingKeyboard onInsert={handleInsert} exerciseSymbols={exerciseSymbols} />
+        <ProgrammingKeyboard
+          onInsert={handleInsert}
+          exerciseSymbols={exerciseSymbols}
+          onToggleKeyboard={toggleSystemKeyboard}
+        />
       </View>
     </View>
   );
