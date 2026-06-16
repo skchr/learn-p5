@@ -3,6 +3,7 @@ import { View, Text, Switch, Pressable, ScrollView, StyleSheet } from "react-nat
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import Header from "../../components/Header";
+import TimePicker from "../../components/TimePicker";
 import { useThemeContext } from "../../components/ThemeProvider";
 import { Colors } from "../../constants/Colors";
 
@@ -14,19 +15,6 @@ const SETTINGS_KEYS = {
   showDrawerFab: "setting_showDrawerFab",
   codeFontSize: "setting_codeFontSize",
 };
-
-const TIME_PRESETS = [
-  { label: "Morning", hour: 8, minute: 0 },
-  { label: "Afternoon", hour: 12, minute: 0 },
-  { label: "Evening", hour: 18, minute: 0 },
-  { label: "Night", hour: 21, minute: 0 },
-];
-
-function formatTime(hour: number, minute: number): string {
-  const h = hour % 12 || 12;
-  const ampm = hour >= 12 ? "PM" : "AM";
-  return `${h}:${minute.toString().padStart(2, "0")} ${ampm}`;
-}
 
 const createStyles = (colors: Record<string, string>) =>
   StyleSheet.create({
@@ -51,35 +39,6 @@ const createStyles = (colors: Record<string, string>) =>
     flexChild: { flex: 1 },
     settingTitle: { fontFamily: "JetBrainsMono", fontSize: 16, fontWeight: "700", color: colors.onSurface },
     settingDescription: { fontFamily: "JetBrainsMono", fontSize: 11, marginTop: 2, color: colors.textSecondary },
-    timeRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderTopWidth: 1,
-      borderTopColor: colors.outlineVariant + "40",
-    },
-    timeText: { fontFamily: "JetBrainsMono", fontSize: 16, fontWeight: "700", color: colors.onSurface },
-    presetsRow: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      paddingHorizontal: 16,
-      paddingBottom: 16,
-      borderTopWidth: 1,
-      borderTopColor: colors.outlineVariant + "40",
-    },
-    presetChip: {
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      borderRadius: 8,
-    },
-    presetChipActive: { backgroundColor: colors.primary },
-    presetChipInactive: { backgroundColor: colors.surfaceContainerHigh },
-    presetChipText: { fontFamily: "JetBrainsMono", fontSize: 13, fontWeight: "700" },
-    presetChipTextActive: { color: colors.onPrimary },
-    presetChipTextInactive: { color: colors.onSurfaceVariant },
     sectionMargin: { marginTop: 32 },
   });
 
@@ -92,7 +51,7 @@ export default function Settings() {
   const [notificationHour, setNotificationHour] = useState(18);
   const [notificationMinute, setNotificationMinute] = useState(0);
   const [showDrawerFab, setShowDrawerFab] = useState(false);
-  const [codeFontSize, setCodeFontSize] = useState(22);
+  const [codeFontSize, setCodeFontSize] = useState(33);
 
   useEffect(() => {
     AsyncStorage.multiGet([
@@ -138,7 +97,7 @@ export default function Settings() {
     }
   };
 
-  const setPresetTime = async (hour: number, minute: number) => {
+  const handleTimeChange = async (hour: number, minute: number) => {
     setNotificationHour(hour);
     setNotificationMinute(minute);
     await AsyncStorage.multiSet([
@@ -161,12 +120,10 @@ export default function Settings() {
   };
 
   const changeCodeFontSize = async (delta: number) => {
-    const newSize = Math.min(32, Math.max(14, codeFontSize + delta));
+    const newSize = Math.min(48, Math.max(14, codeFontSize + delta));
     setCodeFontSize(newSize);
     await AsyncStorage.setItem(SETTINGS_KEYS.codeFontSize, newSize.toString());
   };
-
-  const isCurrentPreset = (h: number, m: number) => notificationHour === h && notificationMinute === m;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -213,40 +170,11 @@ export default function Settings() {
           </View>
 
           {dailyReminder && (
-            <>
-              <View style={styles.timeRow}>
-                <Text style={styles.settingDescription}>Notification time</Text>
-                <Text style={styles.timeText}>
-                  {formatTime(notificationHour, notificationMinute)}
-                </Text>
-              </View>
-              <View style={styles.presetsRow}>
-                {TIME_PRESETS.map((preset) => {
-                  const active = isCurrentPreset(preset.hour, preset.minute);
-                  return (
-                    <Pressable
-                      key={preset.label}
-                      onPress={() => setPresetTime(preset.hour, preset.minute)}
-                      style={[
-                        styles.presetChip,
-                        active ? styles.presetChipActive : styles.presetChipInactive,
-                      ]}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Set time to ${preset.label}`}
-                    >
-                      <Text
-                        style={[
-                          styles.presetChipText,
-                          active ? styles.presetChipTextActive : styles.presetChipTextInactive,
-                        ]}
-                      >
-                        {preset.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
+            <TimePicker
+              hour={notificationHour}
+              minute={notificationMinute}
+              onTimeChange={handleTimeChange}
+            />
           )}
 
           <View style={styles.cardRow}>
@@ -291,7 +219,7 @@ export default function Settings() {
               >
                 <Text style={{ fontSize: 18, fontWeight: "700", color: colors.onSurface }}>−</Text>
               </Pressable>
-              <Text style={[styles.timeText, { minWidth: 32, textAlign: "center" }]}>
+              <Text style={{ fontFamily: "JetBrainsMono", fontSize: 16, fontWeight: "700", color: colors.onSurface, minWidth: 32, textAlign: "center" }}>
                 {codeFontSize}
               </Text>
               <Pressable

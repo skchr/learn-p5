@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useThemeContext } from "./ThemeProvider";
 import { Colors } from "../constants/Colors";
-import { getEditorHtml } from "../utils/editorHtml";
+import { getEditorHtml } from "../utils/editor/editor";
 
 interface CodeEditorProps {
   code: string;
@@ -90,7 +90,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
           javaScriptEnabled
           domStorageEnabled
           originWhitelist={["*"]}
-          scrollEnabled={false}
+          scrollEnabled={true}
           bounces={false}
         />
 

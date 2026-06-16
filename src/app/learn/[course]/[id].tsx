@@ -320,31 +320,8 @@ export default function Exercise() {
           exerciseNumber={parseInt(id?.replace("exercise-", "") ?? "1", 10)}
         />
 
-        <View style={{ height: 260 }}>
+          <View style={{ height: 260 }}>
           <View style={styles.tabBar}>
-            {state.showSolution && (
-              <Pressable
-                onPress={() => dispatch({ type: "SET_TAB", tab: "solution" })}
-                style={({ pressed }) => [
-                  styles.tabButton,
-                  state.selectedTab === "solution" && styles.tabButtonActive,
-                  pressed && { opacity: 0.8 },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="Show target solution"
-              >
-                <Text
-                  style={[
-                    styles.tabButtonText,
-                    state.selectedTab === "solution"
-                      ? styles.tabButtonTextActive
-                      : styles.tabButtonTextInactive,
-                  ]}
-                >
-                  Target Solution
-                </Text>
-              </Pressable>
-            )}
             <Pressable
               onPress={() => dispatch({ type: "SET_TAB", tab: "output" })}
               style={({ pressed }) => [
@@ -364,6 +341,34 @@ export default function Exercise() {
                 ]}
               >
                 Your Output
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                if (state.showSolution) {
+                  dispatch({ type: "SET_TAB", tab: "solution" });
+                }
+              }}
+              style={({ pressed }) => [
+                styles.tabButton,
+                state.selectedTab === "solution" && styles.tabButtonActive,
+                !state.showSolution && { opacity: 0.3 },
+                pressed && state.showSolution && { opacity: 0.8 },
+              ]}
+              disabled={!state.showSolution}
+              accessibilityRole="button"
+              accessibilityLabel={state.showSolution ? "Show target solution" : "Run your code first to see the solution"}
+              accessibilityState={{ disabled: !state.showSolution }}
+            >
+              <Text
+                style={[
+                  styles.tabButtonText,
+                  state.selectedTab === "solution"
+                    ? styles.tabButtonTextActive
+                    : styles.tabButtonTextInactive,
+                ]}
+              >
+                Target Solution
               </Text>
             </Pressable>
           </View>
