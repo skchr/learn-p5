@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "0.4.3",
   "scripts": {
+    "postinstall": "npm run gen-version",
     "start": "npm run gen-version && expo start",
     "gen-version": "sh scripts/gen-version.sh",
     "android": "expo start --android",
