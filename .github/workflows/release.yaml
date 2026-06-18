@@ -68,7 +68,17 @@ jobs:
       - name: List split APKs
         run: find android -name "*.apk" -type f
 
+      - name: Rename APKs to learn-p5-{tag}-{arch}-debug.apk
+        run: |
+          for apk in android/app/build/outputs/apk/release/*.apk; do
+            dir=$(dirname "$apk")
+            base=$(basename "$apk")
+            arch=$(echo "$base" | sed -n 's/.*\(arm64-v8a\|armeabi-v7a\).*/\1/p')
+            [ -z "$arch" ] && arch=universal
+            mv "$apk" "$dir/learn-p5-${{ github.ref_name }}-$arch-debug.apk"
+          done
+
       - name: Upload split APKs to release
         uses: softprops/action-gh-release@v2
         with:
-          files: android/**/*.apk
+          files: android/app/build/outputs/apk/release/*.apk

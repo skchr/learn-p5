@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useReducer, useMemo, useCallback } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -7,20 +7,16 @@ import { WebView } from "react-native-webview";
 import { useDrawerContext } from "../../../contexts/DrawerContext";
 import { useThemeContext } from "../../../components/ThemeProvider";
 import { Colors } from "../../../constants/Colors";
-import ExerciseDescription from "../../../components/ExerciseDescription";
-import CodeEditor, { type CodeEditorHandle } from "../../../components/CodeEditor";
 import ProgrammingKeyboard from "../../../components/ProgrammingKeyboard";
-import { buildSketchHTML, DEFAULT_SKETCH } from "../../../utils/sketchTemplate";
 import { loadExercise } from "../../../utils/courseLoader";
 import { Lesson } from "../../../data/types";
 import { P5_FUNCTION_NAMES } from "../../../data/p5Symbols";
+import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
 
 interface ExerciseState {
   exercise: Lesson | null;
   loading: boolean;
   code: string;
-  solutionHTML: string;
-  userHTML: string;
   isRunning: boolean;
 }
 
@@ -30,7 +26,8 @@ type ExerciseAction =
   | { type: "SET_CODE"; code: string }
   | { type: "APPEND_CODE"; text: string; cursorOffset?: number }
   | { type: "RUN_START" }
-  | { type: "RUN_DONE" };
+  | { type: "RUN_DONE" }
+  | { type: "SET_WEBVIEW_READY" };
 
 function exerciseReducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
   switch (action.type) {
@@ -48,12 +45,7 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
     case "APPEND_CODE":
       return { ...state, code: state.code + action.text };
     case "RUN_START":
-      return {
-        ...state,
-        isRunning: true,
-        userHTML: buildSketchHTML(state.code),
-        solutionHTML: state.exercise?.solution ? buildSketchHTML(state.exercise.solution) : "",
-      };
+      return { ...state, isRunning: true };
     case "RUN_DONE":
       return { ...state, isRunning: false };
     default:
@@ -61,27 +53,36 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
   }
 }
 
-const INITIAL_STATE: ExerciseState = {
-  exercise: null,
-  loading: true,
-  code: DEFAULT_SKETCH,
-  solutionHTML: "",
-  userHTML: "",
-  isRunning: false,
-};
-
 export default function Exercise() {
   const { course, id } = useLocalSearchParams<{ course: string; id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openDrawer } = useDrawerContext();
-  const [state, dispatch] = useReducer(exerciseReducer, INITIAL_STATE);
+  const [state, dispatch] = useReducer(exerciseReducer, {
+    exercise: null,
+    loading: true,
+    code: "",
+    isRunning: false,
+  });
   const runCounter = useRef(0);
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
-  const codeEditorRef = useRef<CodeEditorHandle>(null);
-  const [solutionExpanded, setSolutionExpanded] = useState(false);
+  const webViewRef = useRef<WebView>(null);
+  const [webViewReady, setWebViewReady] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
+
+  const exerciseHtml = useMemo(() => {
+    if (!state.exercise) return null;
+    return getExerciseHtml({
+      title: state.exercise.title,
+      moduleName: state.exercise.module,
+      instruction: state.exercise.instruction,
+      exerciseNumber: parseInt(id?.replace("exercise-", "") ?? "1", 10),
+      startingCode: state.exercise.startingCode ?? "",
+      solution: state.exercise.solution ?? "",
+      colorScheme: colorScheme === "dark" ? "dark" : "light",
+    });
+  }, [state.exercise, colorScheme, id]);
 
   const styles = useMemo(
     () =>
@@ -161,60 +162,27 @@ export default function Exercise() {
         spacer: {
           flex: 1,
         },
-        scrollArea: {
+        webview: {
           flex: 1,
         },
-        scrollContent: {
-          paddingBottom: 24,
-        },
-        previewSection: {
-          marginTop: 16,
-          paddingHorizontal: 16,
-        },
-        previewLabel: {
-          fontFamily: "JetBrainsMono",
-          fontSize: 11,
-          fontWeight: "700",
-          textTransform: "uppercase",
-          letterSpacing: 1,
-          marginBottom: 8,
-        },
-        previewBox: {
-          height: 180,
-          backgroundColor: "#000000",
-          borderRadius: 8,
-          overflow: "hidden",
-        },
-        solutionPlaceholder: {
-          width: 40,
-          height: 40,
-          borderRadius: 9999,
-          backgroundColor: colors.primaryContainer,
-          opacity: 0.5,
-          alignSelf: "center",
-          marginTop: 70,
-        },
-        outputPlaceholder: {
-          width: 40,
-          height: 40,
+        runButton: {
+          position: "absolute",
+          right: 24,
+          bottom: 260,
+          width: 56,
+          height: 56,
           borderRadius: 9999,
           backgroundColor: colors.primary,
-          opacity: 0.5,
-          alignSelf: "center",
-          marginTop: 70,
-        },
-        editorWrapper: {
-          flex: 1,
-          marginHorizontal: 16,
-          marginBottom: 4,
-          borderRadius: 8,
-          overflow: "hidden",
-        },
-        solutionHeader: {
-          flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 8,
+          justifyContent: "center",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 12 },
+          shadowOpacity: 0.25,
+          shadowRadius: 25,
+          elevation: 12,
+        },
+        runButtonPressed: {
+          transform: [{ scale: 0.9 }],
         },
       }),
     [colorScheme]
@@ -230,12 +198,49 @@ export default function Exercise() {
     load();
   }, [course, id]);
 
+  useEffect(() => {
+    if (webViewReady && webViewRef.current) {
+      webViewRef.current.postMessage(
+        JSON.stringify({ type: "setCode", code: state.code })
+      );
+    }
+  }, [state.code, webViewReady]);
+
+  const handleMessage = useCallback(
+    (event: { nativeEvent: { data: string } }) => {
+      try {
+        const msg = JSON.parse(event.nativeEvent.data);
+        switch (msg.type) {
+          case "codeChange":
+            dispatch({ type: "SET_CODE", code: msg.code });
+            break;
+          case "ready":
+            setWebViewReady(true);
+            break;
+          case "openRef":
+            router.push(`/ref?symbol=${msg.symbol}`);
+            break;
+        }
+      } catch {}
+    },
+    [router]
+  );
+
   const handleRun = () => {
     if (!state.exercise) return;
     runCounter.current += 1;
     const counter = runCounter.current;
 
     dispatch({ type: "RUN_START" });
+
+    if (webViewRef.current && webViewReady) {
+      webViewRef.current.postMessage(
+        JSON.stringify({
+          type: "runSketch",
+          code: state.code,
+        })
+      );
+    }
 
     setTimeout(() => {
       if (counter === runCounter.current) {
@@ -245,7 +250,11 @@ export default function Exercise() {
   };
 
   const handleInsert = (text: string, cursorOffset?: number) => {
-    codeEditorRef.current?.insertText(text, cursorOffset);
+    if (webViewRef.current && webViewReady) {
+      webViewRef.current.postMessage(
+        JSON.stringify({ type: "insert", text, cursorOffset })
+      );
+    }
   };
 
   const handleToggleKeyboard = useCallback(() => {
@@ -253,10 +262,10 @@ export default function Exercise() {
   }, []);
 
   useEffect(() => {
-    if (!keyboardVisible) {
-      codeEditorRef.current?.focus();
+    if (!keyboardVisible && webViewRef.current && webViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "focus" }));
     }
-  }, [keyboardVisible]);
+  }, [keyboardVisible, webViewReady]);
 
   const exerciseSymbols = useMemo(() => {
     if (!state.exercise) return [];
@@ -322,83 +331,37 @@ export default function Exercise() {
         <View style={styles.spacer} />
       </View>
 
-      <ScrollView
-        style={styles.scrollArea}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+      {exerciseHtml && (
+        <WebView
+          ref={webViewRef}
+          source={{ html: exerciseHtml }}
+          style={styles.webview}
+          onMessage={handleMessage}
+          javaScriptEnabled
+          domStorageEnabled
+          originWhitelist={["*"]}
+          scrollEnabled={true}
+          bounces={false}
+        />
+      )}
+
+      <Pressable
+        onPress={handleRun}
+        disabled={state.isRunning}
+        style={({ pressed }) => [
+          styles.runButton,
+          pressed && styles.runButtonPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Run sketch"
+        accessibilityState={{ disabled: state.isRunning }}
       >
-        <ExerciseDescription
-          title={state.exercise.title}
-          moduleName={state.exercise.module}
-          instruction={state.exercise.instruction}
-          exerciseNumber={parseInt(id?.replace("exercise-", "") ?? "1", 10)}
-          course={course}
+        <MaterialCommunityIcons
+          name={state.isRunning ? "reload" : "play"}
+          size={28}
+          color="#FFFFFF"
         />
-
-        <View style={styles.previewSection}>
-          <Text style={styles.previewLabel}>Your Output</Text>
-          <View style={styles.previewBox}>
-            {state.userHTML ? (
-              <WebView
-                source={{ html: state.userHTML }}
-                style={{ flex: 1, width: "100%" }}
-                scrollEnabled={false}
-                bounces={false}
-                javaScriptEnabled
-                domStorageEnabled
-                originWhitelist={["*"]}
-                onError={(_e) => console.warn("User WebView error")}
-              />
-            ) : (
-              <View style={styles.outputPlaceholder} />
-            )}
-          </View>
-        </View>
-
-        {state.exercise?.solution && (
-          <View style={styles.previewSection}>
-            <Pressable
-              onPress={() => setSolutionExpanded((v) => !v)}
-              style={styles.solutionHeader}
-            >
-              <Text style={styles.previewLabel}>Target Solution</Text>
-              <MaterialCommunityIcons
-                name={solutionExpanded ? "chevron-up" : "chevron-down"}
-                size={20}
-                color="#E4BDC0"
-              />
-            </Pressable>
-            {solutionExpanded && (
-              <View style={styles.previewBox}>
-                {state.solutionHTML ? (
-                  <WebView
-                    source={{ html: state.solutionHTML }}
-                    style={{ flex: 1, width: "100%" }}
-                    scrollEnabled={false}
-                    bounces={false}
-                    javaScriptEnabled
-                    domStorageEnabled
-                    originWhitelist={["*"]}
-                    onError={(_e) => console.warn("Solution WebView error")}
-                  />
-                ) : (
-                  <View style={styles.solutionPlaceholder} />
-                )}
-              </View>
-            )}
-          </View>
-        )}
-      </ScrollView>
-
-      <View style={styles.editorWrapper}>
-        <CodeEditor
-          ref={codeEditorRef}
-          code={state.code}
-          onChange={(c) => dispatch({ type: "SET_CODE", code: c })}
-          onRun={handleRun}
-          isRunning={state.isRunning}
-        />
-      </View>
+      </Pressable>
 
       {keyboardVisible && (
         <ProgrammingKeyboard
