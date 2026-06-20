@@ -10,7 +10,7 @@ import { Colors } from "../../../constants/Colors";
 import ProgrammingKeyboard from "../../../components/ProgrammingKeyboard";
 import { loadExercise } from "../../../utils/courseLoader";
 import { Lesson } from "../../../data/types";
-import { P5_FUNCTION_NAMES } from "../../../data/p5Symbols";
+import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/p5Symbols";
 import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
 
 interface ExerciseState {
@@ -273,6 +273,13 @@ export default function Exercise() {
     return P5_FUNCTION_NAMES.filter((fn) => code.includes(fn.toLowerCase()));
   }, [state.exercise]);
 
+  const usedFunctions = useMemo(() => {
+    return ONCE_ONLY_P5_FUNCTIONS.filter((fn) => {
+      const re = new RegExp(`function\\s+${fn}\\s*\\(`);
+      return re.test(state.code);
+    });
+  }, [state.code]);
+
   if (state.loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -369,6 +376,7 @@ export default function Exercise() {
           exerciseSymbols={exerciseSymbols}
           onToggleKeyboard={handleToggleKeyboard}
           keyboardVisible={keyboardVisible}
+          usedFunctions={usedFunctions}
         />
       )}
     </View>

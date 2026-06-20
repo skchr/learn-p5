@@ -311,6 +311,9 @@ function createEditor(initialCode) {
   });
   view = new EditorView({ state, parent: document.getElementById('editor') });
   postReady();
+  setTimeout(function() {
+    view.dom.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 300);
 }
 
 function postCodeChange(code) {
@@ -388,7 +391,10 @@ function handleMessage(data) {
         }
         break;
       case 'focus':
-        if (view) view.focus();
+        if (view) {
+          view.dom.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(function() { view.focus(); }, 200);
+        }
         break;
       case 'setFontSize':
         var scroller = view && view.dom && view.dom.querySelector('.cm-scroller');
