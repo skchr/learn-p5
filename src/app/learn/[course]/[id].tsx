@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useReducer, useMemo, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Keyboard } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WebView } from "react-native-webview";
 import { useDrawerContext } from "../../../contexts/DrawerContext";
 import { useThemeContext } from "../../../components/ThemeProvider";
@@ -70,6 +71,8 @@ export default function Exercise() {
   const webViewRef = useRef<WebView>(null);
   const [webViewReady, setWebViewReady] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
+  const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
+  const [codeBackground, setCodeBackground] = useState<string | undefined>(undefined);
 
   const exerciseHtml = useMemo(() => {
     if (!state.exercise) return null;
@@ -81,8 +84,9 @@ export default function Exercise() {
       startingCode: state.exercise.startingCode ?? "",
       solution: state.exercise.solution ?? "",
       colorScheme: colorScheme === "dark" ? "dark" : "light",
+      codeBackground,
     });
-  }, [state.exercise, colorScheme, id]);
+  }, [state.exercise, colorScheme, id, codeBackground]);
 
   const styles = useMemo(
     () =>
@@ -184,6 +188,27 @@ export default function Exercise() {
         runButtonPressed: {
           transform: [{ scale: 0.9 }],
         },
+        showKeyboardFab: {
+          position: "absolute",
+          left: 24,
+          bottom: 32,
+          width: 48,
+          height: 48,
+          borderRadius: 9999,
+          backgroundColor: colors.surfaceContainerHigh,
+          alignItems: "center",
+          justifyContent: "center",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.2,
+          shadowRadius: 16,
+          elevation: 8,
+          borderWidth: 1,
+          borderColor: colors.outlineVariant,
+        },
+        showKeyboardFabPressed: {
+          transform: [{ scale: 0.9 }],
+        },
       }),
     [colorScheme]
   );
@@ -235,10 +260,7 @@ export default function Exercise() {
 
     if (webViewRef.current && webViewReady) {
       webViewRef.current.postMessage(
-        JSON.stringify({
-          type: "runSketch",
-          code: state.code,
-        })
+        JSON.stringify({ type: "runSketch" })
       );
     }
 
@@ -266,6 +288,25 @@ export default function Exercise() {
       webViewRef.current.postMessage(JSON.stringify({ type: "focus" }));
     }
   }, [keyboardVisible, webViewReady]);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => {
+      setSystemKeyboardVisible(true);
+    });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setSystemKeyboardVisible(false);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.getItem("setting_codeBackground").then((val) => {
+      if (val) setCodeBackground(val);
+    });
+  }, []);
 
   const exerciseSymbols = useMemo(() => {
     if (!state.exercise) return [];
@@ -378,6 +419,20 @@ export default function Exercise() {
           keyboardVisible={keyboardVisible}
           usedFunctions={usedFunctions}
         />
+      )}
+
+      {!keyboardVisible && !systemKeyboardVisible && (
+        <Pressable
+          onPress={handleToggleKeyboard}
+          style={({ pressed }) => [
+            styles.showKeyboardFab,
+            pressed && styles.showKeyboardFabPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Show custom keyboard"
+        >
+          <MaterialCommunityIcons name="keyboard-variant" size={24} color="#FFFFFF" />
+        </Pressable>
       )}
     </View>
   );

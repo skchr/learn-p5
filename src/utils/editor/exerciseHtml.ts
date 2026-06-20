@@ -52,8 +52,10 @@ export function getExerciseHtml(params: {
   startingCode: string;
   solution: string;
   colorScheme: "light" | "dark";
+  codeBackground?: string;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
+  const editorBg = params.codeBackground || colors.surfaceContainerLowest;
   const instructionHtml = parseInstructionHtml(params.instruction);
 
   return `<!DOCTYPE html>
@@ -139,14 +141,14 @@ export function getExerciseHtml(params: {
     margin-right: 16px;
     border-radius: 8px;
     overflow: hidden;
-    background: #0D0E12;
+    background: ${editorBg};
     min-height: 400px;
     position: relative;
   }
-  .cm-editor { height: 100%; font-size: 22px; background: #0D0E12; }
+  .cm-editor { height: 100%; font-size: 22px; background: ${editorBg}; }
   .cm-editor .cm-scroller { font-family: 'JetBrains Mono', monospace; overflow: auto; }
   .cm-editor.cm-focused { outline: none; }
-  .cm-editor .cm-gutters { background: #0D0E12; border-right: 1px solid #292A2E; color: #6B7280; }
+  .cm-editor .cm-gutters { background: ${editorBg}; border-right: 1px solid #292A2E; color: #6B7280; }
   .cm-editor .cm-activeLineGutter { background: rgba(255,255,255,0.03); }
   .cm-editor .cm-activeLine { background: rgba(255,255,255,0.03); }
   .cm-editor .cm-cursor { border-left-color: #ED225D; }
@@ -156,28 +158,6 @@ export function getExerciseHtml(params: {
     background: rgba(237, 34, 93, 0.3);
     outline: 1px solid #ED225D;
   }
-  .toolbar {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    z-index: 10;
-    display: flex;
-    gap: 4px;
-  }
-  .toolbar button {
-    background: rgba(237, 34, 93, 0.2);
-    border: none;
-    color: #ED225D;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .toolbar button:active { background: rgba(237, 34, 93, 0.4); }
-
   .scroll-whitespace {
     height: 700px;
   }
@@ -190,14 +170,9 @@ export function getExerciseHtml(params: {
   <div class="description-text">${instructionHtml}</div>
 </div>
 
-<div class="preview-section">
-  <div class="preview-label">Your Output</div>
-  <div id="user-sketch" class="sketch-box"></div>
-</div>
-
 ${
   params.solution
-    ? `<div class="solution-section" id="solution-section" style="display:none">
+    ? `<div class="solution-section" id="solution-section">
   <button class="solution-header" id="solution-toggle">
     <span class="preview-label" style="margin-bottom:0">Target Solution</span>
     <span class="solution-chevron" id="solution-chevron">&#9660;</span>
@@ -207,10 +182,12 @@ ${
     : ""
 }
 
+<div class="preview-section">
+  <div class="preview-label">Your Output</div>
+  <div id="user-sketch" class="sketch-box"></div>
+</div>
+
 <div class="editor-section">
-  <div class="toolbar">
-    <button id="formatBtn">Format</button>
-  </div>
   <div id="editor" style="min-height:400px"></div>
 </div>
 
@@ -223,29 +200,28 @@ ${JSON.stringify({ imports: importMap }, null, 2)}
 </script>
 
 <script type="module">
-${getBridgeScript(params.startingCode, params.solution)}
+${getBridgeScript(params.startingCode, params.solution, editorBg)}
 </script>
 
 </body>
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string): string {
+function getBridgeScript(startingCode: string, solution: string, editorBg: string): string {
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
 
   return `
 import { basicSetup, EditorView, EditorState, keymap } from 'codemirror';
 import { javascript } from '@codemirror/lang-javascript';
-import { indentSelection } from '@codemirror/commands';
 import { syntaxHighlighting } from '@codemirror/language';
 import { HighlightStyle } from '@codemirror/highlight';
 import { tags } from '@lezer/highlight';
 
 const p5Theme = EditorView.theme({
-  '&': { backgroundColor: '#0D0E12', color: '#E3E2E7' },
+  '&': { backgroundColor: '${editorBg}', color: '#E3E2E7' },
   '.cm-content': { caretColor: '#ED225D', fontFamily: "'JetBrains Mono', monospace" },
-  '.cm-gutters': { backgroundColor: '#0D0E12', color: '#6B7280', borderRight: '1px solid #292A2E' },
+  '.cm-gutters': { backgroundColor: '${editorBg}', color: '#6B7280', borderRight: '1px solid #292A2E' },
   '.cm-activeLineGutter': { backgroundColor: 'rgba(255,255,255,0.03)' },
   '.cm-activeLine': { backgroundColor: 'rgba(255,255,255,0.03)' },
   '.cm-cursor': { borderLeftColor: '#ED225D', borderLeftWidth: '2px' },
@@ -401,7 +377,11 @@ function handleMessage(data) {
         if (scroller) scroller.style.fontSize = msg.fontSize + 'px';
         break;
       case 'runSketch':
-        renderAllSketches(msg.code || view.state.doc.toString(), SOLUTION_CODE);
+        renderAllSketches(view.state.doc.toString(), SOLUTION_CODE);
+        setTimeout(function() {
+          var el = document.getElementById('user-sketch');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
         break;
     }
   } catch(e) {}
@@ -409,14 +389,6 @@ function handleMessage(data) {
 
 window.addEventListener('message', function(event) { handleMessage(event.data); });
 document.addEventListener('message', function(event) { handleMessage(event.data); });
-
-document.getElementById('formatBtn').addEventListener('click', function() {
-  if (view) {
-    view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
-    indentSelection({ state: view.state, dispatch: view.dispatch });
-    view.dispatch({ selection: { anchor: view.state.doc.length } });
-  }
-});
 
 document.querySelectorAll('.symbol').forEach(function(el) {
   el.addEventListener('click', function() {
