@@ -9,6 +9,7 @@ import { useDrawerContext } from "../../../contexts/DrawerContext";
 import { useThemeContext } from "../../../components/ThemeProvider";
 import { Colors } from "../../../constants/Colors";
 import ProgrammingKeyboard from "../../../components/ProgrammingKeyboard";
+import Toast from "../../../components/Toast";
 import { loadExercise, loadCourse } from "../../../utils/courseLoader";
 import { Lesson } from "../../../data/types";
 import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/p5Symbols";
@@ -18,7 +19,6 @@ interface ExerciseState {
   exercise: Lesson | null;
   loading: boolean;
   code: string;
-  isRunning: boolean;
   completed: boolean;
 }
 
@@ -27,8 +27,6 @@ type ExerciseAction =
   | { type: "LOAD_DONE"; exercise: Lesson | null }
   | { type: "SET_CODE"; code: string }
   | { type: "APPEND_CODE"; text: string; cursorOffset?: number }
-  | { type: "RUN_START" }
-  | { type: "RUN_DONE" }
   | { type: "EXERCISE_COMPLETE" };
 
 function exerciseReducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
@@ -54,10 +52,6 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
       return { ...state, code: action.code };
     case "APPEND_CODE":
       return { ...state, code: state.code + action.text };
-    case "RUN_START":
-      return { ...state, isRunning: true };
-    case "RUN_DONE":
-      return { ...state, isRunning: false };
     case "EXERCISE_COMPLETE":
       return { ...state, completed: true };
     default:
@@ -74,7 +68,6 @@ export default function Exercise() {
     exercise: null,
     loading: true,
     code: "",
-    isRunning: false,
     completed: false,
   });
   const { colorScheme } = useThemeContext();
@@ -85,6 +78,7 @@ export default function Exercise() {
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
   const [codeBackground, setCodeBackground] = useState<string | undefined>(undefined);
+  const [toastVisible, setToastVisible] = useState(false);
 
   const exerciseHtml = useMemo(() => {
     if (!state.exercise) return null;
@@ -181,25 +175,6 @@ export default function Exercise() {
         webview: {
           flex: 1,
         },
-        runButton: {
-          position: "absolute",
-          right: 24,
-          bottom: 260,
-          width: 56,
-          height: 56,
-          borderRadius: 9999,
-          backgroundColor: colors.primary,
-          alignItems: "center",
-          justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 12 },
-          shadowOpacity: 0.25,
-          shadowRadius: 25,
-          elevation: 12,
-        },
-        runButtonPressed: {
-          transform: [{ scale: 0.9 }],
-        },
         showKeyboardFab: {
           position: "absolute",
           left: 24,
@@ -280,19 +255,6 @@ export default function Exercise() {
     },
     [router, course, id]
   );
-
-  const handleRun = () => {
-    if (!state.exercise) return;
-
-    dispatch({ type: "RUN_START" });
-
-    if (webViewRef.current && editorViewReady) {
-      webViewRef.current.postMessage(JSON.stringify({ type: "setCode", code: state.code }));
-      webViewRef.current.postMessage(JSON.stringify({ type: "runSketch" }));
-    }
-
-    setTimeout(() => dispatch({ type: "RUN_DONE" }), 500);
-  };
 
   const pendingInserts = useRef<Array<{ text: string; cursorOffset?: number }>>([]);
 
@@ -385,11 +347,7 @@ export default function Exercise() {
       }
     });
 
-    if (webViewRef.current && webViewReady) {
-      webViewRef.current.postMessage(
-        JSON.stringify({ type: "showCompletion" })
-      );
-    }
+    setToastVisible(true);
 
     loadCourse(course).then((courseData) => {
       if (!courseData) return;
@@ -410,6 +368,21 @@ export default function Exercise() {
       });
     });
   }, [state.completed, state.exercise, course, webViewReady]);
+
+  const handleToastNext = useCallback(() => {
+    setToastVisible(false);
+    if (!state.exercise) return;
+    loadCourse(course).then((courseData) => {
+      if (!courseData) return;
+      const currentIndex = courseData.lessons.findIndex((l) => l.id === id);
+      if (currentIndex >= 0 && currentIndex < courseData.lessons.length - 1) {
+        const nextLesson = courseData.lessons[currentIndex + 1];
+        router.replace(`/learn/${course}/${nextLesson.id}`);
+      } else {
+        router.replace(`/learn/${course}`);
+      }
+    });
+  }, [state.exercise, course, id, router]);
 
   const exerciseSymbols = useMemo(() => {
     if (!state.exercise) return [];
@@ -497,23 +470,13 @@ export default function Exercise() {
         />
       )}
 
-      <Pressable
-        onPress={handleRun}
-        disabled={state.isRunning}
-        style={({ pressed }) => [
-          styles.runButton,
-          pressed && styles.runButtonPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel="Run sketch"
-        accessibilityState={{ disabled: state.isRunning }}
-      >
-        <MaterialCommunityIcons
-          name={state.isRunning ? "reload" : "play"}
-          size={28}
-          color="#FFFFFF"
-        />
-      </Pressable>
+      <Toast
+        visible={toastVisible}
+        message="✓ Exercise completed!"
+        actionLabel="Next →"
+        onAction={handleToastNext}
+        onDismiss={() => setToastVisible(false)}
+      />
 
       {keyboardVisible && (
         <ProgrammingKeyboard

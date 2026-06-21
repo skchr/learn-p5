@@ -114,8 +114,26 @@ export function getExerciseHtml(params: {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
   }
   .sketch-box canvas { display: block; }
+  .run-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #ED225D;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0.9;
+  }
+  .run-btn:active { opacity: 0.7; }
 
   .solution-section {
     margin-top: 16px;
@@ -215,6 +233,71 @@ export function getExerciseHtml(params: {
   .scroll-whitespace {
     height: 700px;
   }
+
+  ${params.exerciseNumber === 1 ? `
+  .tut-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    pointer-events: auto;
+  }
+  .tut-bg {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.55);
+  }
+  .tut-cutout {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+  }
+  .tut-card {
+    position: absolute;
+    background: ${colors.surfaceContainerHighest};
+    color: ${colors.onSurface};
+    border-radius: 12px;
+    padding: 16px 20px;
+    max-width: 300px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    z-index: 10000;
+  }
+  .tut-card-title {
+    font-family: "SpaceGrotesk", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: ${colors.primary};
+    margin-bottom: 6px;
+  }
+  .tut-card-body {
+    color: ${colors.onSurfaceVariant};
+  }
+  .tut-arrow {
+    position: absolute;
+    width: 0; height: 0;
+    border: 8px solid transparent;
+  }
+  .tut-arrow-down { border-top-color: ${colors.surfaceContainerHighest}; top: 100%; left: 50%; margin-left: -8px; }
+  .tut-arrow-up { border-bottom-color: ${colors.surfaceContainerHighest}; bottom: 100%; left: 50%; margin-left: -8px; }
+  .tut-arrow-left { border-right-color: ${colors.surfaceContainerHighest}; right: 100%; top: 50%; margin-top: -8px; }
+  .tut-arrow-right { border-left-color: ${colors.surfaceContainerHighest}; left: 100%; top: 50%; margin-top: -8px; }
+  .tut-dismiss {
+    display: inline-block;
+    margin-top: 10px;
+    background: ${colors.primary};
+    color: ${colors.onPrimary};
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  ` : ''}
 </style>
 </head>
 <body>
@@ -238,7 +321,9 @@ ${
 
 <div class="preview-section">
   <div class="preview-label">Your Output</div>
-  <div id="user-sketch" class="sketch-box"></div>
+  <div id="user-sketch" class="sketch-box">
+    <button id="run-btn" class="run-btn">&#9654; Run</button>
+  </div>
 </div>
 
 <div class="editor-section">
@@ -259,25 +344,42 @@ ${
 <script>${p5Source}</script>
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
-${getBridgeScript(params.startingCode, params.solution, editorBg, params.colorScheme)}
+${getBridgeScript(params.startingCode, params.solution, editorBg, params.colorScheme, params.exerciseNumber)}
 </script>
 
+${params.exerciseNumber === 1 ? `
+<div id="tut-overlay" class="tut-overlay" style="display:none">
+  <div class="tut-bg" id="tut-bg"></div>
+  <div class="tut-cutout" id="tut-cutout"></div>
+  <div class="tut-card" id="tut-card">
+    <div class="tut-card-title" id="tut-title"></div>
+    <div class="tut-card-body" id="tut-body"></div>
+    <button class="tut-dismiss" id="tut-btn">OK</button>
+  </div>
+</div>
+` : ''}
 </body>
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string, editorBg: string, colorScheme: "light" | "dark"): string {
+function getBridgeScript(startingCode: string, solution: string, editorBg: string, colorScheme: "light" | "dark", exerciseNumber?: number): string {
   const isDark = colorScheme === "dark";
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
 
-  const fg = isDark ? '#E3E2E7' : '#1F2937';
+    const fg = isDark ? '#E3E2E7' : '#1F2937';
   const gutterFg = isDark ? '#6B7280' : '#9CA3AF';
   const gutterBorder = isDark ? '#292A2E' : '#E5E7EB';
   const activeBg = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
   const selBg = isDark ? 'rgba(237,34,93,0.2)' : 'rgba(237,34,93,0.15)';
-  const fnColor = isDark ? '#FFB2BB' : '#ED225D';
-  const commentColor = isDark ? '#6B7280' : '#9CA3AF';
+  const fnColor = isDark ? '#FFB2BB' : '#BE185D';
+  const commentColor = isDark ? '#6B7280' : '#6B7280';
+  const numColor = isDark ? '#FF4F75' : '#D31D4E';
+  const strColor = isDark ? '#22C55E' : '#16A34A';
+  const opColor = isDark ? '#E3E2E7' : '#374151';
+  const kwColor = isDark ? '#ED225D' : '#ED225D';
+  const typeColor = isDark ? '#FFB2BB' : '#BE185D';
+  const constColor = isDark ? '#FF4F75' : '#D31D4E';
 
   return `
 var _CM = typeof CM !== 'undefined' ? CM : null;
@@ -290,10 +392,44 @@ var HighlightStyle = _CM.HighlightStyle;
 var javascript = _CM.javascript;
 var tags = _CM.tags;
 var indentSelection = _CM.indentSelection;
+var syntaxTree = _CM.syntaxTree;
+var ViewPlugin = _CM.ViewPlugin;
+var Decoration = _CM.Decoration;
+var DecorationSet = _CM.DecorationSet;
 
 let view;
 const INITIAL_CODE = ${codeArg};
 const SOLUTION_CODE = ${solutionArg};
+
+const p5FnMark = Decoration.mark({ class: 'cm-p5-fn' });
+
+function computeP5Decos(v) {
+  var decos = [];
+  syntaxTree(v.state).iterate({
+    enter: function(n) {
+      if (n.name === 'CallExpression' || n.name === 'NewExpression') {
+        var callee = n.node.firstChild;
+        if (callee && callee.name === 'Identifier') {
+          var name = v.state.sliceDoc(callee.from, callee.to);
+          if (${JSON.stringify(P5_FUNCTION_NAMES)}.indexOf(name) >= 0) {
+            decos.push(p5FnMark.range(callee.from, callee.to));
+          }
+        }
+      }
+    }
+  });
+  return DecorationSet.create(v.state, decos);
+}
+
+function P5FnPlugin(view) { this.decorations = computeP5Decos(view); }
+P5FnPlugin.prototype.update = function(update) {
+  if (update.docChanged || update.viewportChanged) {
+    this.decorations = computeP5Decos(update.view);
+  }
+};
+var p5FnPlugin = ViewPlugin.fromClass(P5FnPlugin, {
+  decorations: function(v) { return v.decorations; }
+});
 
 function initEditor() {
   try {
@@ -306,26 +442,27 @@ function initEditor() {
       '.cm-cursor': { borderLeftColor: '#ED225D', borderLeftWidth: '2px' },
       '.cm-selectionBackground': { backgroundColor: '${selBg}' },
       '.cm-matchingBracket': { backgroundColor: 'rgba(237, 34, 93, 0.3)', outline: '1px solid #ED225D' },
+      '.cm-p5-fn': { fontWeight: '600' },
     });
 
     const p5Highlight = HighlightStyle.define([
-      { tag: tags.keyword, color: '#ED225D' },
-      { tag: tags.definitionKeyword, color: '#ED225D', fontWeight: 'bold' },
-      { tag: tags.moduleKeyword, color: '#ED225D' },
-      { tag: tags.controlKeyword, color: '#ED225D' },
-      { tag: tags.operator, color: '${fg}' },
-      { tag: tags.arithmeticOperator, color: '${fg}' },
-      { tag: tags.logicOperator, color: '${fg}' },
-      { tag: tags.compareOperator, color: '${fg}' },
-      { tag: tags.punctuation, color: '${fg}' },
-      { tag: tags.separator, color: '${fg}' },
-      { tag: tags.brace, color: '${fg}' },
-      { tag: tags.bracket, color: '${fg}' },
-      { tag: tags.paren, color: '${fg}' },
-      { tag: tags.number, color: '#FF4F75' },
-      { tag: tags.string, color: '#22C55E' },
-      { tag: tags.bool, color: '#FF4F75' },
-      { tag: tags.null, color: '#FF4F75' },
+      { tag: tags.keyword, color: '${kwColor}' },
+      { tag: tags.definitionKeyword, color: '${kwColor}', fontWeight: 'bold' },
+      { tag: tags.moduleKeyword, color: '${kwColor}' },
+      { tag: tags.controlKeyword, color: '${kwColor}' },
+      { tag: tags.operator, color: '${opColor}' },
+      { tag: tags.arithmeticOperator, color: '${opColor}' },
+      { tag: tags.logicOperator, color: '${opColor}' },
+      { tag: tags.compareOperator, color: '${opColor}' },
+      { tag: tags.punctuation, color: '${opColor}' },
+      { tag: tags.separator, color: '${opColor}' },
+      { tag: tags.brace, color: '${opColor}' },
+      { tag: tags.bracket, color: '${opColor}' },
+      { tag: tags.paren, color: '${opColor}' },
+      { tag: tags.number, color: '${numColor}' },
+      { tag: tags.string, color: '${strColor}' },
+      { tag: tags.bool, color: '${numColor}' },
+      { tag: tags.null, color: '${numColor}' },
       { tag: tags.variableName, color: '${fg}' },
       { tag: tags.definition(tags.variableName), color: '${fnColor}' },
       { tag: tags.function(tags.variableName), color: '${fnColor}' },
@@ -334,15 +471,15 @@ function initEditor() {
       { tag: tags.attributeName, color: '${fnColor}' },
       { tag: tags.labelName, color: '${fnColor}' },
       { tag: tags.comment, color: '${commentColor}', fontStyle: 'italic' },
-      { tag: tags.self, color: '#ED225D' },
-      { tag: tags.typeName, color: '${fnColor}' },
-      { tag: tags.className, color: '${fnColor}' },
-      { tag: tags.standard(tags.tagName), color: '#ED225D' },
+      { tag: tags.self, color: '${kwColor}' },
+      { tag: tags.typeName, color: '${typeColor}' },
+      { tag: tags.className, color: '${typeColor}' },
+      { tag: tags.standard(tags.tagName), color: '${kwColor}' },
       { tag: tags.meta, color: '${fnColor}' },
-      { tag: tags.invalid, color: '#ED225D' },
-      { tag: tags.modifier, color: '#ED225D' },
-      { tag: tags.constant(tags.variableName), color: '#FF4F75' },
-      { tag: tags.special(tags.variableName), color: '#FF4F75' },
+      { tag: tags.invalid, color: '${kwColor}' },
+      { tag: tags.modifier, color: '${kwColor}' },
+      { tag: tags.constant(tags.variableName), color: '${constColor}' },
+      { tag: tags.special(tags.variableName), color: '${constColor}' },
     ]);
 
     const state = EditorState.create({
@@ -352,10 +489,12 @@ function initEditor() {
         javascript(),
         p5Theme,
         syntaxHighlighting(p5Highlight),
+        p5FnPlugin,
         keymap.of([{ key: 'Ctrl-s', run: function() { return true; } }, { key: 'Cmd-s', run: function() { return true; } }]),
         EditorView.updateListener.of(function(update) {
           if (update.docChanged) {
             postCodeChange(update.state.doc.toString());
+            if (typeof window.__tutEdit === 'function') window.__tutEdit();
           }
         }),
       ],
@@ -428,11 +567,29 @@ function renderSketch(containerId, code) {
   }
 }
 
+function smoothScrollTo(el, duration) {
+  var start = window.scrollY;
+  var rect = el.getBoundingClientRect();
+  var end = rect.top + start - 24;
+  var distance = end - start;
+  if (Math.abs(distance) < 10) { el.scrollIntoView({ behavior: 'auto', block: 'nearest' }); return; }
+  var startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var p = Math.min((ts - startTime) / duration, 1);
+    var ease = 1 - Math.pow(1 - p, 3);
+    window.scrollTo(0, start + distance * ease);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 function renderAllSketches(userCode, solutionCode) {
   renderSketch('user-sketch', userCode);
   if (solutionCode) {
     renderSketch('solution-sketch', solutionCode);
   }
+  if (typeof window.__tutPreview === 'function') window.__tutPreview();
 }
 
 function handleMessage(data) {
@@ -492,6 +649,7 @@ function handleMessage(data) {
         if (!view) { console.error('Editor not initialized'); break; }
         var userCode = view.state.doc.toString();
         renderAllSketches(userCode, SOLUTION_CODE);
+        if (typeof window.__tutRun === 'function') window.__tutRun();
         if (SOLUTION_CODE && userCode.trim() === SOLUTION_CODE.trim()) {
           if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
             window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'exerciseComplete' }));
@@ -499,24 +657,10 @@ function handleMessage(data) {
         }
         setTimeout(function() {
           var el = document.getElementById('user-sketch');
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (el) smoothScrollTo(el, 600);
         }, 100);
         break;
-      case 'showCompletion':
-        var banner = document.getElementById('completion-banner');
-        if (!banner) {
-          banner = document.createElement('div');
-          banner.id = 'completion-banner';
-          banner.style.cssText = 'background:#22C55E;color:#fff;padding:12px 16px;font-family:sans-serif;display:flex;align-items:center;justify-content:space-between;font-size:16px';
-          banner.innerHTML = '<span style="font-weight:700">\\u2713 Exercise completed!</span><a id="next-lesson-link" style="color:#fff;text-decoration:underline;font-weight:700;cursor:pointer">Next \\u2192</a>';
-          document.body.insertBefore(banner, document.body.firstChild);
-          document.getElementById('next-lesson-link').addEventListener('click', function() {
-            if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'goToNextLesson' }));
-            }
-          });
-        }
-        break;
+
     }
   } catch(e) {
     console.error('handleMessage error:', e);
@@ -562,6 +706,102 @@ if (copyBtn) {
   });
 }
 
+var runBtn = document.getElementById('run-btn');
+if (runBtn) {
+  runBtn.addEventListener('click', function() {
+    if (view) {
+      var code = view.state.doc.toString();
+      renderAllSketches(code, SOLUTION_CODE);
+      if (typeof window.__tutRun === 'function') window.__tutRun();
+      if (SOLUTION_CODE && code.trim() === SOLUTION_CODE.trim()) {
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'exerciseComplete' }));
+        }
+      }
+      setTimeout(function() {
+        var el = document.getElementById('user-sketch');
+        if (el) smoothScrollTo(el, 600);
+      }, 100);
+    }
+  });
+}
+
 initEditor();
+
+${exerciseNumber === 1 ? `
+(function() {
+  var TUT_KEY = 'tutorial_shapes_exercise1_done';
+  if (localStorage.getItem(TUT_KEY)) return;
+  var tutStep = -1;
+  var ov = document.getElementById('tut-overlay');
+  if (!ov) return;
+  var cut = document.getElementById('tut-cutout');
+  var card = document.getElementById('tut-card');
+  var title = document.getElementById('tut-title');
+  var body = document.getElementById('tut-body');
+  var btn = document.getElementById('tut-btn');
+
+  var steps = [
+    { title: 'Welcome!', body: "Let's draw your first shape \\u2014 a pink ball on a white canvas! Tap to begin.", trigger: 'tap' },
+    { title: 'Code Editor', body: 'Write your p5.js code here. Try typing or use the custom keyboard below.', trigger: 'edit', sel: '.editor-section', dir: 'above' },
+    { title: 'Run Button', body: 'Press Run to see your sketch output in the preview.', trigger: 'run', sel: '#run-btn', dir: 'left' },
+    { title: 'Preview', body: 'Your sketch appears here. When it matches the solution, you complete the exercise!', trigger: 'preview', sel: '#user-sketch', dir: 'above' },
+    { title: "You're Ready!", body: 'Now complete the exercise to continue. Good luck!', trigger: 'tap' },
+  ];
+
+  function show(i) {
+    tutStep = i;
+    var s = steps[i];
+    title.textContent = s.title;
+    body.textContent = s.body;
+    ov.style.display = 'block';
+    if (!s.sel) {
+      card.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center';
+      cut.style.display = 'none';
+      btn.style.display = 'inline-block';
+      btn.textContent = i === 0 ? "Let's start!" : 'Got it';
+    } else {
+      var el = document.querySelector(s.sel);
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      cut.style.display = 'block';
+      cut.style.top = r.top + 'px';
+      cut.style.left = r.left + 'px';
+      cut.style.width = r.width + 'px';
+      cut.style.height = r.height + 'px';
+      card.style.transform = 'none';
+      card.style.textAlign = 'left';
+      btn.style.display = 'none';
+      if (s.dir === 'above') {
+        card.style.bottom = (window.innerHeight - r.top + 12) + 'px';
+        card.style.left = Math.max(16, r.left) + 'px';
+        card.style.position = 'absolute';
+      } else if (s.dir === 'left') {
+        card.style.top = r.top + 'px';
+        card.style.right = (window.innerWidth - r.left + 12) + 'px';
+        card.style.position = 'absolute';
+      }
+    }
+  }
+
+  function next() {
+    if (tutStep < 0) return;
+    if (tutStep >= steps.length - 1) {
+      ov.style.display = 'none';
+      localStorage.setItem(TUT_KEY, '1');
+      return;
+    }
+    show(tutStep + 1);
+  }
+
+  window.__tutEdit = function() { if (steps[tutStep] && steps[tutStep].trigger === 'edit') next(); };
+  window.__tutRun = function() { if (steps[tutStep] && steps[tutStep].trigger === 'run') next(); };
+  window.__tutPreview = function() { if (steps[tutStep] && steps[tutStep].trigger === 'preview') next(); };
+
+  document.getElementById('tut-bg').addEventListener('click', function() { if (steps[tutStep] && steps[tutStep].trigger === 'tap') next(); });
+  btn.addEventListener('click', next);
+  show(0);
+})();
+` : ''}
 `;
 }
