@@ -1,7 +1,7 @@
 import { basicSetup, EditorView } from "codemirror";
 import { EditorState } from "@codemirror/state";
-import { keymap } from "@codemirror/view";
-import { syntaxHighlighting, HighlightStyle } from "@codemirror/language";
+import { keymap, ViewPlugin, Decoration, DecorationSet } from "@codemirror/view";
+import { syntaxHighlighting, HighlightStyle, syntaxTree } from "@codemirror/language";
 import { indentSelection } from "@codemirror/commands";
 import { javascript } from "@codemirror/lang-javascript";
 import { tags } from "@lezer/highlight";
@@ -13,6 +13,10 @@ export {
   keymap,
   syntaxHighlighting,
   HighlightStyle,
+  syntaxTree,
+  ViewPlugin,
+  Decoration,
+  DecorationSet,
   indentSelection,
   javascript,
   tags,
