@@ -1,4 +1,4 @@
-import { importMap } from "./importmap";
+import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 import { p5Source } from "../p5Source";
 import { P5_FUNCTION_NAMES } from "../../data/p5Symbols";
 import { Colors } from "../../constants/Colors";
@@ -136,14 +136,68 @@ export function getExerciseHtml(params: {
   .solution-header:active { opacity: 0.7; }
 
   .editor-section {
-    margin-top: 16px;
-    margin-left: 16px;
-    margin-right: 16px;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
     border-radius: 8px;
     overflow: hidden;
     background: ${editorBg};
     min-height: 400px;
     position: relative;
+  }
+  .editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px 0 12px;
+  }
+  .editor-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: ${colors.onSurfaceVariant};
+  }
+  .lang-tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: ${colors.primary};
+    background: ${colors.primaryContainer}66;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .editor-header-right {
+    display: flex;
+    gap: 6px;
+  }
+  .editor-header-btn {
+    background: none;
+    border: 1px solid ${colors.outlineVariant};
+    color: ${colors.onSurfaceVariant};
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .editor-header-btn:active {
+    background: ${colors.primaryContainer}44;
+  }
+  .editor-header-btn.copied {
+    color: #22C55E;
+    border-color: #22C55E;
   }
   .cm-editor { height: 100%; font-size: 22px; background: ${editorBg}; }
   .cm-editor .cm-scroller { font-family: 'JetBrains Mono', monospace; overflow: auto; }
@@ -188,18 +242,23 @@ ${
 </div>
 
 <div class="editor-section">
+  <div class="editor-header">
+    <div class="editor-header-left">
+      <span class="code-label">Code</span>
+      <span class="lang-tag">JS</span>
+    </div>
+    <div class="editor-header-right">
+      <button class="editor-header-btn" id="copyBtn">Copy</button>
+    </div>
+  </div>
   <div id="editor" style="min-height:400px"></div>
 </div>
 
 <div class="scroll-whitespace"></div>
 
 <script>${p5Source}</script>
-
-<script type="importmap">
-${JSON.stringify({ imports: importMap }, null, 2)}
-</script>
-
-<script type="module">
+<script>${CODEMIRROR_BUNDLE}</script>
+<script>
 ${getBridgeScript(params.startingCode, params.solution, editorBg, params.colorScheme)}
 </script>
 
@@ -221,19 +280,22 @@ function getBridgeScript(startingCode: string, solution: string, editorBg: strin
   const commentColor = isDark ? '#6B7280' : '#9CA3AF';
 
   return `
+var _CM = typeof CM !== 'undefined' ? CM : null;
+var basicSetup = _CM.basicSetup;
+var EditorView = _CM.EditorView;
+var EditorState = _CM.EditorState;
+var keymap = _CM.keymap;
+var syntaxHighlighting = _CM.syntaxHighlighting;
+var HighlightStyle = _CM.HighlightStyle;
+var javascript = _CM.javascript;
+var tags = _CM.tags;
+
 let view;
 const INITIAL_CODE = ${codeArg};
 const SOLUTION_CODE = ${solutionArg};
 
-async function initEditor() {
+function initEditor() {
   try {
-    const { basicSetup, EditorView } = await import('codemirror');
-    const { javascript } = await import('@codemirror/lang-javascript');
-    const { syntaxHighlighting, HighlightStyle } = await import('@codemirror/language');
-    const { EditorState } = await import('@codemirror/state');
-    const { keymap } = await import('@codemirror/view');
-    const { tags } = await import('@lezer/highlight');
-
     const p5Theme = EditorView.theme({
       '&': { backgroundColor: '${editorBg}', color: '${fg}' },
       '.cm-content': { caretColor: '#ED225D', fontFamily: "'JetBrains Mono', monospace" },
@@ -299,6 +361,7 @@ async function initEditor() {
     });
     view = new EditorView({ state, parent: document.getElementById('editor') });
     postReady();
+    postEditorReady();
     setTimeout(function() {
       view.dom.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 300);
@@ -309,6 +372,7 @@ async function initEditor() {
       editorEl.innerHTML = '<div style="color:#ED225D;padding:16px;font-family:sans-serif">\\u26A0 Editor failed to load. Check your connection.</div>';
     }
     postReady();
+    postEditorReady();
   }
 }
 
@@ -321,6 +385,12 @@ function postCodeChange(code) {
 function postReady() {
   if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
     window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'ready' }));
+  }
+}
+
+function postEditorReady() {
+  if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'editorReady', ready: !!view }));
   }
 }
 
@@ -383,6 +453,8 @@ function handleMessage(data) {
             selection: { anchor: cursor + (msg.cursorOffset !== undefined ? msg.cursorOffset : msg.text.length) },
           });
           view.focus();
+        } else {
+          postEditorReady();
         }
         break;
       case 'focus':
@@ -448,6 +520,23 @@ if (solutionToggle) {
       var isVisible = section.style.display !== 'none';
       section.style.display = isVisible ? 'none' : '';
       if (chevron) chevron.innerHTML = isVisible ? '&#9660;' : '&#9650;';
+    }
+  });
+}
+
+var copyBtn = document.getElementById('copyBtn');
+if (copyBtn) {
+  copyBtn.addEventListener('click', function() {
+    if (view) {
+      var code = view.state.doc.toString();
+      navigator.clipboard.writeText(code).then(function() {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(function() {
+          copyBtn.textContent = 'Copy';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
     }
   });
 }

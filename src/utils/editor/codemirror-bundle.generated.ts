@@ -1,2 +1,2 @@
-// Bundle generation placeholder — install deps and run `npm run bundle-editor`.
+// Bundle generation placeholder.
 export const CODEMIRROR_BUNDLE = "";
