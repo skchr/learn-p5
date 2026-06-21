@@ -286,13 +286,12 @@ export default function Exercise() {
 
     dispatch({ type: "RUN_START" });
 
-    if (webViewRef.current && webViewReady) {
-      webViewRef.current.postMessage(
-        JSON.stringify({ type: "runSketch" })
-      );
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "setCode", code: state.code }));
+      webViewRef.current.postMessage(JSON.stringify({ type: "runSketch" }));
     }
 
-    dispatch({ type: "RUN_DONE" });
+    setTimeout(() => dispatch({ type: "RUN_DONE" }), 500);
   };
 
   const pendingInserts = useRef<Array<{ text: string; cursorOffset?: number }>>([]);
@@ -335,6 +334,24 @@ export default function Exercise() {
       webViewRef.current.postMessage(JSON.stringify({ type: "focus" }));
     }
   }, []);
+
+  const handleBackspace = useCallback(() => {
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "backspace" }));
+    }
+  }, [editorViewReady]);
+
+  const handleNewline = useCallback(() => {
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "insert", text: "\n" }));
+    }
+  }, [editorViewReady]);
+
+  const handleFormat = useCallback(() => {
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "format" }));
+    }
+  }, [editorViewReady]);
 
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () => {
@@ -504,6 +521,9 @@ export default function Exercise() {
           exerciseSymbols={exerciseSymbols}
           onToggleKeyboard={handleToggleKeyboard}
           onRequestSystemKeyboard={handleRequestSystemKeyboard}
+          onBackspace={handleBackspace}
+          onNewline={handleNewline}
+          onFormat={handleFormat}
           keyboardVisible={keyboardVisible}
           usedFunctions={usedFunctions}
         />

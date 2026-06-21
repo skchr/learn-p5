@@ -154,6 +154,24 @@ function handleMessage(data) {
           }
         });
       }
+    } else if (msg.type === 'backspace') {
+      if (view) {
+        var cursor = view.state.selection.main.head;
+        if (cursor > 0) {
+          view.dispatch({
+            changes: { from: cursor - 1, to: cursor },
+            selection: { anchor: cursor - 1 },
+          });
+          view.focus();
+        }
+      }
+    } else if (msg.type === 'format') {
+      if (view) {
+        view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+        indentSelection({ state: view.state, dispatch: view.dispatch });
+        view.dispatch({ selection: { anchor: view.state.doc.length } });
+        view.focus();
+      }
     }
   } catch(e) {}
 }
