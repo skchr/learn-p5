@@ -49,11 +49,12 @@ interface ProgrammingKeyboardProps {
   onInsert: (text: string, cursorOffset?: number) => void;
   exerciseSymbols?: string[];
   onToggleKeyboard?: () => void;
+  onRequestSystemKeyboard?: () => void;
   keyboardVisible?: boolean;
   usedFunctions?: string[];
 }
 
-export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, keyboardVisible = true, usedFunctions = [] }: ProgrammingKeyboardProps) {
+export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onRequestSystemKeyboard, keyboardVisible = true, usedFunctions = [] }: ProgrammingKeyboardProps) {
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const [hintType, setHintType] = useState<"string" | "array" | null>(null);
@@ -103,9 +104,20 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
             { backgroundColor: pressed ? colors.primaryContainer : colors.primaryContainer + "33" },
           ]}
           accessibilityRole="button"
-          accessibilityLabel="Toggle system keyboard"
+          accessibilityLabel="Toggle in-app keyboard"
         >
-          <MaterialCommunityIcons name={keyboardVisible ? "keyboard-outline" : "keyboard-variant"} size={20} color="#ED225D" />
+          <MaterialCommunityIcons name={keyboardVisible ? "keyboard-variant" : "keyboard-variant"} size={20} color="#ED225D" />
+        </Pressable>
+        <Pressable
+          onPress={onRequestSystemKeyboard}
+          style={({ pressed }) => [
+            styles.keyboardIcon,
+            { backgroundColor: pressed ? colors.primaryContainer : "transparent" },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Show system keyboard"
+        >
+          <MaterialCommunityIcons name="keyboard-outline" size={20} color={colors.onSurfaceVariant} />
         </Pressable>
         {pairedSymbols.map((pair) => {
           const hinted = pair.hintTrigger && pair.hintTrigger === hintType;

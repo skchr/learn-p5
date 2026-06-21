@@ -81,6 +81,7 @@ export default function Exercise() {
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const webViewRef = useRef<WebView>(null);
   const [webViewReady, setWebViewReady] = useState(false);
+  const [editorViewReady, setEditorViewReady] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
   const [codeBackground, setCodeBackground] = useState<string | undefined>(undefined);
@@ -235,12 +236,12 @@ export default function Exercise() {
   }, [course, id]);
 
   useEffect(() => {
-    if (webViewReady && webViewRef.current) {
+    if (editorViewReady && webViewRef.current) {
       webViewRef.current.postMessage(
         JSON.stringify({ type: "setCode", code: state.code })
       );
     }
-  }, [state.code, webViewReady]);
+  }, [state.code, editorViewReady]);
 
   const handleMessage = useCallback(
     (event: { nativeEvent: { data: string } }) => {
@@ -252,6 +253,9 @@ export default function Exercise() {
             break;
           case "ready":
             setWebViewReady(true);
+            break;
+          case "editorReady":
+            setEditorViewReady(msg.ready);
             break;
           case "openRef":
             router.push(`/ref?symbol=${msg.symbol}`);
@@ -294,9 +298,14 @@ export default function Exercise() {
   const pendingInserts = useRef<Array<{ text: string; cursorOffset?: number }>>([]);
 
   const handleInsert = (text: string, cursorOffset?: number) => {
-    if (webViewRef.current && webViewReady) {
+    if (webViewRef.current && editorViewReady) {
       webViewRef.current.postMessage(
         JSON.stringify({ type: "insert", text, cursorOffset })
+      );
+    } else if (webViewRef.current && webViewReady) {
+      pendingInserts.current.push({ text, cursorOffset });
+      webViewRef.current.postMessage(
+        JSON.stringify({ type: "editorReady" })
       );
     } else {
       pendingInserts.current.push({ text, cursorOffset });
@@ -304,7 +313,7 @@ export default function Exercise() {
   };
 
   useEffect(() => {
-    if (webViewReady && pendingInserts.current.length > 0) {
+    if (editorViewReady && pendingInserts.current.length > 0) {
       for (const item of pendingInserts.current) {
         if (webViewRef.current) {
           webViewRef.current.postMessage(
@@ -314,15 +323,17 @@ export default function Exercise() {
       }
       pendingInserts.current = [];
     }
-  }, [webViewReady]);
+  }, [editorViewReady]);
 
   const handleToggleKeyboard = useCallback(() => {
-    setKeyboardVisible((prev) => {
-      if (prev && webViewRef.current) {
-        webViewRef.current.postMessage(JSON.stringify({ type: "focus" }));
-      }
-      return !prev;
-    });
+    setKeyboardVisible((prev) => !prev);
+  }, []);
+
+  const handleRequestSystemKeyboard = useCallback(() => {
+    setKeyboardVisible(false);
+    if (webViewRef.current) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "focus" }));
+    }
   }, []);
 
   useEffect(() => {
@@ -492,6 +503,7 @@ export default function Exercise() {
           onInsert={handleInsert}
           exerciseSymbols={exerciseSymbols}
           onToggleKeyboard={handleToggleKeyboard}
+          onRequestSystemKeyboard={handleRequestSystemKeyboard}
           keyboardVisible={keyboardVisible}
           usedFunctions={usedFunctions}
         />
