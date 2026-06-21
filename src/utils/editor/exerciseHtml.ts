@@ -314,16 +314,16 @@ ${
     <span class="preview-label" style="margin-bottom:0">Target Solution</span>
     <span class="solution-chevron" id="solution-chevron">&#9660;</span>
   </button>
-  <div id="solution-sketch" class="sketch-box"></div>
+  <div id="solution-sketch" class="sketch-box">
+    <button id="solution-run-btn" class="run-btn">&#9654; Run</button>
+  </div>
 </div>`
     : ""
 }
 
 <div class="preview-section">
   <div class="preview-label">Your Output</div>
-  <div id="user-sketch" class="sketch-box">
-    <button id="run-btn" class="run-btn">&#9654; Run</button>
-  </div>
+  <div id="user-sketch" class="sketch-box"></div>
 </div>
 
 <div class="editor-section">
@@ -706,20 +706,14 @@ if (copyBtn) {
   });
 }
 
-var runBtn = document.getElementById('run-btn');
-if (runBtn) {
-  runBtn.addEventListener('click', function() {
-    if (view) {
-      var code = view.state.doc.toString();
-      renderAllSketches(code, SOLUTION_CODE);
+var solRunBtn = document.getElementById('solution-run-btn');
+if (solRunBtn) {
+  solRunBtn.addEventListener('click', function() {
+    if (view && SOLUTION_CODE) {
+      renderSketch('solution-sketch', SOLUTION_CODE);
       if (typeof window.__tutRun === 'function') window.__tutRun();
-      if (SOLUTION_CODE && code.trim() === SOLUTION_CODE.trim()) {
-        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'exerciseComplete' }));
-        }
-      }
       setTimeout(function() {
-        var el = document.getElementById('user-sketch');
+        var el = document.getElementById('solution-sketch');
         if (el) smoothScrollTo(el, 600);
       }, 100);
     }
@@ -744,7 +738,7 @@ ${exerciseNumber === 1 ? `
   var steps = [
     { title: 'Welcome!', body: "Let's draw your first shape \\u2014 a pink ball on a white canvas! Tap to begin.", trigger: 'tap' },
     { title: 'Code Editor', body: 'Write your p5.js code here. Try typing or use the custom keyboard below.', trigger: 'edit', sel: '.editor-section', dir: 'above' },
-    { title: 'Run Button', body: 'Press Run to see your sketch output in the preview.', trigger: 'run', sel: '#run-btn', dir: 'left' },
+    { title: 'Run Button', body: 'Press the Run button above to see your sketch output.', trigger: 'run', sel: '.preview-section', dir: 'above' },
     { title: 'Preview', body: 'Your sketch appears here. When it matches the solution, you complete the exercise!', trigger: 'preview', sel: '#user-sketch', dir: 'above' },
     { title: "You're Ready!", body: 'Now complete the exercise to continue. Good luck!', trigger: 'tap' },
   ];

@@ -19,6 +19,7 @@ interface ExerciseState {
   exercise: Lesson | null;
   loading: boolean;
   code: string;
+  isRunning: boolean;
   completed: boolean;
 }
 
@@ -27,6 +28,8 @@ type ExerciseAction =
   | { type: "LOAD_DONE"; exercise: Lesson | null }
   | { type: "SET_CODE"; code: string }
   | { type: "APPEND_CODE"; text: string; cursorOffset?: number }
+  | { type: "RUN_START" }
+  | { type: "RUN_DONE" }
   | { type: "EXERCISE_COMPLETE" };
 
 function exerciseReducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
@@ -52,6 +55,10 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
       return { ...state, code: action.code };
     case "APPEND_CODE":
       return { ...state, code: state.code + action.text };
+    case "RUN_START":
+      return { ...state, isRunning: true };
+    case "RUN_DONE":
+      return { ...state, isRunning: false };
     case "EXERCISE_COMPLETE":
       return { ...state, completed: true };
     default:
@@ -68,6 +75,7 @@ export default function Exercise() {
     exercise: null,
     loading: true,
     code: "",
+    isRunning: false,
     completed: false,
   });
   const { colorScheme } = useThemeContext();
@@ -174,6 +182,25 @@ export default function Exercise() {
         },
         webview: {
           flex: 1,
+        },
+        runButton: {
+          position: "absolute",
+          right: 24,
+          bottom: 260,
+          width: 56,
+          height: 56,
+          borderRadius: 9999,
+          backgroundColor: colors.primary,
+          alignItems: "center",
+          justifyContent: "center",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 12 },
+          shadowOpacity: 0.25,
+          shadowRadius: 25,
+          elevation: 12,
+        },
+        runButtonPressed: {
+          transform: [{ scale: 0.9 }],
         },
         showKeyboardFab: {
           position: "absolute",
@@ -308,6 +335,15 @@ export default function Exercise() {
       webViewRef.current.postMessage(JSON.stringify({ type: "insert", text: "\n" }));
     }
   }, [editorViewReady]);
+
+  const handleRun = useCallback(() => {
+    if (!state.exercise) return;
+    dispatch({ type: "RUN_START" });
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "runSketch" }));
+    }
+    setTimeout(() => dispatch({ type: "RUN_DONE" }), 500);
+  }, [state.exercise, editorViewReady]);
 
   const handleFormat = useCallback(() => {
     if (webViewRef.current && editorViewReady) {
@@ -469,6 +505,24 @@ export default function Exercise() {
           keyboardDisplayRequiresUserAction={false}
         />
       )}
+
+      <Pressable
+        onPress={handleRun}
+        disabled={state.isRunning}
+        style={({ pressed }) => [
+          styles.runButton,
+          pressed && styles.runButtonPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Run sketch"
+        accessibilityState={{ disabled: state.isRunning }}
+      >
+        <MaterialCommunityIcons
+          name={state.isRunning ? "reload" : "play"}
+          size={28}
+          color="#FFFFFF"
+        />
+      </Pressable>
 
       <Toast
         visible={toastVisible}
