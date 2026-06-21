@@ -289,6 +289,7 @@ var syntaxHighlighting = _CM.syntaxHighlighting;
 var HighlightStyle = _CM.HighlightStyle;
 var javascript = _CM.javascript;
 var tags = _CM.tags;
+var indentSelection = _CM.indentSelection;
 
 let view;
 const INITIAL_CODE = ${codeArg};
@@ -466,6 +467,26 @@ function handleMessage(data) {
       case 'setFontSize':
         var scroller = view && view.dom && view.dom.querySelector('.cm-scroller');
         if (scroller) scroller.style.fontSize = msg.fontSize + 'px';
+        break;
+      case 'backspace':
+        if (view) {
+          var cur = view.state.selection.main.head;
+          if (cur > 0) {
+            view.dispatch({
+              changes: { from: cur - 1, to: cur },
+              selection: { anchor: cur - 1 },
+            });
+            view.focus();
+          }
+        }
+        break;
+      case 'format':
+        if (view) {
+          view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+          indentSelection({ state: view.state, dispatch: view.dispatch });
+          view.dispatch({ selection: { anchor: view.state.doc.length } });
+          view.focus();
+        }
         break;
       case 'runSketch':
         if (!view) { console.error('Editor not initialized'); break; }
