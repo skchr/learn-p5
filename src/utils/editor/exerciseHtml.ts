@@ -314,7 +314,8 @@ ${
     <span class="preview-label" style="margin-bottom:0">Target Solution</span>
     <span class="solution-chevron" id="solution-chevron">&#9660;</span>
   </button>
-  <div id="solution-sketch" class="sketch-box">
+  <div style="position:relative">
+    <div id="solution-sketch" class="sketch-box"></div>
     <button id="solution-run-btn" class="run-btn">&#9654; Run</button>
   </div>
 </div>`
@@ -584,14 +585,6 @@ function smoothScrollTo(el, duration) {
   requestAnimationFrame(step);
 }
 
-function renderAllSketches(userCode, solutionCode) {
-  renderSketch('user-sketch', userCode);
-  if (solutionCode) {
-    renderSketch('solution-sketch', solutionCode);
-  }
-  if (typeof window.__tutPreview === 'function') window.__tutPreview();
-}
-
 function handleMessage(data) {
   try {
     var msg = typeof data === 'string' ? JSON.parse(data) : data;
@@ -648,7 +641,7 @@ function handleMessage(data) {
       case 'runSketch':
         if (!view) { console.error('Editor not initialized'); break; }
         var userCode = view.state.doc.toString();
-        renderAllSketches(userCode, SOLUTION_CODE);
+        renderSketch('user-sketch', userCode);
         if (typeof window.__tutRun === 'function') window.__tutRun();
         if (SOLUTION_CODE && userCode.trim() === SOLUTION_CODE.trim()) {
           if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
@@ -726,7 +719,8 @@ if (solRunBtn) {
 }
 
 initEditor();
-renderAllSketches(INITIAL_CODE, SOLUTION_CODE);
+renderSketch('user-sketch', INITIAL_CODE);
+if (typeof window.__tutPreview === 'function') window.__tutPreview();
 
 ${exerciseNumber === 1 ? `
 (function() {
