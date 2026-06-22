@@ -86,6 +86,7 @@ export default function Exercise() {
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
   const [codeBackground, setCodeBackground] = useState<string | undefined>(undefined);
+  const [keyboardHeight, setKeyboardHeight] = useState<string>("medium");
   const [toastVisible, setToastVisible] = useState(false);
 
   const exerciseHtml = useMemo(() => {
@@ -368,6 +369,9 @@ export default function Exercise() {
     AsyncStorage.getItem("setting_codeBackground").then((val) => {
       if (val) setCodeBackground(val);
     });
+    AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
+      if (val) setKeyboardHeight(val);
+    });
   }, []);
 
   useEffect(() => {
@@ -543,6 +547,7 @@ export default function Exercise() {
           onFormat={handleFormat}
           keyboardVisible={keyboardVisible}
           usedFunctions={usedFunctions}
+          height={keyboardHeight === "small" ? 180 : keyboardHeight === "tall" ? 320 : 240}
         />
       )}
 
