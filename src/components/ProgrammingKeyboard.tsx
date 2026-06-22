@@ -55,9 +55,10 @@ interface ProgrammingKeyboardProps {
   onFormat?: () => void;
   keyboardVisible?: boolean;
   usedFunctions?: string[];
+  height?: number;
 }
 
-export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onRequestSystemKeyboard, onBackspace, onNewline, onFormat, keyboardVisible = true, usedFunctions = [] }: ProgrammingKeyboardProps) {
+export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onRequestSystemKeyboard, onBackspace, onNewline, onFormat, keyboardVisible = true, usedFunctions = [], height = 240 }: ProgrammingKeyboardProps) {
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const [hintType, setHintType] = useState<"string" | "array" | null>(null);
@@ -93,7 +94,7 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
   }, [onInsert]);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surfaceContainerLow }]}>
+    <View style={[styles.container, { backgroundColor: colors.surfaceContainerLow, height }]}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -241,7 +242,6 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
 
 const styles = StyleSheet.create({
   container: {
-    height: 240,
   },
   symbolsRow: {
     maxHeight: 44,

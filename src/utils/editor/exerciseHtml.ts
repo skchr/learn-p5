@@ -707,10 +707,15 @@ if (copyBtn) {
 }
 
 var solRunBtn = document.getElementById('solution-run-btn');
+var solutionHasRun = false;
 if (solRunBtn) {
   solRunBtn.addEventListener('click', function() {
     if (view && SOLUTION_CODE) {
       renderSketch('solution-sketch', SOLUTION_CODE);
+      if (!solutionHasRun) {
+        solutionHasRun = true;
+        solRunBtn.innerHTML = '&#x21bb; Replay';
+      }
       if (typeof window.__tutRun === 'function') window.__tutRun();
       setTimeout(function() {
         var el = document.getElementById('solution-sketch');
@@ -721,6 +726,7 @@ if (solRunBtn) {
 }
 
 initEditor();
+renderAllSketches(INITIAL_CODE, SOLUTION_CODE);
 
 ${exerciseNumber === 1 ? `
 (function() {
