@@ -1,8 +1,11 @@
 import { useState, useCallback } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Pressable, ScrollView, Modal, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "./ThemeProvider";
 import { Colors } from "../constants/Colors";
+import { Spacing } from "../constants/Spacing";
+import { Typography } from "../constants/Typography";
+import { P5_SYMBOLS } from "../data/p5Symbols";
 
 interface P5FunctionDef {
   label: string;
@@ -53,15 +56,17 @@ interface ProgrammingKeyboardProps {
   onBackspace?: () => void;
   onNewline?: () => void;
   onFormat?: () => void;
+  onCursorMove?: (direction: 'left' | 'right' | 'up' | 'down') => void;
   keyboardVisible?: boolean;
   usedFunctions?: string[];
   height?: number;
 }
 
-export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onRequestSystemKeyboard, onBackspace, onNewline, onFormat, keyboardVisible = true, usedFunctions = [], height = 240 }: ProgrammingKeyboardProps) {
+export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onRequestSystemKeyboard, onBackspace, onNewline, onFormat, onCursorMove, keyboardVisible = true, usedFunctions = [], height = 240 }: ProgrammingKeyboardProps) {
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const [hintType, setHintType] = useState<"string" | "array" | null>(null);
+  const [popupSymbol, setPopupSymbol] = useState<string | null>(null);
 
   const handleFunctionPress = useCallback((fn: P5FunctionDef) => {
     const parenIndex = fn.insert.indexOf("()");
@@ -145,6 +150,51 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
         >
           <MaterialCommunityIcons name="code-tags" size={18} color={colors.onSurfaceVariant} />
         </Pressable>
+        <View style={styles.arrowSeparator} />
+        <Pressable
+          onPress={() => onCursorMove?.('left')}
+          style={({ pressed }) => [
+            styles.arrowBtn,
+            { backgroundColor: pressed ? colors.outlineVariant : colors.surfaceContainer },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Move cursor left"
+        >
+          <MaterialCommunityIcons name="arrow-left-bold" size={16} color={colors.onSurfaceVariant} />
+        </Pressable>
+        <Pressable
+          onPress={() => onCursorMove?.('right')}
+          style={({ pressed }) => [
+            styles.arrowBtn,
+            { backgroundColor: pressed ? colors.outlineVariant : colors.surfaceContainer },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Move cursor right"
+        >
+          <MaterialCommunityIcons name="arrow-right-bold" size={16} color={colors.onSurfaceVariant} />
+        </Pressable>
+        <Pressable
+          onPress={() => onCursorMove?.('up')}
+          style={({ pressed }) => [
+            styles.arrowBtn,
+            { backgroundColor: pressed ? colors.outlineVariant : colors.surfaceContainer },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Move cursor up"
+        >
+          <MaterialCommunityIcons name="arrow-up-bold" size={16} color={colors.onSurfaceVariant} />
+        </Pressable>
+        <Pressable
+          onPress={() => onCursorMove?.('down')}
+          style={({ pressed }) => [
+            styles.arrowBtn,
+            { backgroundColor: pressed ? colors.outlineVariant : colors.surfaceContainer },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Move cursor down"
+        >
+          <MaterialCommunityIcons name="arrow-down-bold" size={16} color={colors.onSurfaceVariant} />
+        </Pressable>
         {pairedSymbols.map((pair) => {
           const hinted = pair.hintTrigger && pair.hintTrigger === hintType;
           return (
@@ -214,6 +264,7 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
             <Pressable
               key={fn.label}
               onPress={isDisabled ? undefined : () => handleFunctionPress(fn)}
+              onLongPress={() => setPopupSymbol(fn.label)}
               disabled={isDisabled}
               style={({ pressed }) => [
                 styles.functionKey,
@@ -236,9 +287,55 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
           );
         })}
       </View>
+
+      <Modal transparent visible={popupSymbol !== null} onRequestClose={() => setPopupSymbol(null)}>
+        <Pressable style={styles.popupOverlay} onPress={() => setPopupSymbol(null)}>
+          <Pressable style={[styles.popupCard, { backgroundColor: colors.surfaceContainerHigh }]}>
+            {popupSymbol && (() => {
+              const ref = P5_SYMBOLS.find(s => s.name === popupSymbol);
+              return ref ? (
+                <>
+                  <Text style={[popupTextStyles.popupTitle, { color: colors.onSurface }]}>{ref.syntax}</Text>
+                  <Text style={[popupTextStyles.popupDesc, { color: colors.onSurfaceVariant }]}>{ref.description}</Text>
+                  {ref.parameters.map(p => (
+                    <Text key={p.name} style={[popupTextStyles.popupParam, { color: colors.onSurfaceVariant }]}>
+                      <Text style={{ color: colors.primary }}>{p.name}</Text>
+                      {' '}({p.type}): {p.description}
+                    </Text>
+                  ))}
+                </>
+              ) : (
+                <Text style={[popupTextStyles.popupTitle, { color: colors.onSurface }]}>{popupSymbol}</Text>
+              );
+            })()}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
+
+const popupTextStyles = StyleSheet.create({
+  popupTitle: {
+    fontFamily: "JetBrainsMono",
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  popupDesc: {
+    fontFamily: "Inter",
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  popupParam: {
+    fontFamily: "Inter",
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 4,
+    paddingLeft: 8,
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -249,16 +346,16 @@ const styles = StyleSheet.create({
   symbolsContent: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 8,
-    gap: 4,
+    paddingHorizontal: Spacing.sm,
+    gap: Spacing.xs,
   },
   keyboardIcon: {
     flexShrink: 0,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: Spacing.sm,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 4,
+    borderRadius: Spacing.xs,
   },
   editorBtn: {
     flexShrink: 0,
@@ -266,51 +363,76 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 4,
+    borderRadius: Spacing.xs,
   },
-  symbolButton: {
+  arrowSeparator: {
+    width: 1,
+    height: 18,
+    backgroundColor: "#6B7280",
+    marginHorizontal: Spacing.xs,
+  },
+  arrowBtn: {
     flexShrink: 0,
-    paddingHorizontal: 12,
+    paddingHorizontal: Spacing.sm,
     paddingVertical: 6,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 4,
+    borderRadius: Spacing.xs,
+  },
+  symbolButton: {
+    flexShrink: 0,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: Spacing.xs,
   },
   symbolText: {
-    fontFamily: "JetBrainsMono",
+    ...Typography.mono,
     fontSize: 18,
   },
   exerciseRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
     gap: 6,
   },
   exerciseKey: {
     paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 4,
+    borderRadius: Spacing.xs,
   },
   exerciseKeyText: {
-    fontFamily: "JetBrainsMono",
-    fontSize: 15,
-    fontWeight: "700",
+    ...Typography.monoLabel,
   },
   functionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
     gap: 6,
   },
   functionKey: {
-    paddingHorizontal: 12,
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 6,
-    borderRadius: 4,
+    borderRadius: Spacing.xs,
   },
   functionKeyText: {
-    fontFamily: "JetBrainsMono",
+    ...Typography.mono,
     fontSize: 15,
+  },
+  popupOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  popupCard: {
+    marginHorizontal: Spacing.lg,
+    padding: 20,
+    borderRadius: 12,
+    maxHeight: "60%",
+    width: "85%",
   },
 });

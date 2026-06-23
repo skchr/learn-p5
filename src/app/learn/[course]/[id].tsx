@@ -86,6 +86,7 @@ export default function Exercise() {
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
   const [codeBackground, setCodeBackground] = useState<string | undefined>(undefined);
+  const [codeFontSize, setCodeFontSize] = useState<number>(22);
   const [keyboardHeight, setKeyboardHeight] = useState<string>("medium");
   const [toastVisible, setToastVisible] = useState(false);
 
@@ -100,8 +101,9 @@ export default function Exercise() {
       solution: state.exercise.solution ?? "",
       colorScheme: colorScheme === "dark" ? "dark" : "light",
       codeBackground,
+      codeFontSize,
     });
-  }, [state.exercise, colorScheme, id, codeBackground]);
+  }, [state.exercise, colorScheme, id, codeBackground, codeFontSize]);
 
   const styles = useMemo(
     () =>
@@ -194,6 +196,7 @@ export default function Exercise() {
           backgroundColor: colors.primary,
           alignItems: "center",
           justifyContent: "center",
+          zIndex: 50,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 12 },
           shadowOpacity: 0.25,
@@ -352,6 +355,12 @@ export default function Exercise() {
     }
   }, [editorViewReady]);
 
+  const handleCursorMove = useCallback((direction: 'left' | 'right' | 'up' | 'down') => {
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "cursorMove", direction }));
+    }
+  }, [editorViewReady]);
+
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () => {
       setSystemKeyboardVisible(true);
@@ -368,6 +377,9 @@ export default function Exercise() {
   useEffect(() => {
     AsyncStorage.getItem("setting_codeBackground").then((val) => {
       if (val) setCodeBackground(val);
+    });
+    AsyncStorage.getItem("setting_codeFontSize").then((val) => {
+      if (val) setCodeFontSize(parseInt(val, 10));
     });
     AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
       if (val) setKeyboardHeight(val);
@@ -506,7 +518,6 @@ export default function Exercise() {
           originWhitelist={["*"]}
           scrollEnabled={true}
           bounces={false}
-          keyboardDisplayRequiresUserAction={false}
         />
       )}
 
@@ -545,6 +556,7 @@ export default function Exercise() {
           onBackspace={handleBackspace}
           onNewline={handleNewline}
           onFormat={handleFormat}
+          onCursorMove={handleCursorMove}
           keyboardVisible={keyboardVisible}
           usedFunctions={usedFunctions}
           height={keyboardHeight === "small" ? 180 : keyboardHeight === "tall" ? 320 : 240}
