@@ -53,9 +53,11 @@ export function getExerciseHtml(params: {
   solution: string;
   colorScheme: "light" | "dark";
   codeBackground?: string;
+  codeFontSize?: number;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
   const editorBg = params.codeBackground || colors.surfaceContainerLowest;
+  const fontSize = params.codeFontSize ?? 22;
   const instructionHtml = parseInstructionHtml(params.instruction);
 
   return `<!DOCTYPE html>
@@ -345,7 +347,7 @@ ${
 <script>${p5Source}</script>
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
-${getBridgeScript(params.startingCode, params.solution, editorBg, params.colorScheme, params.exerciseNumber)}
+${getBridgeScript(params.startingCode, params.solution, editorBg, params.colorScheme, params.exerciseNumber, fontSize)}
 </script>
 
 ${params.exerciseNumber === 1 ? `
@@ -363,7 +365,7 @@ ${params.exerciseNumber === 1 ? `
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string, editorBg: string, colorScheme: "light" | "dark", exerciseNumber?: number): string {
+function getBridgeScript(startingCode: string, solution: string, editorBg: string, colorScheme: "light" | "dark", exerciseNumber?: number, codeFontSize?: number): string {
   const isDark = colorScheme === "dark";
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
@@ -401,6 +403,7 @@ var DecorationSet = _CM.DecorationSet;
 let view;
 const INITIAL_CODE = ${codeArg};
 const SOLUTION_CODE = ${solutionArg};
+const CODE_FONT_SIZE = ${codeFontSize ?? 22};
 
 const p5FnMark = Decoration.mark({ class: 'cm-p5-fn' });
 
@@ -585,6 +588,15 @@ function smoothScrollTo(el, duration) {
   requestAnimationFrame(step);
 }
 
+function normalizeCode(code) {
+  return code
+    .replace(/\/\/.*$/gm, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\*[\s\S]*$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function handleMessage(data) {
   try {
     var msg = typeof data === 'string' ? JSON.parse(data) : data;
@@ -598,10 +610,10 @@ function handleMessage(data) {
         break;
       case 'insert':
         if (view) {
-          var cursor = view.state.selection.main.head;
+          var sel = view.state.selection.main;
           view.dispatch({
-            changes: { from: cursor, insert: msg.text },
-            selection: { anchor: cursor + (msg.cursorOffset !== undefined ? msg.cursorOffset : msg.text.length) },
+            changes: { from: sel.from, to: sel.to, insert: msg.text },
+            selection: { anchor: sel.from + (msg.cursorOffset !== undefined ? msg.cursorOffset : msg.text.length) },
           });
           view.focus();
         } else {
@@ -610,6 +622,8 @@ function handleMessage(data) {
         break;
       case 'focus':
         if (view) {
+          var cont = view.dom.querySelector('.cm-content');
+          if (cont) cont.removeAttribute('inputmode');
           view.dom.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(function() { view.focus(); }, 200);
         }
@@ -620,14 +634,51 @@ function handleMessage(data) {
         break;
       case 'backspace':
         if (view) {
-          var cur = view.state.selection.main.head;
-          if (cur > 0) {
+          var sel = view.state.selection.main;
+          var bsFrom = sel.from;
+          var bsTo = sel.to;
+          if (bsFrom < bsTo) {
             view.dispatch({
-              changes: { from: cur - 1, to: cur },
-              selection: { anchor: cur - 1 },
+              changes: { from: bsFrom, to: bsTo },
+              selection: { anchor: bsFrom },
             });
-            view.focus();
+          } else if (bsFrom > 0) {
+            view.dispatch({
+              changes: { from: bsFrom - 1, to: bsFrom },
+              selection: { anchor: bsFrom - 1 },
+            });
           }
+          view.focus();
+        }
+        break;
+      case 'cursorMove':
+        if (view) {
+          var curPos = view.state.selection.main.head;
+          switch (msg.direction) {
+            case 'left':
+              if (curPos > 0) view.dispatch({ selection: { anchor: curPos - 1 } });
+              break;
+            case 'right':
+              if (curPos < view.state.doc.length) view.dispatch({ selection: { anchor: curPos + 1 } });
+              break;
+            case 'up':
+              var curLine = view.state.doc.lineAt(curPos);
+              if (curLine.number > 1) {
+                var prevLine = view.state.doc.line(curLine.number - 1);
+                var col = curPos - curLine.from;
+                view.dispatch({ selection: { anchor: Math.min(prevLine.from + col, prevLine.to) } });
+              }
+              break;
+            case 'down':
+              var curLine2 = view.state.doc.lineAt(curPos);
+              if (curLine2.number < view.state.doc.lines) {
+                var nextLine = view.state.doc.line(curLine2.number + 1);
+                var col2 = curPos - curLine2.from;
+                view.dispatch({ selection: { anchor: Math.min(nextLine.from + col2, nextLine.to) } });
+              }
+              break;
+          }
+          view.focus();
         }
         break;
       case 'format':
@@ -643,7 +694,7 @@ function handleMessage(data) {
         var userCode = view.state.doc.toString();
         renderSketch('user-sketch', userCode);
         if (typeof window.__tutRun === 'function') window.__tutRun();
-        if (SOLUTION_CODE && userCode.trim() === SOLUTION_CODE.trim()) {
+        if (SOLUTION_CODE && normalizeCode(userCode) === normalizeCode(SOLUTION_CODE)) {
           if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
             window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'exerciseComplete' }));
           }
@@ -719,6 +770,12 @@ if (solRunBtn) {
 }
 
 initEditor();
+if (CODE_FONT_SIZE) {
+  var scroller = view && view.dom && view.dom.querySelector('.cm-scroller');
+  if (scroller) scroller.style.fontSize = CODE_FONT_SIZE + 'px';
+}
+var cmContent = view && view.dom && view.dom.querySelector('.cm-content');
+if (cmContent) cmContent.setAttribute('inputmode', 'none');
 renderSketch('user-sketch', INITIAL_CODE);
 if (typeof window.__tutPreview === 'function') window.__tutPreview();
 
