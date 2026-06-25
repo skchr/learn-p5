@@ -8,6 +8,7 @@ import { WebView } from "react-native-webview";
 import { useDrawerContext } from "../../../contexts/DrawerContext";
 import { useThemeContext } from "../../../components/ThemeProvider";
 import { Colors } from "../../../constants/Colors";
+import { DEFAULTS } from "../../../constants/Defaults";
 import ProgrammingKeyboard from "../../../components/ProgrammingKeyboard";
 import Toast from "../../../components/Toast";
 import { loadExercise, loadCourse } from "../../../utils/courseLoader";
@@ -86,8 +87,8 @@ export default function Exercise() {
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
   const [codeBackground, setCodeBackground] = useState<string | undefined>(undefined);
-  const [codeFontSize, setCodeFontSize] = useState<number>(22);
-  const [keyboardHeight, setKeyboardHeight] = useState<string>("medium");
+  const [codeFontSize, setCodeFontSize] = useState<number>(DEFAULTS.codeFontSize);
+  const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
   const [toastKey, setToastKey] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -392,7 +393,7 @@ export default function Exercise() {
         setCodeBackground(val || undefined);
       });
       AsyncStorage.getItem("setting_codeFontSize").then((val) => {
-        setCodeFontSize(val ? parseInt(val, 10) : 22);
+        setCodeFontSize(val ? parseInt(val, 10) : DEFAULTS.codeFontSize);
       });
       AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
         setKeyboardHeight(val || "medium");
@@ -558,7 +559,7 @@ export default function Exercise() {
           isRunning={state.isRunning}
           keyboardVisible={keyboardVisible}
           usedFunctions={usedFunctions}
-          height={keyboardHeight === "small" ? 230 : keyboardHeight === "tall" ? 360 : 280}
+          height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
         />
       )}
 

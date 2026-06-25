@@ -6,49 +6,7 @@ import { Colors } from "../constants/Colors";
 import { Spacing } from "../constants/Spacing";
 import { Typography } from "../constants/Typography";
 import { P5_SYMBOLS } from "../data/p5Symbols";
-
-interface P5FunctionDef {
-  label: string;
-  insert: string;
-  paramTypes: ("string" | "number" | "array" | "color" | "boolean")[];
-  disabled?: boolean;
-}
-
-const p5FunctionLabels = new Set(["setup", "draw", "createCanvas", "background", "fill", "circle", "stroke", "strokeWeight", "line", "rect", "ellipse", "noStroke"]);
-
-const p5Functions: P5FunctionDef[] = [
-  { label: "setup", insert: "function setup() {\n  \n}", paramTypes: [] },
-  { label: "draw", insert: "function draw() {\n  \n}", paramTypes: [] },
-  { label: "createCanvas", insert: "createCanvas()", paramTypes: ["number", "number"] },
-  { label: "background", insert: "background()", paramTypes: ["number", "string"] },
-  { label: "fill", insert: "fill()", paramTypes: ["number", "string"] },
-  { label: "circle", insert: "circle()", paramTypes: ["number", "number", "number"] },
-  { label: "stroke", insert: "stroke()", paramTypes: ["number", "string"] },
-  { label: "strokeWeight", insert: "strokeWeight()", paramTypes: ["number"] },
-  { label: "line", insert: "line()", paramTypes: ["number", "number", "number", "number"] },
-  { label: "rect", insert: "rect()", paramTypes: ["number", "number", "number", "number"] },
-  { label: "ellipse", insert: "ellipse()", paramTypes: ["number", "number", "number", "number"] },
-  { label: "noStroke", insert: "noStroke()", paramTypes: [] },
-];
-
-type PairedSymbol = {
-  open: string;
-  close: string;
-  display: string;
-  hintTrigger: "string" | "array" | null;
-};
-
-const pairedSymbols: PairedSymbol[] = [
-  { open: "(", close: ")", display: "( )", hintTrigger: null },
-  { open: "{", close: "}", display: "{ }", hintTrigger: null },
-  { open: "[", close: "]", display: "[ ]", hintTrigger: "array" },
-  { open: "<", close: ">", display: "< >", hintTrigger: null },
-  { open: '"', close: '"', display: '" "', hintTrigger: "string" },
-];
-
-const singleSymbols = [
-  ".", ";", ",", "=", "+", "-", "*", "/",
-];
+import { p5Functions, p5FunctionLabels, pairedSymbols, singleSymbols, P5FunctionDef, PairedSymbol } from "../data/keyboardLayout";
 
 interface ProgrammingKeyboardProps {
   onInsert: (text: string, cursorOffset?: number) => void;

@@ -113,7 +113,6 @@ export default function Dashboard() {
         },
         progressBarInner: {
           height: "100%",
-          width: "84%",
           backgroundColor: colors.primary,
           borderRadius: 9999,
         },
