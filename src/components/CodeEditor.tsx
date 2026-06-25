@@ -21,35 +21,15 @@ export interface CodeEditorHandle {
 
 const CODE_FONT_SIZE_KEY = "setting_codeFontSize";
 
-let editorHtmlCache: string | null = null;
-function getCachedEditorHtml() {
-  if (editorHtmlCache) return editorHtmlCache;
-  editorHtmlCache = getEditorHtml(null);
-  return editorHtmlCache;
-}
+const editorHtml = getEditorHtml();
 
 const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(
   function CodeEditor({ code, onChange, onRun, isRunning }, ref) {
     const [webViewReady, setWebViewReady] = useState(false);
     const [fontSize, setFontSize] = useState(22);
-    const [editorHtml, setEditorHtml] = useState(getCachedEditorHtml);
     const webViewRef = useRef<WebView>(null);
     const { colorScheme } = useThemeContext();
     const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
-
-    useEffect(() => {
-      import("../utils/editor/cmCache").then((mod) =>
-        mod.getCachedSources().then((s) => {
-          if (s) {
-            setEditorHtml(getEditorHtml(s));
-          } else {
-            mod.fetchAndCacheSources().then((result) => {
-              if (result) setEditorHtml(getEditorHtml(result));
-            });
-          }
-        })
-      );
-    }, []);
 
     useEffect(() => {
       AsyncStorage.getItem(CODE_FONT_SIZE_KEY).then((val) => {

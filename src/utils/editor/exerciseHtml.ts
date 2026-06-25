@@ -1,7 +1,7 @@
 import { p5Source } from "../p5Source";
 import { P5_FUNCTION_NAMES, P5_SYMBOLS } from "../../data/p5Symbols";
 import { Colors } from "../../constants/Colors";
-import { buildImportMapJson, buildCachedSetup } from "./cmCache";
+// CM is loaded via the embedded IIFE bundle
 import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 
 const SYMBOL_PATTERN = new RegExp(
@@ -55,7 +55,6 @@ export function getExerciseHtml(params: {
   colorScheme: "light" | "dark";
   codeBackground?: string;
   codeFontSize?: number;
-  cachedSources?: Record<string, string> | null;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
   const editorBg = params.codeBackground && params.codeBackground !== "auto" ? params.codeBackground : colors.surfaceContainerLowest;
@@ -351,10 +350,7 @@ ${
 
 <script>${p5Source}</script>
 <script>${CODEMIRROR_BUNDLE}</script>
-${params.cachedSources
-  ? buildCachedSetup(params.cachedSources)
-  : `<script type="importmap">${buildImportMapJson()}</script>`}
-<script type="module">
+<script>
 ${getBridgeScript(params.startingCode, params.solution, editorBg, params.colorScheme, params.exerciseNumber, fontSize)}
 </script>
 
@@ -398,68 +394,34 @@ const INITIAL_CODE = ${codeArg};
 const SOLUTION_CODE = ${solutionArg};
 const CODE_FONT_SIZE = ${codeFontSize ?? 22};
 const EDITOR_BG = '${editorBg}';
-let CM_READY = false;
 
-(async function() {
-  let basicSetup, EditorView, EditorState, keymap, syntaxHighlighting, HighlightStyle, javascript, tags, indentSelection, syntaxTree, ViewPlugin, Decoration, DecorationSet, autocompletion;
-  var _CM = typeof CM !== 'undefined' ? CM : null;
-  if (_CM) {
-    basicSetup = _CM.basicSetup;
-    EditorView = _CM.EditorView;
-    keymap = _CM.keymap;
-    ViewPlugin = _CM.ViewPlugin;
-    Decoration = _CM.Decoration;
-    DecorationSet = _CM.DecorationSet;
-    EditorState = _CM.EditorState;
-    syntaxHighlighting = _CM.syntaxHighlighting;
-    HighlightStyle = _CM.HighlightStyle;
-    syntaxTree = _CM.syntaxTree;
-    javascript = _CM.javascript;
-    indentSelection = _CM.indentSelection;
-    autocompletion = _CM.autocompletion;
-    tags = _CM.tags;
-    CM_READY = true;
-  } else {
-    try {
-      const cm = await import('codemirror');
-      basicSetup = cm.basicSetup;
-      const viewMod = await import('@codemirror/view');
-      EditorView = viewMod.EditorView;
-      keymap = viewMod.keymap;
-      ViewPlugin = viewMod.ViewPlugin;
-      Decoration = viewMod.Decoration;
-      DecorationSet = viewMod.DecorationSet;
-      const stateMod = await import('@codemirror/state');
-      EditorState = stateMod.EditorState;
-      const langMod = await import('@codemirror/language');
-      syntaxHighlighting = langMod.syntaxHighlighting;
-      HighlightStyle = langMod.HighlightStyle;
-      syntaxTree = langMod.syntaxTree;
-      const jsMod = await import('@codemirror/lang-javascript');
-      javascript = jsMod.javascript;
-      const cmdMod = await import('@codemirror/commands');
-      indentSelection = cmdMod.indentSelection;
-      const acMod = await import('@codemirror/autocomplete');
-      autocompletion = acMod.autocompletion;
-      const hlMod = await import('@lezer/highlight');
-      tags = hlMod.tags;
-      CM_READY = true;
-    } catch(e) {
-      console.error('CM load failed:', e);
-    }
+var _CM = typeof CM !== 'undefined' ? CM : null;
+if (!_CM) {
+  var editorEl = document.getElementById('editor');
+  if (editorEl) {
+    editorEl.innerHTML = '<div style="color:#6B7280;padding:20px;font-family:sans-serif;text-align:center">Code editor bundle unavailable. Type code below.</div><textarea id="cm-fallback" style="width:100%;height:400px;background:' + EDITOR_BG + ';color:${fg};font-family:JetBrains Mono,monospace;font-size:' + CODE_FONT_SIZE + 'px;border:none;outline:none;resize:none;padding:12px">' + INITIAL_CODE + '</textarea>';
   }
+  postReady();
+  postEditorReady();
+  throw new Error('CM bundle not loaded');
+}
 
-  if (!CM_READY) {
-    var editorEl = document.getElementById('editor');
-    if (editorEl) {
-      editorEl.innerHTML = '<div style="color:#6B7280;padding:20px;font-family:sans-serif;text-align:center">Code editor bundle unavailable. Type code below.</div><textarea id="cm-fallback" style="width:100%;height:400px;background:' + EDITOR_BG + ';color:${fg};font-family:JetBrains Mono,monospace;font-size:' + CODE_FONT_SIZE + 'px;border:none;outline:none;resize:none;padding:12px">' + INITIAL_CODE + '</textarea>';
-    }
-    postReady();
-    postEditorReady();
-    return;
-  }
+var basicSetup = _CM.basicSetup;
+var EditorView = _CM.EditorView;
+var keymap = _CM.keymap;
+var ViewPlugin = _CM.ViewPlugin;
+var Decoration = _CM.Decoration;
+var DecorationSet = _CM.DecorationSet;
+var EditorState = _CM.EditorState;
+var syntaxHighlighting = _CM.syntaxHighlighting;
+var HighlightStyle = _CM.HighlightStyle;
+var syntaxTree = _CM.syntaxTree;
+var javascript = _CM.javascript;
+var indentSelection = _CM.indentSelection;
+var autocompletion = _CM.autocompletion;
+var tags = _CM.tags;
 
-  try {
+try {
     var p5FnMark = Decoration.mark({ class: 'cm-p5-fn' });
     function computeP5Decos(v) {
       var decos = [];
@@ -588,7 +550,6 @@ let CM_READY = false;
     postReady();
     postEditorReady();
   }
-})();
 
 function postCodeChange(code) {
   if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {

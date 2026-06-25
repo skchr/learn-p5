@@ -1,9 +1,8 @@
 import { styles } from "./styles";
 import { bridgeScript } from "./bridge";
-import { buildImportMapJson, buildCachedSetup } from "./cmCache";
 import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 
-export function getEditorHtml(cachedSources?: Record<string, string> | null): string {
+export function getEditorHtml(): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,10 +20,7 @@ export function getEditorHtml(cachedSources?: Record<string, string> | null): st
 </div>
 
 <script>${CODEMIRROR_BUNDLE}<\/script>
-${cachedSources
-  ? buildCachedSetup(cachedSources)
-  : `<script type="importmap">${buildImportMapJson()}<\/script>`}
-<script type="module">${bridgeScript}<\/script>
+<script>${bridgeScript}<\/script>
 </body>
 </html>`;
 }

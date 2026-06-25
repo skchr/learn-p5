@@ -94,23 +94,6 @@ export default function Exercise() {
   const [toastMessage, setToastMessage] = useState("");
   const [toastActionLabel, setToastActionLabel] = useState<string | undefined>(undefined);
   const toastActionRef = useRef<(() => void) | undefined>(undefined);
-  const [cachedSources, setCachedSources] = useState<Record<string, string> | null>(null);
-
-  useEffect(() => {
-    import("../../../utils/editor/cmCache").then((mod) =>
-      mod.getCachedSources().then((s) => {
-        if (s) {
-          setCachedSources(s);
-        } else {
-          showToast("Fetching extra resources…");
-          mod.fetchAndCacheSources().then((result) => {
-            setCachedSources(result);
-            setToastVisible(false);
-          });
-        }
-      })
-    );
-  }, []);
 
   const showToast = useCallback((message: string, actionLabel?: string, onAction?: () => void) => {
     setToastMessage(message);
@@ -132,9 +115,8 @@ export default function Exercise() {
       colorScheme: colorScheme === "dark" ? "dark" : "light",
       codeBackground,
       codeFontSize,
-      cachedSources,
     });
-  }, [state.exercise, colorScheme, id, codeBackground, codeFontSize, cachedSources]);
+  }, [state.exercise, colorScheme, id, codeBackground, codeFontSize]);
 
   const styles = useMemo(
     () =>
