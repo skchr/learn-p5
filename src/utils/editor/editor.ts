@@ -1,8 +1,10 @@
 import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
-import { styles } from "./styles";
-import { bridgeScript } from "./bridge";
+import { getStyles } from "./styles";
+import { getBridgeScript } from "./bridge";
 
-export function getEditorHtml(): string {
+export function getEditorHtml(colorScheme: 'light' | 'dark' = 'dark'): string {
+  const styles = getStyles(colorScheme);
+  const bridgeScript = getBridgeScript(colorScheme);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

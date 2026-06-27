@@ -503,6 +503,16 @@ function initEditor() {
       ],
     });
     view = new EditorView({ state, parent: document.getElementById('editor') });
+    window.__systemKeyboardEnabled = false;
+    view.dom.addEventListener('mousedown', function(e) {
+      if (!window.__systemKeyboardEnabled) {
+        e.preventDefault();
+        view.focus();
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'editorTapped' }));
+        }
+      }
+    });
     postReady();
     postEditorReady();
     setTimeout(function() {
@@ -612,9 +622,13 @@ function handleMessage(data) {
         break;
       case 'focus':
         if (view) {
+          window.__systemKeyboardEnabled = true;
           view.dom.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(function() { view.focus(); }, 200);
         }
+        break;
+      case 'useCustomKeyboard':
+        window.__systemKeyboardEnabled = false;
         break;
       case 'setFontSize':
         var scroller = view && view.dom && view.dom.querySelector('.cm-scroller');
