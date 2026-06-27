@@ -1,26 +1,15 @@
 export const bridgeScript = `
-let view;
-
 var _CM = typeof CM !== 'undefined' ? CM : null;
-if (!_CM) {
-  var editorEl = document.getElementById('editor');
-  if (editorEl) {
-    editorEl.innerHTML = '<div style="color:#ED225D;padding:20px;font-family:sans-serif;text-align:center">CodeMirror unavailable. Please check your connection.</div>';
-  }
-  postReady();
-  postEditorReady();
-  throw new Error('CM bundle not loaded');
-}
 
 var basicSetup = _CM.basicSetup;
 var EditorView = _CM.EditorView;
-var keymap = _CM.keymap;
 var EditorState = _CM.EditorState;
+var keymap = _CM.keymap;
+var javascript = _CM.javascript;
 var syntaxHighlighting = _CM.syntaxHighlighting;
 var HighlightStyle = _CM.HighlightStyle;
-var javascript = _CM.javascript;
-var indentSelection = _CM.indentSelection;
 var tags = _CM.tags;
+var indentSelection = _CM.indentSelection;
 
 const p5Theme = EditorView.theme({
   '&': { backgroundColor: '#0D0E12', color: '#E3E2E7' },
@@ -73,6 +62,8 @@ const p5Highlight = HighlightStyle.define([
   { tag: tags.special(tags.variableName), color: '#FF4F75' },
 ]);
 
+let view;
+
 function createEditor(initialCode) {
   const state = EditorState.create({
     doc: initialCode || '',
@@ -81,8 +72,14 @@ function createEditor(initialCode) {
       javascript(),
       p5Theme,
       syntaxHighlighting(p5Highlight),
-      keymap.of([{ key: 'Ctrl-s', run: function() { return true; } }, { key: 'Cmd-s', run: function() { return true; } }]),
-      EditorView.updateListener.of(function(update) {
+      keymap.of([{
+        key: 'Ctrl-s',
+        run: () => true,
+      }, {
+        key: 'Cmd-s',
+        run: () => true,
+      }]),
+      EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           postCodeChange(update.state.doc.toString());
         }
@@ -98,11 +95,12 @@ function createEditor(initialCode) {
   postReady();
 }
 
-createEditor('');
-
 function postCodeChange(code) {
   if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'codeChange', code: code }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'codeChange',
+      code: code,
+    }));
   }
 }
 
@@ -123,7 +121,9 @@ function handleMessage(data) {
     var msg = typeof data === 'string' ? JSON.parse(data) : data;
     if (msg.type === 'setCode') {
       if (view && msg.code !== view.state.doc.toString()) {
-        view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: msg.code } });
+        view.dispatch({
+          changes: { from: 0, to: view.state.doc.length, insert: msg.code },
+        });
       }
     } else if (msg.type === 'insert') {
       if (view) {
@@ -133,27 +133,37 @@ function handleMessage(data) {
           selection: { anchor: cursor + (msg.cursorOffset !== undefined ? msg.cursorOffset : msg.text.length) },
         });
         view.focus();
+      } else {
+        postEditorReady();
       }
     } else if (msg.type === 'focus') {
-      if (view) { view.focus(); }
+      if (view) {
+        view.focus();
+      }
     } else if (msg.type === 'setFontSize') {
-      var scroller = view && view.dom && view.dom.querySelector('.cm-scroller');
-      if (scroller) scroller.style.fontSize = msg.fontSize + 'px';
+      var scroller = view?.dom.querySelector('.cm-scroller');
+      if (scroller) {
+        scroller.style.fontSize = msg.fontSize + 'px';
+      }
     } else if (msg.type === 'copyCode') {
       if (view) {
         var code = view.state.doc.toString();
-        navigator.clipboard.writeText(code);
+        navigator.clipboard.writeText(code).then(function() {
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'codeCopied' }));
+          }
+        });
       }
     } else if (msg.type === 'backspace') {
       if (view) {
-        var sel = view.state.selection.main;
-        var bsFrom = sel.from, bsTo = sel.to;
-        if (bsFrom < bsTo) {
-          view.dispatch({ changes: { from: bsFrom, to: bsTo }, selection: { anchor: bsFrom } });
-        } else if (bsFrom > 0) {
-          view.dispatch({ changes: { from: bsFrom - 1, to: bsFrom }, selection: { anchor: bsFrom - 1 } });
+        var cursor = view.state.selection.main.head;
+        if (cursor > 0) {
+          view.dispatch({
+            changes: { from: cursor - 1, to: cursor },
+            selection: { anchor: cursor - 1 },
+          });
+          view.focus();
         }
-        view.focus();
       }
     } else if (msg.type === 'format') {
       if (view) {
@@ -168,4 +178,14 @@ function handleMessage(data) {
 
 window.addEventListener('message', function(event) { handleMessage(event.data); });
 document.addEventListener('message', function(event) { handleMessage(event.data); });
+
+document.getElementById('formatBtn').addEventListener('click', function() {
+  if (view) {
+    view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+    indentSelection({ state: view.state, dispatch: view.dispatch });
+    view.dispatch({ selection: { anchor: view.state.doc.length } });
+  }
+});
+
+createEditor('');
 `;

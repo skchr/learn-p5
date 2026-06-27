@@ -1,6 +1,6 @@
+import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 import { styles } from "./styles";
 import { bridgeScript } from "./bridge";
-import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 
 export function getEditorHtml(): string {
   return `<!DOCTYPE html>
