@@ -1,6 +1,6 @@
 import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 import { p5Source } from "../p5Source";
-import { P5_FUNCTION_NAMES } from "../../data/p5Symbols";
+import { P5_FUNCTION_NAMES } from "../../data/reference";
 import { Colors } from "../../constants/Colors";
 import { getEditorTheme, EditorThemeColors } from "./themes";
 

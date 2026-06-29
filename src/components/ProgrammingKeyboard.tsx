@@ -5,7 +5,7 @@ import { useThemeContext } from "./ThemeProvider";
 import { Colors } from "../constants/Colors";
 import { Spacing } from "../constants/Spacing";
 import { Typography } from "../constants/Typography";
-import { P5_SYMBOLS } from "../data/p5Symbols";
+import { P5_SYMBOLS } from "../data/reference";
 import { p5Functions, p5FunctionLabels, pairedSymbols, singleSymbols, P5FunctionDef, PairedSymbol } from "../data/keyboardLayout";
 
 interface ProgrammingKeyboardProps {

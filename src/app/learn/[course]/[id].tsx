@@ -15,7 +15,7 @@ import Toast from "../../../components/Toast";
 import StreakToast from "../../../components/StreakToast";
 import { loadExercise, loadCourse } from "../../../utils/courseLoader";
 import { Lesson } from "../../../data/types";
-import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/p5Symbols";
+import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/reference";
 import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
 import { EDITOR_THEMES } from "../../../utils/editor/themes";
 import { useStreak } from "../../../hooks/useStreak";
