@@ -7,6 +7,7 @@ import { Colors } from "../constants/Colors";
 import Header from "../components/Header";
 import { loadAllCourses } from "../utils/courseLoader";
 import { Lesson, Course } from "../data/types";
+import { getStreakFromStorage } from "../hooks/useStreak";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -21,6 +22,8 @@ export default function Dashboard() {
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [streakCount, setStreakCount] = useState(0);
+  const [streakLongest, setStreakLongest] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -34,6 +37,10 @@ export default function Dashboard() {
         }
       });
       loadAllCourses().then(setCourses);
+      getStreakFromStorage().then(({ count, longest }) => {
+        setStreakCount(count);
+        setStreakLongest(longest);
+      });
     }, [])
   );
 
@@ -286,7 +293,7 @@ export default function Dashboard() {
             </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>7</Text>
+            <Text style={styles.statValue}>{streakCount}</Text>
             <Text style={styles.statLabel}>
               Streak
             </Text>

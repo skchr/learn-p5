@@ -4,6 +4,7 @@ import ThemeProvider from "../components/ThemeProvider";
 import DrawerProvider from "../contexts/DrawerContext";
 import SideDrawer from "../components/SideDrawer";
 import DrawerFab from "../components/DrawerFab";
+import StreakInitializer from "../components/StreakInitializer";
 
 export default function RootLayout() {
   return (
@@ -13,6 +14,7 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false, animation: "slide_from_right", animationDuration: 500 }} />
           <SideDrawer />
           <DrawerFab />
+          <StreakInitializer />
         </ThemeProvider>
       </DrawerProvider>
     </GestureHandlerRootView>

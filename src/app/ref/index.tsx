@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "../../components/ThemeProvider";
 import { Colors } from "../../constants/Colors";
 import { useModuleProgress } from "../../hooks/useModuleProgress";
+import { getEditorTheme } from "../../utils/editor/themes";
 
 const MODULE_GROUPS = P5_SYMBOLS.reduce<{ module: string; symbols: P5Symbol[] }[]>((acc, sym) => {
   const existing = acc.find((g) => g.module === sym.module);
@@ -23,7 +24,8 @@ const SYMBOL_PATTERN = new RegExp(
   "g"
 );
 
-function highlightSyntax(code: string): { text: string; color: string }[] {
+function highlightSyntax(code: string, colorScheme?: "light" | "dark"): { text: string; color: string }[] {
+  const theme = getEditorTheme("p5-learn", colorScheme || "dark");
   const KEYWORD_RE = /\b(function|if|else|for|while|return|let|const|var|new|this|class)\b/g;
   const P5_RE = new RegExp(`\\b(${P5_FUNCTION_NAMES.join("|")})\\b(?=\\()`, "g");
   const NUMBER_RE = /\b\d+(\.\d+)?\b/g;
@@ -31,20 +33,20 @@ function highlightSyntax(code: string): { text: string; color: string }[] {
   const COMMENT_RE = /(\/\/.*)/g;
   const OP_RE = /([{}[\]();,.]|=>|[-+*/%&|^!<>=]=?)/g;
 
-  const allMatches: { index: number; text: string; colorKey: string }[] = [];
+  const allMatches: { index: number; text: string; color: string }[] = [];
   const patterns: [RegExp, string][] = [
-    [COMMENT_RE, "#6B7280"],
-    [STRING_RE, "#22C55E"],
-    [KEYWORD_RE, "#ED225D"],
-    [NUMBER_RE, "#FF4F75"],
-    [P5_RE, "#FFB2BB"],
-    [OP_RE, "#9CA3AF"],
+    [COMMENT_RE, theme.comment],
+    [STRING_RE, theme.string],
+    [KEYWORD_RE, theme.keyword],
+    [NUMBER_RE, theme.number],
+    [P5_RE, theme.function],
+    [OP_RE, theme.operator],
   ];
-  for (const [re, colorKey] of patterns) {
+  for (const [re, color] of patterns) {
     re.lastIndex = 0;
     let match;
     while ((match = re.exec(code)) !== null) {
-      allMatches.push({ index: match.index, text: match[0], colorKey });
+      allMatches.push({ index: match.index, text: match[0], color });
     }
   }
   allMatches.sort((a, b) => a.index - b.index);
@@ -54,15 +56,15 @@ function highlightSyntax(code: string): { text: string; color: string }[] {
   for (const m of allMatches) {
     if (m.index < lastEnd) continue;
     if (m.index > lastEnd) {
-      tokens.push({ text: code.slice(lastEnd, m.index), color: "#E3E2E7" });
+      tokens.push({ text: code.slice(lastEnd, m.index), color: theme.fg });
     }
-    tokens.push({ text: m.text, color: m.colorKey });
+    tokens.push({ text: m.text, color: m.color });
     lastEnd = m.index + m.text.length;
   }
   if (lastEnd < code.length) {
-    tokens.push({ text: code.slice(lastEnd), color: "#E3E2E7" });
+    tokens.push({ text: code.slice(lastEnd), color: theme.fg });
   }
-  return tokens.length > 0 ? tokens : [{ text: code, color: "#E3E2E7" }];
+  return tokens.length > 0 ? tokens : [{ text: code, color: theme.fg }];
 }
 
 function parseDescription(
@@ -174,7 +176,7 @@ function SymbolDetail({ symbol }: { symbol: string }) {
     );
   }
 
-  const syntaxTokens = highlightSyntax(sym.syntax.replace(/\n/g, " "));
+  const syntaxTokens = highlightSyntax(sym.syntax.replace(/\n/g, " "), colorScheme);
   const refUrl = `https://p5js.org/reference/p5/${sym.name.toLowerCase()}/`;
 
   return (
