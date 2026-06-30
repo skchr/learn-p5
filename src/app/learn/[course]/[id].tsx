@@ -572,12 +572,14 @@ export default function Exercise() {
     });
   }, [state.code]);
 
+  const TOOLBAR_HEIGHT = 44;
+
   const runButtonBottom = useMemo(() => {
     if (keyboardVisible) {
       return (DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium) + 16;
     }
     if (systemKeyboardVisible) {
-      return (systemKeyboardHeight || 300) + 16;
+      return (systemKeyboardHeight || 300) + TOOLBAR_HEIGHT + 16;
     }
     return 16;
   }, [keyboardVisible, keyboardHeight, systemKeyboardVisible, systemKeyboardHeight]);
@@ -712,13 +714,23 @@ export default function Exercise() {
       />
 
       {systemKeyboardVisible && (
-        <SystemKeyboardToolbar
-          onInsert={handleInsert}
-          onCursorMove={handleCursorMove}
-          onBackspace={handleBackspace}
-          onNewline={handleNewline}
-          height={44}
-        />
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: systemKeyboardHeight,
+            zIndex: 100,
+          }}
+        >
+          <SystemKeyboardToolbar
+            onInsert={handleInsert}
+            onCursorMove={handleCursorMove}
+            onBackspace={handleBackspace}
+            onNewline={handleNewline}
+            height={TOOLBAR_HEIGHT}
+          />
+        </View>
       )}
 
       {keyboardVisible && (

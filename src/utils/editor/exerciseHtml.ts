@@ -416,10 +416,22 @@ function p5CompletionSource(context) {
   var options = [];
   var prefix = word.text.toLowerCase();
   for (var i = 0; i < P5_COMPLETIONS.length; i++) {
-    var name = P5_COMPLETIONS[i];
-    if (name.toLowerCase().startsWith(prefix)) {
-      options.push({ label: name + '()', type: 'function', detail: 'p5.js' });
-    }
+    (function() {
+      var name = P5_COMPLETIONS[i];
+      if (name.toLowerCase().startsWith(prefix)) {
+        options.push({
+          label: name + '()',
+          type: 'function',
+          detail: 'p5.js',
+          apply: function(view, completion, from, to) {
+            view.dispatch({
+              changes: { from: from, to: to, insert: name + '()' },
+              selection: { anchor: from + name.length + 1 }
+            });
+          }
+        });
+      }
+    })();
   }
   return { from: word.from, options: options };
 }
