@@ -7,6 +7,7 @@ import TimePicker from "../../components/TimePicker";
 import { useThemeContext } from "../../components/ThemeProvider";
 import { Colors } from "../../constants/Colors";
 import { DEFAULTS } from "../../constants/Defaults";
+import { EDITOR_THEMES, getThemeSwatches } from "../../utils/editor/themes";
 
 const SETTINGS_KEYS = {
   dailyReminder: "setting_dailyReminder",
@@ -17,6 +18,7 @@ const SETTINGS_KEYS = {
   codeFontSize: "setting_codeFontSize",
   codeBackground: "setting_codeBackground",
   keyboardHeight: "setting_keyboardHeight",
+  editorTheme: "setting_editorTheme",
 };
 
 const createStyles = (colors: Record<string, string>) =>
@@ -64,6 +66,7 @@ export default function Settings() {
   const [codeFontSize, setCodeFontSize] = useState(DEFAULTS.codeFontSize);
   const [codeBackground, setCodeBackgroundState] = useState<string>(DEFAULTS.codeBackground);
   const [keyboardHeight, setKeyboardHeightState] = useState<string>(DEFAULTS.keyboardHeight);
+  const [editorTheme, setEditorTheme] = useState<string>("p5-learn");
   const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
@@ -76,7 +79,8 @@ export default function Settings() {
       SETTINGS_KEYS.codeFontSize,
       SETTINGS_KEYS.codeBackground,
       SETTINGS_KEYS.keyboardHeight,
-    ]).then(([reminder, snippet, hour, minute, fab, fontSize, bg, kb]) => {
+      SETTINGS_KEYS.editorTheme,
+    ]).then(([reminder, snippet, hour, minute, fab, fontSize, bg, kb, theme]) => {
       setDailyReminder(reminder[1] === "true");
       setSnippetAlternatives(snippet[1] === "true");
       if (hour[1]) setNotificationHour(parseInt(hour[1], 10));
@@ -85,6 +89,7 @@ export default function Settings() {
       if (fontSize[1]) setCodeFontSize(parseInt(fontSize[1], 10));
       if (bg[1]) setCodeBackgroundState(bg[1]);
       if (kb[1]) setKeyboardHeightState(kb[1]);
+      if (theme[1]) setEditorTheme(theme[1]);
     });
     AsyncStorage.getItem("onboardingData").then((val) => {
       if (val) {
@@ -158,6 +163,11 @@ export default function Settings() {
   const changeKeyboardHeight = async (value: string) => {
     setKeyboardHeightState(value);
     await AsyncStorage.setItem(SETTINGS_KEYS.keyboardHeight, value);
+  };
+
+  const changeEditorTheme = async (value: string) => {
+    setEditorTheme(value);
+    await AsyncStorage.setItem(SETTINGS_KEYS.editorTheme, value);
   };
 
   const handleDisplayNameChange = useCallback(async (text: string) => {
@@ -356,6 +366,56 @@ export default function Settings() {
                 </Pressable>
               ))}
             </View>
+          </View>
+
+          <View style={[styles.cardRow, { borderTopWidth: 1, borderTopColor: colors.surfaceContainerHighest, flexWrap: "wrap", gap: 6 }]}>
+            <View style={{ width: "100%", marginBottom: 8 }}>
+              <Text style={styles.settingTitle}>Editor Theme</Text>
+              <Text style={styles.settingDescription}>
+                Choose a color theme for the code editor
+              </Text>
+            </View>
+            {Object.entries(EDITOR_THEMES).map(([key, theme]) => {
+              const swatches = getThemeSwatches(key, colorScheme === "dark" ? "dark" : "light");
+              return (
+                <Pressable
+                  key={key}
+                  onPress={() => changeEditorTheme(key)}
+                  style={({ pressed }) => ({
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderRadius: 6,
+                    backgroundColor:
+                      editorTheme === key
+                        ? colors.primary
+                        : pressed
+                          ? colors.primaryContainer + "33"
+                          : colors.surfaceContainerHigh,
+                  })}
+                >
+                  <View style={{ flexDirection: "row", gap: 2 }}>
+                    {swatches.map((s, i) => (
+                      <View key={i} style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: s }} />
+                    ))}
+                  </View>
+                  <Text
+                    style={{
+                      fontFamily: "JetBrainsMono",
+                      fontSize: 10,
+                      fontWeight: "700",
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                      color: editorTheme === key ? colors.onPrimary : colors.onSurfaceVariant,
+                    }}
+                  >
+                    {theme.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 
