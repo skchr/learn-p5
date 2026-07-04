@@ -78,12 +78,13 @@ export default function StreakToast({
     Animated.sequence([
       Animated.timing(countAnim, {
         toValue: streakCount,
-        duration: 600,
+        duration: 1000,
         useNativeDriver: false,
       }),
-      Animated.timing(progressAnim, {
+      Animated.spring(progressAnim, {
         toValue: tierProgress,
-        duration: 800,
+        tension: 40,
+        friction: 8,
         useNativeDriver: false,
       }),
     ]).start();
@@ -115,7 +116,7 @@ export default function StreakToast({
     const timer = setTimeout(() => {
       if (countAnim) countAnim.removeListener(listener);
       animateOut();
-    }, 3200);
+    }, 5000);
 
     return () => {
       clearTimeout(timer);

@@ -28,6 +28,12 @@ export default function Dashboard() {
   const [displayName, setDisplayName] = useState("");
   const streak = useStreak();
   const [streakToastVisible, setStreakToastVisible] = useState(false);
+  const levelAnim = useRef(new Animated.Value(0)).current;
+  const completedAnim = useRef(new Animated.Value(0)).current;
+  const streakAnim = useRef(new Animated.Value(0)).current;
+  const [animatedLevel, setAnimatedLevel] = useState(1);
+  const [animatedCompleted, setAnimatedCompleted] = useState(0);
+  const [animatedStreak, setAnimatedStreak] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -109,6 +115,49 @@ export default function Dashboard() {
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
   });
+
+  const level = Math.min(10, Math.max(1, Math.floor(progress * 10) + 1));
+  const completedCount = completedLessons.length;
+
+  useEffect(() => {
+    levelAnim.setValue(0);
+    completedAnim.setValue(0);
+    streakAnim.setValue(0);
+
+    const levelListener = levelAnim.addListener(({ value }) => {
+      setAnimatedLevel(Math.round(value));
+    });
+    const completedListener = completedAnim.addListener(({ value }) => {
+      setAnimatedCompleted(Math.round(value));
+    });
+    const streakListener = streakAnim.addListener(({ value }) => {
+      setAnimatedStreak(Math.round(value));
+    });
+
+    Animated.parallel([
+      Animated.timing(levelAnim, {
+        toValue: level,
+        duration: 800,
+        useNativeDriver: false,
+      }),
+      Animated.timing(completedAnim, {
+        toValue: completedCount,
+        duration: 800,
+        useNativeDriver: false,
+      }),
+      Animated.timing(streakAnim, {
+        toValue: streakCount,
+        duration: 800,
+        useNativeDriver: false,
+      }),
+    ]).start();
+
+    return () => {
+      levelAnim.removeListener(levelListener);
+      completedAnim.removeListener(completedListener);
+      streakAnim.removeListener(streakListener);
+    };
+  }, [level, completedCount, streakCount]);
 
   const styles = useMemo(
     () =>
@@ -302,21 +351,21 @@ export default function Dashboard() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{Math.min(10, Math.max(1, Math.floor(progress * 10) + 1))}</Text>
+            <Text style={styles.statValue}>{animatedLevel}</Text>
             <Text style={styles.statLabel}>
               Level
             </Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>
-              {completedLessons.length}
+              {animatedCompleted}
             </Text>
             <Text style={styles.statLabel}>
               Completed
             </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{streakCount}</Text>
+            <Text style={styles.statValue}>{animatedStreak}</Text>
             <Text style={styles.statLabel}>
               Streak
             </Text>

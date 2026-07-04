@@ -41,8 +41,7 @@ function getRandomBrandColor(): number[] {
 }
 
 function buildProcessingHtml(isDark: boolean, brandColor: number[]): string {
-  const bg = isDark ? "20" : "255";
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:transparent;display:flex;align-items:center;justify-content:center}canvas{display:block}</style></head><body><script>' + p5Source.replace(/<\/script>/gi, '<\\/script>') + '<\/script><script>new p5(function(p){p.setup=function(){p.createCanvas(250,250)};var t=0;p.draw=function(){var u=p.width/8;p.background(' + bg + ');p.strokeCap(p.SQUARE);p.strokeWeight(1.5*u);p.stroke(' + brandColor.join(",") + ');var off=p.sin(t)*u*0.3;p.bezier(4*u,1*u,7*u+off,1*u+off,7*u,5*u,4*u,5*u);p.stroke(' + brandColor.map(function (c) { return Math.max(0, c - 50) }).join(",") + ');p.line(1*u,6*u,4*u,2*u);p.stroke(' + brandColor.map(function (c) { return Math.min(255, c + 80) }).join(",") + ');p.line(1*u,3*u,2*u,5*u);t+=0.03}})<\/script></body></html>';
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:transparent;display:flex;align-items:center;justify-content:center}canvas{display:block}</style></head><body><script>' + p5Source.replace(/<\/script>/gi, '<\\/script>') + '<\/script><script>new p5(function(p){p.setup=function(){p.createCanvas(250,250)};var t=0;p.draw=function(){p.clear();var u=p.width/8;p.strokeCap(p.SQUARE);p.strokeWeight(1.5*u);p.stroke(' + brandColor.join(",") + ');var off=p.sin(t)*u*0.3;p.bezier(4*u,1*u,7*u+off,1*u+off,7*u,5*u,4*u,5*u);p.stroke(' + brandColor.map(function (c) { return Math.max(0, c - 50) }).join(",") + ');p.line(1*u,6*u,4*u,2*u);p.stroke(' + brandColor.map(function (c) { return Math.min(255, c + 80) }).join(",") + ');p.line(1*u,3*u,2*u,5*u);t+=0.03}})<\/script></body></html>';
 }
 
 export default function About() {
@@ -78,15 +77,11 @@ export default function About() {
           </Text>
           <Pressable
             onPress={() => Linking.openURL("https://p5js.org")}
-            style={({ pressed }) => [
-              styles.linkButton,
-              { backgroundColor: pressed ? colors.primaryContainer : colors.primary },
-            ]}
-            accessibilityRole="button"
+            accessibilityRole="link"
             accessibilityLabel="Visit p5js.org"
           >
-            <Text style={[styles.linkButtonText, { color: colors.onPrimary }]}>
-              Visit p5js.org
+            <Text style={[styles.link, { color: colors.primary }]}>
+              Visit p5js.org →
             </Text>
           </Pressable>
         </View>
@@ -115,15 +110,11 @@ export default function About() {
           </Text>
           <Pressable
             onPress={() => Linking.openURL("https://processing.org")}
-            style={({ pressed }) => [
-              styles.linkButton,
-              { backgroundColor: pressed ? colors.primaryContainer : colors.primary },
-            ]}
-            accessibilityRole="button"
+            accessibilityRole="link"
             accessibilityLabel="Visit processing.org"
           >
-            <Text style={[styles.linkButtonText, { color: colors.onPrimary }]}>
-              Visit processing.org
+            <Text style={[styles.link, { color: colors.primary }]}>
+              Visit processing.org →
             </Text>
           </Pressable>
         </View>
@@ -165,7 +156,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 12,
     padding: Spacing.lg,
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: Spacing.lg,
   },
   sectionHeading: {
@@ -173,7 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
     marginBottom: Spacing.md,
-    textAlign: "center",
+    textAlign: "left",
   },
   logo: {
     marginBottom: Spacing.md,
@@ -181,21 +172,15 @@ const styles = StyleSheet.create({
   definitionText: {
     ...Typography.body,
     fontFamily: "JetBrainsMono",
-    textAlign: "center",
+    textAlign: "left",
     lineHeight: 22,
   },
-  linkButton: {
-    marginTop: Spacing.md,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  linkButtonText: {
+  link: {
     fontFamily: "JetBrainsMono",
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    textDecorationLine: "underline",
+    marginTop: Spacing.md,
   },
   projectDescription: {
     ...Typography.body,
