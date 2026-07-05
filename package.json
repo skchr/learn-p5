@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "0.6.27",
   "scripts": {
-    "postinstall": "npm run gen-version && npm run gen-reference && npm run bundle-editor",
+    "postinstall": "npm run gen-version && npm run gen-reference && npm run bundle-editor && node scripts/patch-structured-headers.mjs",
     "start": "npm run gen-version && npm run gen-reference && npm run bundle-editor && expo start",
     "gen-version": "sh scripts/gen-version.sh",
     "gen-reference": "node scripts/generate-reference.mjs --stub",
