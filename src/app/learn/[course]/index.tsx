@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontFamily: "SpaceGrotesk",
+    fontFamily: "JetBrainsMono",
     fontSize: 24,
     fontWeight: "900",
     fontStyle: "italic",
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   lessonCount: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 18,
     fontWeight: "700",
   },
@@ -420,14 +420,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroLabel: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 14,
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   heroTitle: {
-    fontFamily: "SpaceGrotesk",
+    fontFamily: "JetBrainsMono",
     fontSize: 40,
     fontWeight: "700",
     letterSpacing: -0.5,
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
   },
   heroDescription: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 16,
     fontWeight: "400",
     lineHeight: 24,
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontFamily: "SpaceGrotesk",
+    fontFamily: "JetBrainsMono",
     fontSize: 24,
     fontWeight: "700",
     fontStyle: "italic",
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   lessonTitle: {
-    fontFamily: "SpaceGrotesk",
+    fontFamily: "JetBrainsMono",
     fontSize: 18,
     fontWeight: "700",
   },
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   completedTitle: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 16,
     fontWeight: "400",
     textDecorationLine: "line-through",

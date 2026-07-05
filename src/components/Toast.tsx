@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   message: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 15,
     fontWeight: "600",
     flex: 1,

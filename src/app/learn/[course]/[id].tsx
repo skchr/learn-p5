@@ -767,6 +767,7 @@ export default function Exercise() {
             onCursorMove={handleCursorMove}
             onBackspace={handleBackspace}
             onNewline={handleNewline}
+            onRun={handleRun}
             height={TOOLBAR_HEIGHT}
           />
         </View>
@@ -868,7 +869,7 @@ export default function Exercise() {
             <View style={styles.modalSection}>
               <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Theme</Text>
               <View style={styles.modalRow}>
-                <Text style={{ fontFamily: "Inter", fontSize: 14, color: colors.onSurface }}>
+                <Text style={{ fontFamily: "JetBrainsMono", fontSize: 14, color: colors.onSurface }}>
                   {colorScheme === "dark" ? "Dark Mode" : "Light Mode"}
                 </Text>
                 <Switch

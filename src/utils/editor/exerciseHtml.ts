@@ -425,7 +425,7 @@ function p5CompletionSource(context) {
             var rest = view.state.doc.sliceString(to, to + 2);
             var hasParens = rest === '()';
             view.dispatch({
-              changes: { from: from, to: hasParens ? to + 2 : to, insert: hasParens ? name : name + '()' },
+              changes: { from: from, to: to, insert: hasParens ? name : name + '()' },
               selection: { anchor: from + (hasParens ? name.length : name.length + 1) }
             });
           }

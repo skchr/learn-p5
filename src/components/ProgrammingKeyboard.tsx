@@ -360,13 +360,13 @@ const popupTextStyles = StyleSheet.create({
     overflow: "hidden",
   },
   popupDesc: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 12,
   },
   popupParam: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 13,
     lineHeight: 18,
     marginBottom: 4,

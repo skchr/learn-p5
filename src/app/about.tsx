@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   sectionHeading: {
-    fontFamily: "SpaceGrotesk",
+    fontFamily: "JetBrainsMono",
     fontSize: 20,
     fontWeight: "700",
     marginBottom: Spacing.md,

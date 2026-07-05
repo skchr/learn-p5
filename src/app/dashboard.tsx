@@ -338,11 +338,6 @@ export default function Dashboard() {
           color: colors.onSurface,
           flex: 1,
         },
-        listItemMeta: {
-          fontFamily: "JetBrainsMono",
-          fontSize: 11,
-          color: colors.textSecondary,
-        },
         allCompleteContainer: {
           alignItems: "center",
           paddingVertical: 32,
@@ -486,9 +481,6 @@ export default function Dashboard() {
                       numberOfLines={1}
                     >
                       {ex.title}
-                    </Text>
-                    <Text style={styles.listItemMeta}>
-                      {ex.module}
                     </Text>
                   </Pressable>
                 );

@@ -9,7 +9,7 @@ Use React Native's `StyleSheet.create()` API — **no Tailwind/NativeWind**.
 - Each component defines `const styles = StyleSheet.create({...})` at the bottom of the file.
 - For theme-aware colors, use `useThemeContext()` from `src/components/ThemeProvider.tsx` and import `Colors` from `src/constants/Colors.ts`. Resolve colors at render time: `const colors = Colors[colorScheme === "dark" ? "dark" : "light"]`.
 - For Pressable press-state styles, use the `({ pressed }) => [styles.base, pressed && styles.active]` pattern.
-- Font families: `"SpaceGrotesk"` (headings), `"Inter"` (body/label), `"JetBrainsMono"` (code).
+- Font families: `"JetBrainsMono"` (all text). Import `Fonts` from `src/constants/Fonts.ts` and `Typography` from `src/constants/Typography.ts` to use tokenized font values.
 
 ## Package Management
 

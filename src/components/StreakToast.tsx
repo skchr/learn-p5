@@ -207,12 +207,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 15,
     fontWeight: "700",
   },
   subtitle: {
-    fontFamily: "Inter",
+    fontFamily: "JetBrainsMono",
     fontSize: 12,
     marginTop: 1,
   },
