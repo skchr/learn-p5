@@ -16,10 +16,6 @@ Use React Native's `StyleSheet.create()` API — **no Tailwind/NativeWind**.
 - **Never run `npm install` on the dev machine.** Only edit `package.json` to add/change dependencies. The user handles installation separately.
 - After editing `package.json`, update `AGENTS.md` if the change introduces new conventions or build steps.
 
-## Initial Install / Asset Prefetch
-
-On first launch after install, the app prefetches assets and reloads itself using `expo-updates`'s `Updates.reloadAsync()`. This is handled in `src/app/index.tsx` and uses the `assets_prefetched` flag in AsyncStorage to run only once. The `expo-updates` package must be kept in dependencies for this to work on native platforms.
-
 ## Reference Data Generation
 
 Reference data (symbol descriptions, params, modules) is sourced from the p5.js website repo (`processing/p5.js-website`, `main` branch).
