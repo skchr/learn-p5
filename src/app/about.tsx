@@ -119,14 +119,6 @@ export default function About() {
           </Pressable>
         </View>
 
-        <Text style={[styles.projectDescription, { color: colors.textSecondary }]}>
-          Learn P5 is a GSoC 2026 project that aims to provide an offline first, ELI5 learning
-          experience with the hope to improve the quality of learning for users who may not have
-          unlimited bandwidth or reliable internet. Based on the existing community knowledge, this
-          app focuses more on making learning creative programming with Processing tools an
-          interactive and hopefully immersive experience.
-        </Text>
-
         <View style={[styles.versionBadge, { backgroundColor: colors.surfaceDim }]}>
           <Text style={[styles.versionText, { color: colors.textSecondary }]}>
             {APP_VERSION}
@@ -181,14 +173,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textDecorationLine: "underline",
     marginTop: Spacing.md,
-  },
-  projectDescription: {
-    ...Typography.body,
-    fontFamily: "JetBrainsMono",
-    textAlign: "center",
-    marginTop: Spacing.md,
-    maxWidth: 300,
-    lineHeight: 22,
   },
   sketchBox: {
     width: 200,

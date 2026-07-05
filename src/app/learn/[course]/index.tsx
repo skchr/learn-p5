@@ -82,7 +82,7 @@ export default function CourseDetail() {
         <View
           style={[
             styles.header,
-            { backgroundColor: colors.surface, borderBottomColor: colors.primary },
+            { backgroundColor: colors.surface },
           ]}
         >
           <View style={{ width: 40 }} />
@@ -104,7 +104,7 @@ export default function CourseDetail() {
         <View
           style={[
             styles.header,
-            { backgroundColor: colors.surface, borderBottomColor: colors.primary },
+            { backgroundColor: colors.surface },
           ]}
         >
           <Pressable onPress={() => router.back()} style={styles.backButton}>
@@ -138,7 +138,7 @@ export default function CourseDetail() {
       <View
         style={[
           styles.header,
-          { backgroundColor: colors.surface, borderBottomColor: colors.primary },
+          { backgroundColor: colors.surface },
         ]}
       >
         <Pressable onPress={() => router.back()} style={styles.backButton}>
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     height: 64,
-    borderBottomWidth: 4,
+
   },
   backButton: {
     width: 40,
