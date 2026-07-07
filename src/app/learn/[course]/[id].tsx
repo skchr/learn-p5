@@ -906,7 +906,7 @@ export default function Exercise() {
                       </View>
                       <Text style={{
                         fontFamily: "JetBrainsMono",
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: "700",
                         textTransform: "uppercase",
                         letterSpacing: 0.5,

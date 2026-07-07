@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   },
   bodyXs: {
     fontFamily: "JetBrainsMono",
-    fontSize: 11,
+    fontSize: 12,
   },
   monoSm: {
     fontFamily: "JetBrainsMono",
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
   moduleBadgeText: {
     fontFamily: "JetBrainsMono",
-    fontSize: 11,
+    fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
   },
   paramTypeText: {
     fontFamily: "JetBrainsMono",
-    fontSize: 11,
+    fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

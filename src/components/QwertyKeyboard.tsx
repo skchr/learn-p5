@@ -3,7 +3,6 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "./ThemeProvider";
 import { Colors } from "../constants/Colors";
-import { Spacing } from "../constants/Spacing";
 import { Typography } from "../constants/Typography";
 
 interface QwertyKeyboardProps {
@@ -15,50 +14,63 @@ interface QwertyKeyboardProps {
   height?: number;
 }
 
-interface QwertyKey {
+interface QwertyLetterKey {
+  type: "letter";
   primary: string;
   secondary?: string;
 }
 
+interface QwertyActionKey {
+  type: "action";
+  action: "backspace" | "enter";
+}
+
+type QwertyKey = QwertyLetterKey | QwertyActionKey;
+
 const ROW1: QwertyKey[] = [
-  { primary: "q", secondary: "1" },
-  { primary: "w", secondary: "2" },
-  { primary: "e", secondary: "3" },
-  { primary: "r", secondary: "4" },
-  { primary: "t", secondary: "5" },
-  { primary: "y", secondary: "6" },
-  { primary: "u", secondary: "7" },
-  { primary: "i", secondary: "8" },
-  { primary: "o", secondary: "9" },
-  { primary: "p", secondary: "0" },
+  { type: "letter", primary: "q", secondary: "1" },
+  { type: "letter", primary: "w", secondary: "2" },
+  { type: "letter", primary: "e", secondary: "3" },
+  { type: "letter", primary: "r", secondary: "4" },
+  { type: "letter", primary: "t", secondary: "5" },
+  { type: "letter", primary: "y", secondary: "6" },
+  { type: "letter", primary: "u", secondary: "7" },
+  { type: "letter", primary: "i", secondary: "8" },
+  { type: "letter", primary: "o", secondary: "9" },
+  { type: "letter", primary: "p", secondary: "0" },
+  { type: "action", action: "backspace" },
 ];
 
 const ROW2: QwertyKey[] = [
-  { primary: "a", secondary: "@" },
-  { primary: "s", secondary: "$" },
-  { primary: "d" },
-  { primary: "f" },
-  { primary: "g" },
-  { primary: "h", secondary: "#" },
-  { primary: "j" },
-  { primary: "k" },
-  { primary: "l", secondary: ";" },
+  { type: "letter", primary: "a", secondary: "@" },
+  { type: "letter", primary: "s", secondary: "$" },
+  { type: "letter", primary: "d" },
+  { type: "letter", primary: "f" },
+  { type: "letter", primary: "g" },
+  { type: "letter", primary: "h", secondary: "#" },
+  { type: "letter", primary: "j" },
+  { type: "letter", primary: "k" },
+  { type: "letter", primary: "l", secondary: ";" },
+  { type: "action", action: "enter" },
 ];
 
 const ROW3: QwertyKey[] = [
-  { primary: "z" },
-  { primary: "x", secondary: "*" },
-  { primary: "c", secondary: "(" },
-  { primary: "v", secondary: ")" },
-  { primary: "b", secondary: "[" },
-  { primary: "n", secondary: "]" },
-  { primary: "m", secondary: "-" },
-  { primary: ",", secondary: "<" },
-  { primary: ".", secondary: ">" },
-  { primary: "/", secondary: "?" },
+  { type: "letter", primary: "z" },
+  { type: "letter", primary: "x", secondary: "*" },
+  { type: "letter", primary: "c", secondary: "(" },
+  { type: "letter", primary: "v", secondary: ")" },
+  { type: "letter", primary: "b", secondary: "[" },
+  { type: "letter", primary: "n", secondary: "]" },
+  { type: "letter", primary: "m", secondary: "-" },
+  { type: "letter", primary: ",", secondary: "<" },
+  { type: "letter", primary: ".", secondary: ">" },
+  { type: "letter", primary: "/", secondary: "?" },
 ];
 
 const LONG_PRESS_DELAY = 200;
+const KEY_SIZE = 42;
+const KEY_GAP = 6;
+const ACTION_KEY_WIDTH = KEY_SIZE * 1.6;
 
 export default function QwertyKeyboard({
   onInsert,
@@ -66,7 +78,7 @@ export default function QwertyKeyboard({
   onNewline,
   onCursorMove,
   onToggleProgramming,
-  height = 280,
+  height = 300,
 }: QwertyKeyboardProps) {
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
@@ -74,7 +86,7 @@ export default function QwertyKeyboard({
   const longPressKey = useRef<string | null>(null);
   const [longPressActive, setLongPressActive] = useState(false);
 
-  const handlePressIn = useCallback((key: QwertyKey) => {
+  const handlePressIn = useCallback((key: QwertyLetterKey) => {
     longPressKey.current = key.primary;
     longPressTimer.current = setTimeout(() => {
       if (longPressKey.current === key.primary) {
@@ -84,7 +96,7 @@ export default function QwertyKeyboard({
   }, []);
 
   const handlePressOut = useCallback(
-    (key: QwertyKey) => {
+    (key: QwertyLetterKey) => {
       if (longPressTimer.current) {
         clearTimeout(longPressTimer.current);
         longPressTimer.current = null;
@@ -101,8 +113,8 @@ export default function QwertyKeyboard({
     [longPressActive, onInsert]
   );
 
-  const renderKey = useCallback(
-    (key: QwertyKey) => {
+  const renderLetterKey = useCallback(
+    (key: QwertyLetterKey) => {
       const isActive = longPressActive && longPressKey.current === key.primary;
       return (
         <Pressable
@@ -134,6 +146,46 @@ export default function QwertyKeyboard({
     [longPressActive, colors, handlePressIn, handlePressOut]
   );
 
+  const renderActionKey = useCallback(
+    (key: QwertyActionKey) => {
+      const isBackspace = key.action === "backspace";
+      const onPress = isBackspace ? onBackspace : onNewline;
+      const iconName = isBackspace ? "backspace" : "keyboard-return";
+      const label = isBackspace ? "Backspace" : "Enter";
+      return (
+        <Pressable
+          key={key.action}
+          onPress={onPress}
+          style={({ pressed }) => [
+            styles.actionKey,
+            {
+              backgroundColor: pressed
+                ? colors.primaryContainer
+                : colors.surfaceContainer,
+            },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={label}
+        >
+          <MaterialCommunityIcons
+            name={iconName}
+            size={20}
+            color={colors.onSurfaceVariant}
+          />
+        </Pressable>
+      );
+    },
+    [onBackspace, onNewline, colors]
+  );
+
+  const renderKey = useCallback(
+    (key: QwertyKey) => {
+      if (key.type === "action") return renderActionKey(key);
+      return renderLetterKey(key);
+    },
+    [renderLetterKey, renderActionKey]
+  );
+
   return (
     <View
       style={[
@@ -141,16 +193,24 @@ export default function QwertyKeyboard({
         { backgroundColor: colors.surfaceContainerLow, height },
       ]}
     >
-      <View style={styles.toolbarRow}>
-        <View style={styles.toolbarFixed}>
+      <View style={styles.keysContainer}>
+        <View style={styles.row}>{ROW1.map(renderKey)}</View>
+        <View style={[styles.row, styles.rowIndent]}>
+          {ROW2.map(renderKey)}
+        </View>
+        <View style={[styles.row, styles.rowIndent2]}>
+          {ROW3.map(renderKey)}
+        </View>
+
+        <View style={styles.bottomRow}>
           <Pressable
             onPress={onToggleProgramming}
             style={({ pressed }) => [
-              styles.toolbarIcon,
+              styles.toolBtn,
               {
                 backgroundColor: pressed
                   ? colors.primaryContainer
-                  : colors.primaryContainer + "33",
+                  : colors.surfaceContainer,
               },
             ]}
             accessibilityRole="button"
@@ -158,50 +218,11 @@ export default function QwertyKeyboard({
           >
             <MaterialCommunityIcons
               name="code-tags"
-              size={20}
+              size={22}
               color={colors.primary}
             />
           </Pressable>
-          <Pressable
-            onPress={onBackspace}
-            style={({ pressed }) => [
-              styles.toolbarIcon,
-              {
-                backgroundColor: pressed
-                  ? colors.outlineVariant
-                  : colors.surfaceContainer,
-              },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Backspace"
-          >
-            <MaterialCommunityIcons
-              name="backspace"
-              size={18}
-              color={colors.onSurfaceVariant}
-            />
-          </Pressable>
-          <Pressable
-            onPress={onNewline}
-            style={({ pressed }) => [
-              styles.toolbarIcon,
-              {
-                backgroundColor: pressed
-                  ? colors.outlineVariant
-                  : colors.surfaceContainer,
-              },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="New line"
-          >
-            <MaterialCommunityIcons
-              name="keyboard-return"
-              size={18}
-              color={colors.onSurfaceVariant}
-            />
-          </Pressable>
-        </View>
-        <View style={styles.spaceRow}>
+
           <Pressable
             onPress={() => onInsert(" ")}
             style={({ pressed }) => [
@@ -219,7 +240,8 @@ export default function QwertyKeyboard({
               space
             </Text>
           </Pressable>
-          <View style={styles.dpadSmall}>
+
+          <View style={styles.dpadGroup}>
             <Pressable
               onPress={() => onCursorMove?.("left")}
               style={({ pressed }) => [
@@ -233,7 +255,7 @@ export default function QwertyKeyboard({
             >
               <MaterialCommunityIcons
                 name="chevron-left"
-                size={16}
+                size={20}
                 color={colors.onSurfaceVariant}
               />
             </Pressable>
@@ -250,85 +272,24 @@ export default function QwertyKeyboard({
             >
               <MaterialCommunityIcons
                 name="chevron-right"
-                size={16}
+                size={20}
                 color={colors.onSurfaceVariant}
               />
             </Pressable>
           </View>
         </View>
       </View>
-
-      <View style={styles.keysContainer}>
-        <View style={styles.row}>{ROW1.map(renderKey)}</View>
-        <View style={[styles.row, styles.rowIndent]}>
-          {ROW2.map(renderKey)}
-        </View>
-        <View style={[styles.row, styles.rowIndent2]}>
-          {ROW3.map(renderKey)}
-        </View>
-      </View>
     </View>
   );
 }
 
-const KEY_SIZE = 32;
-const KEY_GAP = 4;
-
 const styles = StyleSheet.create({
   container: {
-    paddingTop: Spacing.xs,
-  },
-  toolbarRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.sm,
-    gap: Spacing.xs,
-    marginBottom: 4,
-  },
-  toolbarFixed: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.xs,
-  },
-  toolbarIcon: {
-    paddingHorizontal: Spacing.sm + 4,
-    paddingVertical: Spacing.sm,
-    borderRadius: Spacing.xs,
-  },
-  spaceRow: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: Spacing.xs,
-  },
-  spaceBar: {
-    flex: 1,
-    maxWidth: 120,
-    paddingVertical: 6,
-    borderRadius: Spacing.xs,
-    alignItems: "center",
-  },
-  spaceText: {
-    ...Typography.mono,
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  dpadSmall: {
-    flexDirection: "row",
-    gap: 2,
-  },
-  dpadBtn: {
-    width: 32,
-    height: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 6,
+    paddingTop: 8,
   },
   keysContainer: {
     alignItems: "center",
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: 8,
     gap: KEY_GAP,
   },
   row: {
@@ -343,18 +304,63 @@ const styles = StyleSheet.create({
   },
   key: {
     width: KEY_SIZE,
-    height: 40,
-    borderRadius: 6,
+    height: 48,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionKey: {
+    width: ACTION_KEY_WIDTH,
+    height: 48,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },
   keyPrimary: {
     ...Typography.mono,
-    fontSize: 14,
+    fontSize: 16,
   },
   keySecondary: {
     ...Typography.mono,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "700",
+  },
+  bottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: KEY_GAP,
+    width: "100%",
+    paddingHorizontal: 4,
+  },
+  toolBtn: {
+    width: KEY_SIZE + 8,
+    height: 48,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  spaceBar: {
+    flex: 1,
+    height: 48,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  spaceText: {
+    ...Typography.mono,
+    fontSize: 13,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  dpadGroup: {
+    flexDirection: "row",
+    gap: KEY_GAP,
+  },
+  dpadBtn: {
+    width: KEY_SIZE + 8,
+    height: 48,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
