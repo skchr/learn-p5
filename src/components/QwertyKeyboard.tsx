@@ -1,9 +1,10 @@
-import { useState, useCallback, useRef } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useState, useCallback, useRef, useMemo } from "react";
+import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "./ThemeProvider";
 import { Colors } from "../constants/Colors";
 import { Typography } from "../constants/Typography";
+import { pairedSymbols, singleSymbols } from "../data/keyboardLayout";
 
 interface QwertyKeyboardProps {
   onInsert: (text: string, cursorOffset?: number) => void;
@@ -68,9 +69,11 @@ const ROW3: QwertyKey[] = [
 ];
 
 const LONG_PRESS_DELAY = 200;
-const KEY_SIZE = 42;
-const KEY_GAP = 6;
-const ACTION_KEY_WIDTH = KEY_SIZE * 1.6;
+const CONTAINER_PADDING = 8;
+const KEY_GAP = 4;
+const ACTION_KEY_RATIO = 1.5;
+const ROW1_LETTER_COUNT = 10;
+const ROW1_UNITS = ROW1_LETTER_COUNT + ACTION_KEY_RATIO;
 
 export default function QwertyKeyboard({
   onInsert,
@@ -82,9 +85,20 @@ export default function QwertyKeyboard({
 }: QwertyKeyboardProps) {
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
+  const { width: screenWidth } = useWindowDimensions();
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressKey = useRef<string | null>(null);
   const [longPressActive, setLongPressActive] = useState(false);
+
+  const dims = useMemo(() => {
+    const availWidth = screenWidth - CONTAINER_PADDING * 2;
+    const KEY_SIZE = Math.floor((availWidth - ROW1_LETTER_COUNT * KEY_GAP) / ROW1_UNITS);
+    return {
+      keySize: KEY_SIZE,
+      actionKeyWidth: Math.floor(KEY_SIZE * ACTION_KEY_RATIO),
+      keyHeight: 44,
+    };
+  }, [screenWidth]);
 
   const handlePressIn = useCallback((key: QwertyLetterKey) => {
     longPressKey.current = key.primary;
@@ -122,8 +136,12 @@ export default function QwertyKeyboard({
           onPressIn={() => handlePressIn(key)}
           onPressOut={() => handlePressOut(key)}
           style={({ pressed }) => [
-            styles.key,
             {
+              width: dims.keySize,
+              height: dims.keyHeight,
+              borderRadius: 8,
+              alignItems: "center",
+              justifyContent: "center",
               backgroundColor: pressed || isActive
                 ? colors.primaryContainer
                 : colors.surfaceContainer,
@@ -143,7 +161,7 @@ export default function QwertyKeyboard({
         </Pressable>
       );
     },
-    [longPressActive, colors, handlePressIn, handlePressOut]
+    [longPressActive, colors, handlePressIn, handlePressOut, dims]
   );
 
   const renderActionKey = useCallback(
@@ -157,8 +175,12 @@ export default function QwertyKeyboard({
           key={key.action}
           onPress={onPress}
           style={({ pressed }) => [
-            styles.actionKey,
             {
+              width: dims.actionKeyWidth,
+              height: dims.keyHeight,
+              borderRadius: 8,
+              alignItems: "center",
+              justifyContent: "center",
               backgroundColor: pressed
                 ? colors.primaryContainer
                 : colors.surfaceContainer,
@@ -175,7 +197,7 @@ export default function QwertyKeyboard({
         </Pressable>
       );
     },
-    [onBackspace, onNewline, colors]
+    [onBackspace, onNewline, colors, dims]
   );
 
   const renderKey = useCallback(
@@ -186,6 +208,14 @@ export default function QwertyKeyboard({
     [renderLetterKey, renderActionKey]
   );
 
+  const handleSymbolInsert = useCallback((sym: string) => {
+    onInsert(sym);
+  }, [onInsert]);
+
+  const handlePairedInsert = useCallback((open: string, close: string) => {
+    onInsert(open + close, 1);
+  }, [onInsert]);
+
   return (
     <View
       style={[
@@ -193,21 +223,82 @@ export default function QwertyKeyboard({
         { backgroundColor: colors.surfaceContainerLow, height },
       ]}
     >
-      <View style={styles.keysContainer}>
-        <View style={styles.row}>{ROW1.map(renderKey)}</View>
-        <View style={[styles.row, styles.rowIndent]}>
-          {ROW2.map(renderKey)}
-        </View>
-        <View style={[styles.row, styles.rowIndent2]}>
-          {ROW3.map(renderKey)}
-        </View>
-
-        <View style={styles.bottomRow}>
+      <View style={styles.toolbarRow}>
+        <View style={styles.toolbarFixed}>
           <Pressable
             onPress={onToggleProgramming}
             style={({ pressed }) => [
-              styles.toolBtn,
+              styles.toolbarBtn,
+              { backgroundColor: pressed ? colors.primaryContainer : colors.primaryContainer + "33" },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Switch to programming keyboard"
+          >
+            <MaterialCommunityIcons name="code-tags" size={20} color={colors.primary} />
+          </Pressable>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.symbolsScroll}
+          contentContainerStyle={styles.symbolsContent}
+        >
+          {pairedSymbols.map((pair) => (
+            <Pressable
+              key={pair.display}
+              onPress={() => handlePairedInsert(pair.open, pair.close)}
+              style={({ pressed }) => [
+                styles.symbolButton,
+                { backgroundColor: pressed ? colors.outlineVariant : colors.surfaceContainer },
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={pair.display}
+            >
+              <Text style={[styles.symbolText, { color: colors.onSurfaceVariant }]}>
+                {pair.display}
+              </Text>
+            </Pressable>
+          ))}
+          {singleSymbols.map((sym) => (
+            <Pressable
+              key={sym}
+              onPress={() => handleSymbolInsert(sym)}
+              style={({ pressed }) => [
+                styles.symbolButton,
+                { backgroundColor: pressed ? colors.outlineVariant : colors.surfaceContainer },
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel={sym}
+            >
+              <Text style={[styles.symbolText, { color: colors.onSurfaceVariant }]}>
+                {sym}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
+
+      <View style={styles.keysContainer}>
+        <View style={[styles.row, { gap: KEY_GAP }]}>
+          {ROW1.map(renderKey)}
+        </View>
+        <View style={[styles.row, { gap: KEY_GAP }, { paddingLeft: dims.keySize * 0.5 + KEY_GAP }]}>
+          {ROW2.map(renderKey)}
+        </View>
+        <View style={[styles.row, { gap: KEY_GAP }, { paddingLeft: dims.keySize * 1.2 + KEY_GAP * 2 }]}>
+          {ROW3.map(renderKey)}
+        </View>
+
+        <View style={[styles.bottomRow, { gap: KEY_GAP }]}>
+          <Pressable
+            onPress={onToggleProgramming}
+            style={({ pressed }) => [
               {
+                width: dims.keySize + 8,
+                height: dims.keyHeight,
+                borderRadius: 8,
+                alignItems: "center",
+                justifyContent: "center",
                 backgroundColor: pressed
                   ? colors.primaryContainer
                   : colors.surfaceContainer,
@@ -228,6 +319,7 @@ export default function QwertyKeyboard({
             style={({ pressed }) => [
               styles.spaceBar,
               {
+                height: dims.keyHeight,
                 backgroundColor: pressed
                   ? colors.primaryContainer
                   : colors.surfaceContainer,
@@ -245,8 +337,12 @@ export default function QwertyKeyboard({
             <Pressable
               onPress={() => onCursorMove?.("left")}
               style={({ pressed }) => [
-                styles.dpadBtn,
                 {
+                  width: dims.keySize + 8,
+                  height: dims.keyHeight,
+                  borderRadius: 8,
+                  alignItems: "center",
+                  justifyContent: "center",
                   backgroundColor: pressed
                     ? colors.primaryContainer
                     : colors.surfaceContainer,
@@ -262,8 +358,12 @@ export default function QwertyKeyboard({
             <Pressable
               onPress={() => onCursorMove?.("right")}
               style={({ pressed }) => [
-                styles.dpadBtn,
                 {
+                  width: dims.keySize + 8,
+                  height: dims.keyHeight,
+                  borderRadius: 8,
+                  alignItems: "center",
+                  justifyContent: "center",
                   backgroundColor: pressed
                     ? colors.primaryContainer
                     : colors.surfaceContainer,
@@ -287,34 +387,61 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 8,
   },
+  toolbarRow: {
+    flexDirection: "row",
+    position: "relative",
+    alignItems: "stretch",
+    marginBottom: 6,
+  },
+  toolbarFixed: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 8,
+    zIndex: 10,
+  },
+  toolbarBtn: {
+    flexShrink: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+  },
+  symbolsScroll: {
+    maxHeight: 36,
+    flex: 1,
+  },
+  symbolsContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    gap: 4,
+  },
+  symbolButton: {
+    flexShrink: 0,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+  },
+  symbolText: {
+    ...Typography.mono,
+    fontSize: 16,
+  },
   keysContainer: {
     alignItems: "center",
-    paddingHorizontal: 8,
+    paddingHorizontal: CONTAINER_PADDING,
     gap: KEY_GAP,
   },
   row: {
     flexDirection: "row",
-    gap: KEY_GAP,
   },
-  rowIndent: {
-    paddingLeft: KEY_SIZE * 0.5 + KEY_GAP,
-  },
-  rowIndent2: {
-    paddingLeft: KEY_SIZE * 1.2 + KEY_GAP * 2,
-  },
-  key: {
-    width: KEY_SIZE,
-    height: 48,
-    borderRadius: 8,
+  bottomRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-  },
-  actionKey: {
-    width: ACTION_KEY_WIDTH,
-    height: 48,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
+    width: "100%",
+    paddingHorizontal: 4,
   },
   keyPrimary: {
     ...Typography.mono,
@@ -325,23 +452,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
-  bottomRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: KEY_GAP,
-    width: "100%",
-    paddingHorizontal: 4,
-  },
-  toolBtn: {
-    width: KEY_SIZE + 8,
-    height: 48,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   spaceBar: {
     flex: 1,
-    height: 48,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -355,12 +467,5 @@ const styles = StyleSheet.create({
   dpadGroup: {
     flexDirection: "row",
     gap: KEY_GAP,
-  },
-  dpadBtn: {
-    width: KEY_SIZE + 8,
-    height: 48,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

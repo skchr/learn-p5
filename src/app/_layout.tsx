@@ -7,6 +7,10 @@ import DrawerProvider from "../contexts/DrawerContext";
 import SideDrawer from "../components/SideDrawer";
 import DrawerFab from "../components/DrawerFab";
 
+(Text as unknown as { defaultProps: Record<string, unknown> }).defaultProps = {
+  style: { fontFamily: "JetBrainsMono" },
+};
+
 export default function RootLayout() {
   const [loaded] = useFonts({
     JetBrainsMono: require("../../assets/fonts/JetBrainsMono-Regular.ttf"),
@@ -18,7 +22,7 @@ export default function RootLayout() {
   if (!loaded) {
     return (
       <View style={{ flex: 1, backgroundColor: "#121317", justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "#ED225D", fontFamily: "JetBrainsMono", fontSize: 16 }}>Loading...</Text>
+        <Text style={{ color: "#ED225D", fontSize: 16 }}>Loading...</Text>
       </View>
     );
   }
