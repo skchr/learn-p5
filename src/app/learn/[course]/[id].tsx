@@ -10,7 +10,7 @@ import { useThemeContext } from "../../../components/ThemeProvider";
 import { Colors } from "../../../constants/Colors";
 import { DEFAULTS } from "../../../constants/Defaults";
 import ProgrammingKeyboard from "../../../components/ProgrammingKeyboard";
-import SystemKeyboardToolbar from "../../../components/SystemKeyboardToolbar";
+import QwertyKeyboard from "../../../components/QwertyKeyboard";
 import Toast from "../../../components/Toast";
 import StreakToast from "../../../components/StreakToast";
 import { loadExercise, loadCourse } from "../../../utils/courseLoader";
@@ -101,9 +101,8 @@ export default function Exercise() {
   const [webViewReady, setWebViewReady] = useState(false);
   const [editorViewReady, setEditorViewReady] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
-  const [systemKeyboardVisible, setSystemKeyboardVisible] = useState(false);
-  const [systemKeyboardHeight, setSystemKeyboardHeight] = useState(0);
-  const [codeSyncKey, setCodeSyncKey] = useState(0);
+  const [keyboardMode, setKeyboardMode] = useState<"programming" | "qwerty">("programming");
+  const [vimEnabled, setVimEnabled] = useState(false);  const [codeSyncKey, setCodeSyncKey] = useState(0);
   const codeRef = useRef(state.code);
   codeRef.current = state.code;
   const [editorTheme, setEditorTheme] = useState<string>("p5-learn");
@@ -432,27 +431,23 @@ export default function Exercise() {
 
   const handleToggleKeyboard = useCallback(() => {
     setKeyboardVisible((prev) => !prev);
-    setSystemKeyboardVisible(false);
-    if (webViewRef.current && editorViewReady) {
-      webViewRef.current.postMessage(JSON.stringify({ type: "useCustomKeyboard" }));
-    }
-  }, [editorViewReady]);
+  }, []);
 
-  const handleRequestSystemKeyboard = useCallback(() => {
-    if (systemKeyboardVisible) {
-      setSystemKeyboardVisible(false);
-      setKeyboardVisible(true);
+  const handleToggleKeyboardMode = useCallback(() => {
+    setKeyboardMode((prev) => (prev === "programming" ? "qwerty" : "programming"));
+  }, []);
+
+  const handleToggleVim = useCallback(
+    (enabled: boolean) => {
+      setVimEnabled(enabled);
       if (webViewRef.current && editorViewReady) {
-        webViewRef.current.postMessage(JSON.stringify({ type: "useCustomKeyboard" }));
+        webViewRef.current.postMessage(
+          JSON.stringify({ type: "toggleVimMode", enabled })
+        );
       }
-    } else {
-      setSystemKeyboardVisible(true);
-      setKeyboardVisible(false);
-      if (webViewRef.current) {
-        webViewRef.current.postMessage(JSON.stringify({ type: "focus" }));
-      }
-    }
-  }, [systemKeyboardVisible, editorViewReady]);
+    },
+    [editorViewReady]
+  );
 
   const handleBackspace = useCallback(() => {
     if (webViewRef.current && editorViewReady) {
@@ -611,17 +606,12 @@ export default function Exercise() {
     });
   }, [state.code]);
 
-  const TOOLBAR_HEIGHT = 44;
-
   const runButtonBottom = useMemo(() => {
     if (keyboardVisible) {
       return (DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium) + 16;
     }
-    if (systemKeyboardVisible) {
-      return (systemKeyboardHeight || 300) + TOOLBAR_HEIGHT + 16;
-    }
     return 16;
-  }, [keyboardVisible, keyboardHeight, systemKeyboardVisible, systemKeyboardHeight]);
+  }, [keyboardVisible, keyboardHeight]);
 
   const keyboardFabBottom = useMemo(() => {
     return runButtonBottom + 60;
@@ -752,37 +742,15 @@ export default function Exercise() {
         onDismiss={() => setToastVisible(false)}
       />
 
-      {systemKeyboardVisible && (
-        <View
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: systemKeyboardHeight,
-            zIndex: 100,
-          }}
-        >
-          <SystemKeyboardToolbar
-            onInsert={handleInsert}
-            onCursorMove={handleCursorMove}
-            onBackspace={handleBackspace}
-            onNewline={handleNewline}
-            onRun={handleRun}
-            height={TOOLBAR_HEIGHT}
-          />
-        </View>
-      )}
-
-      {keyboardVisible && (
+      {keyboardVisible && keyboardMode === "programming" && (
         <ProgrammingKeyboard
           onInsert={handleInsert}
           exerciseSymbols={exerciseSymbols}
           onToggleKeyboard={handleToggleKeyboard}
-          onRequestSystemKeyboard={handleRequestSystemKeyboard}
+          onToggleQwerty={handleToggleKeyboardMode}
           onBackspace={handleBackspace}
           onNewline={handleNewline}
           onFormat={handleFormat}
-          onReset={handleReset}
           onCursorMove={handleCursorMove}
           onOpenReference={(symbol) => router.push(`/ref?symbol=${symbol}`)}
           keyboardVisible={keyboardVisible}
@@ -791,7 +759,18 @@ export default function Exercise() {
         />
       )}
 
-      {!keyboardVisible && !systemKeyboardVisible && (
+      {keyboardVisible && keyboardMode === "qwerty" && (
+        <QwertyKeyboard
+          onInsert={handleInsert}
+          onBackspace={handleBackspace}
+          onNewline={handleNewline}
+          onCursorMove={handleCursorMove}
+          onToggleProgramming={handleToggleKeyboardMode}
+          height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
+        />
+      )}
+
+      {!keyboardVisible && (
         <Pressable
           onPress={handleToggleKeyboard}
           style={({ pressed }) => [
@@ -875,6 +854,21 @@ export default function Exercise() {
                 <Switch
                   value={colorScheme === "dark"}
                   onValueChange={toggleTheme}
+                  trackColor={{ false: "#767577", true: "#ED225D" }}
+                  thumbColor="#ffffff"
+                />
+              </View>
+            </View>
+
+            <View style={styles.modalSection}>
+              <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Editing</Text>
+              <View style={styles.modalRow}>
+                <Text style={{ fontFamily: "JetBrainsMono", fontSize: 14, color: colors.onSurface }}>
+                  Vim Mode
+                </Text>
+                <Switch
+                  value={vimEnabled}
+                  onValueChange={handleToggleVim}
                   trackColor={{ false: "#767577", true: "#ED225D" }}
                   thumbColor="#ffffff"
                 />

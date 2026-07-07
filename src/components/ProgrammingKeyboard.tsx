@@ -12,11 +12,10 @@ interface ProgrammingKeyboardProps {
   onInsert: (text: string, cursorOffset?: number) => void;
   exerciseSymbols?: string[];
   onToggleKeyboard?: () => void;
-  onRequestSystemKeyboard?: () => void;
+  onToggleQwerty?: () => void;
   onBackspace?: () => void;
   onNewline?: () => void;
   onFormat?: () => void;
-  onReset?: () => void;
   onCursorMove?: (direction: 'left' | 'right' | 'up' | 'down') => void;
   onOpenReference?: (symbol: string) => void;
   keyboardVisible?: boolean;
@@ -27,7 +26,7 @@ interface ProgrammingKeyboardProps {
 const BACKSPACE_DELAY = 300;
 const BACKSPACE_INTERVAL = 60;
 
-export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onRequestSystemKeyboard, onBackspace, onNewline, onFormat, onReset, onCursorMove, onOpenReference, keyboardVisible = true, usedFunctions = [], height = 280 }: ProgrammingKeyboardProps) {
+export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onToggleQwerty, onBackspace, onNewline, onFormat, onCursorMove, onOpenReference, keyboardVisible = true, usedFunctions = [], height = 280 }: ProgrammingKeyboardProps) {
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const isMediumKeyboard = height === 280;
@@ -117,15 +116,15 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
       <View style={styles.toolbarRow}>
         <View style={styles.toolbarFixed}>
           <Pressable
-            onPress={onRequestSystemKeyboard}
+            onPress={onToggleQwerty}
             style={({ pressed }) => [
               styles.keyboardIcon,
               { backgroundColor: pressed ? colors.primaryContainer : colors.primaryContainer + "33" },
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Toggle system keyboard"
+            accessibilityLabel="QWERTY keyboard"
           >
-            <MaterialCommunityIcons name="keyboard-outline" size={20} color={colors.primary} />
+            <MaterialCommunityIcons name="keyboard" size={20} color={colors.primary} />
           </Pressable>
           <Pressable
             onPressIn={startBackspaceRepeat}
@@ -149,17 +148,6 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
             accessibilityLabel="New line"
           >
             <MaterialCommunityIcons name="keyboard-return" size={18} color={colors.onSurfaceVariant} />
-          </Pressable>
-          <Pressable
-            onPress={onReset}
-            style={({ pressed }) => [
-              styles.keyboardIcon,
-              { backgroundColor: pressed ? colors.errorContainer : colors.surfaceContainer },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Reset code"
-          >
-            <MaterialCommunityIcons name="restore" size={18} color={colors.error} />
           </Pressable>
         </View>
         <ScrollView

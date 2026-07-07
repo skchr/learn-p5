@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useRef } from "react";
-import { View, Text, FlatList, Pressable, Alert, StyleSheet, Linking } from "react-native";
+import { useRef, useMemo, useState, useCallback } from "react";
+import { View, Text, FlatList, Pressable, Alert, StyleSheet, Linking, TextInput } from "react-native";
 import { WebView } from "react-native-webview";
 import Header from "../../components/Header";
 import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, P5SymbolView as P5Symbol } from "../../data/reference";
@@ -10,6 +10,7 @@ import { Colors } from "../../constants/Colors";
 import { useModuleProgress } from "../../hooks/useModuleProgress";
 import { getEditorTheme } from "../../utils/editor/themes";
 import { getExampleHtml } from "../../utils/editor/exampleHtml";
+import Fuse from "fuse.js";
 
 const MODULE_GROUPS = P5_SYMBOLS.reduce<{ module: string; symbols: P5Symbol[] }[]>((acc, sym) => {
   const existing = acc.find((g) => g.module === sym.module);
@@ -348,6 +349,32 @@ export default function Reference() {
   const router = useRouter();
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
+  const [searchQuery, setSearchQuery] = useState("");
+  const inputRef = useRef<TextInput>(null);
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(P5_SYMBOLS, {
+        keys: [
+          { name: "name", weight: 2 },
+          { name: "description", weight: 1 },
+          { name: "module", weight: 1 },
+        ],
+        threshold: 0.4,
+        includeScore: true,
+      }),
+    []
+  );
+
+  const filteredSymbols = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    return fuse.search(searchQuery.trim()).map((r) => r.item);
+  }, [searchQuery, fuse]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    inputRef.current?.blur();
+  }, []);
 
   if (symbol) {
     return <SymbolDetail symbol={symbol} />;
@@ -356,56 +383,107 @@ export default function Reference() {
   return (
     <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
       <Header title="Reference" />
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant },
+        ]}
+      >
+        <MaterialCommunityIcons name="magnify" size={18} color={colors.onSurfaceVariant} />
+        <TextInput
+          ref={inputRef}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search symbols..."
+          placeholderTextColor={colors.onSurfaceVariant}
+          style={[styles.searchInput, { color: colors.onSurface }]}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {searchQuery.length > 0 && (
+          <Pressable onPress={handleClearSearch} accessibilityRole="button" accessibilityLabel="Clear search">
+            <MaterialCommunityIcons name="close" size={18} color={colors.onSurfaceVariant} />
+          </Pressable>
+        )}
+      </View>
       <FlatList
-        style={[styles.flex1, { paddingHorizontal: 16, paddingTop: 24 }]}
-        contentContainerStyle={{ paddingBottom: 32 }}
+        style={[styles.flex1, { paddingHorizontal: 16 }]}
+        contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
         ListHeaderComponent={
-          <>
-            <Text style={[styles.refListTitle, { color: colors.onSurface, marginBottom: 8 }]}>
-              p5.js Reference
-            </Text>
+          !filteredSymbols ? (
             <Text style={[styles.bodyBase, { color: colors.textSecondary, marginBottom: 24 }]}>
               Browse the full p5.js API reference and documentation.
             </Text>
-          </>
+          ) : null
         }
-        data={MODULE_GROUPS}
-        keyExtractor={(item) => item.module}
-        renderItem={({ item: group }) => (
-          <View style={{ marginBottom: 24 }}>
-            <Text style={[styles.moduleGroupTitle, { color: colors.onSurface, marginBottom: 12 }]}>
-              {group.module}
-            </Text>
-            {group.symbols.map((sym) => (
-              <Pressable
-                key={sym.name}
-                onPress={() => router.push(`/ref?symbol=${sym.name}`)}
-                style={({ pressed }) => [
-                  styles.flexRow,
-                  styles.symbolRow,
-                  pressed && { opacity: 0.6 },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={`View reference for ${sym.name}`}
-              >
-                <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
-                  {sym.name}()
-                </Text>
-                <Text
-                  style={[styles.bodyXs, { color: colors.textSecondary, flex: 2 }]}
-                  numberOfLines={1}
+        data={filteredSymbols || MODULE_GROUPS}
+        keyExtractor={filteredSymbols ? (item) => item.name : (item) => item.module}
+        renderItem={
+          filteredSymbols
+            ? ({ item: sym }) => (
+                <Pressable
+                  key={sym.name}
+                  onPress={() => router.push(`/ref?symbol=${sym.name}`)}
+                  style={({ pressed }) => [
+                    styles.flexRow,
+                    styles.symbolRow,
+                    pressed && { opacity: 0.6 },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`View reference for ${sym.name}`}
                 >
-                  {sym.description}
-                </Text>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={18}
-                  color={colors.onSurfaceVariant}
-                />
-              </Pressable>
-            ))}
-          </View>
-        )}
+                  <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
+                    {sym.name}()
+                  </Text>
+                  <Text
+                    style={[styles.bodyXs, { color: colors.textSecondary, flex: 2 }]}
+                    numberOfLines={1}
+                  >
+                    {sym.description}
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="chevron-right"
+                    size={18}
+                    color={colors.onSurfaceVariant}
+                  />
+                </Pressable>
+              )
+            : ({ item: group }) => (
+                <View style={{ marginBottom: 24 }}>
+                  <Text style={[styles.moduleGroupTitle, { color: colors.onSurface, marginBottom: 12 }]}>
+                    {group.module}
+                  </Text>
+                  {group.symbols.map((sym) => (
+                    <Pressable
+                      key={sym.name}
+                      onPress={() => router.push(`/ref?symbol=${sym.name}`)}
+                      style={({ pressed }) => [
+                        styles.flexRow,
+                        styles.symbolRow,
+                        pressed && { opacity: 0.6 },
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`View reference for ${sym.name}`}
+                    >
+                      <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
+                        {sym.name}()
+                      </Text>
+                      <Text
+                        style={[styles.bodyXs, { color: colors.textSecondary, flex: 2 }]}
+                        numberOfLines={1}
+                      >
+                        {sym.description}
+                      </Text>
+                      <MaterialCommunityIcons
+                        name="chevron-right"
+                        size={18}
+                        color={colors.onSurfaceVariant}
+                      />
+                    </Pressable>
+                  ))}
+                </View>
+              )
+        }
       />
     </View>
   );
@@ -414,6 +492,24 @@ export default function Reference() {
 const styles = StyleSheet.create({
   flex1: { flex: 1 },
   flexRow: { flexDirection: "row" },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 16,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    height: 40,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: "JetBrainsMono",
+    fontSize: 14,
+    height: 40,
+    padding: 0,
+  },
   headlineXl: {
     fontFamily: "JetBrainsMono",
     fontSize: 20,

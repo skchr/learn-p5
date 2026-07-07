@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -116,12 +116,12 @@ export default function OnboardingSlide() {
   const isLast = isLastSlide(slide);
   const isFirst = isFirstSlide(slide);
 
-  const needsSelection = slide === "2" || slide === "3" || slide === "4";
-  const hasSelection = slide === "2" ? !!data.experience : slide === "3" ? !!data.path : slide === "4" ? !!data.displayName : true;
+  const needsSelection = slide === "2" || slide === "3";
+  const hasSelection = slide === "2" ? !!data.experience : slide === "3" ? !!data.path : true;
   const canProceed = !needsSelection || hasSelection;
 
   return (
-    <View style={[styles.flex1, { backgroundColor: "#2a0516" }]}>
+    <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
       <View style={[styles.headerRow, { paddingTop: insets.top + 8 }]}>
         {!isFirst && (
           <Pressable
@@ -133,7 +133,7 @@ export default function OnboardingSlide() {
             <MaterialCommunityIcons
               name="arrow-left"
               size={24}
-              color="#ffb2bb"
+              color={colors.onSurfaceVariant}
             />
           </Pressable>
         )}
@@ -210,14 +210,14 @@ export default function OnboardingSlide() {
                     <Pressable
                       key={opt.value}
                       onPress={() => updateData({ experience: opt.value })}
-                      style={[styles.optionCard, selected ? styles.optionCardSelected : styles.optionCardUnselected]}
+                      style={[styles.optionCard, selected ? { backgroundColor: "#FF69B4" } : { backgroundColor: colors.surfaceContainer }]}
                       accessibilityRole="button"
                       accessibilityLabel={opt.label}
                     >
-                      <Text style={[styles.optionTitle, { color: selected ? "#000000" : "#ffd9e4" }]}>
+                      <Text style={[styles.optionTitle, { color: selected ? "#000000" : colors.onSurface }]}>
                         {opt.label}
                       </Text>
-                      <Text style={[styles.optionDesc, { color: selected ? "rgba(0,0,0,0.7)" : "#e4bdc0" }]}>
+                      <Text style={[styles.optionDesc, { color: selected ? "rgba(0,0,0,0.7)" : colors.onSurfaceVariant }]}>
                         {opt.description}
                       </Text>
                     </Pressable>
@@ -239,14 +239,14 @@ export default function OnboardingSlide() {
                     <Pressable
                       key={opt.value}
                       onPress={() => updateData({ path: opt.value })}
-                      style={[styles.optionCard, selected ? styles.optionCardSelected : styles.optionCardUnselected]}
+                      style={[styles.optionCard, selected ? { backgroundColor: "#FF69B4" } : { backgroundColor: colors.surfaceContainer }]}
                       accessibilityRole="button"
                       accessibilityLabel={opt.title}
                     >
-                      <Text style={[styles.pathTitle, { color: selected ? "#000000" : "#ffd9e4" }]}>
+                      <Text style={[styles.pathTitle, { color: selected ? "#000000" : colors.onSurface }]}>
                         {opt.title}
                       </Text>
-                      <Text style={[styles.pathDesc, { color: selected ? "rgba(0,0,0,0.7)" : "#e4bdc0" }]}>
+                      <Text style={[styles.pathDesc, { color: selected ? "rgba(0,0,0,0.7)" : colors.onSurfaceVariant }]}>
                         {opt.description}
                       </Text>
                     </Pressable>
@@ -265,14 +265,28 @@ export default function OnboardingSlide() {
                 {content.subtitle}
               </Text>
               <TextInput
-                style={[styles.nameInput, { color: "#ffd9e4", borderColor: "#ff4f75", backgroundColor: "#340d1f" }]}
+                style={styles.nameInput}
                 placeholder="Enter your name"
-                placeholderTextColor="#e4bdc0"
+                placeholderTextColor={colors.onSurfaceVariant}
                 value={data.displayName}
                 onChangeText={(text) => updateData({ displayName: text })}
-                autoFocus
                 maxLength={30}
               />
+              <Pressable
+                onPress={() => handleNext()}
+                style={({ pressed }) => ({
+                  marginTop: 16,
+                  paddingVertical: 12,
+                  alignItems: "center",
+                  opacity: pressed ? 0.6 : 1,
+                })}
+                accessibilityRole="button"
+                accessibilityLabel="Skip entering name"
+              >
+                <Text style={[styles.slideSubtitle, { color: colors.primary, fontWeight: "700" }]}>
+                  Skip →
+                </Text>
+              </Pressable>
             </View>
           )}
 
@@ -321,7 +335,7 @@ export default function OnboardingSlide() {
           {["1", "2", "3", "4", "5"].map((dot) => (
             <View
               key={dot}
-              style={[styles.dot, { backgroundColor: dot === slide ? "#ED225D" : "rgba(255,255,255,0.3)" }]}
+              style={[styles.dot, { backgroundColor: dot === slide ? colors.primary : colors.outlineVariant }]}
             />
           ))}
         </View>
@@ -360,7 +374,7 @@ export default function OnboardingSlide() {
   );
 }
 
-const styles = StyleSheet.create({
+  const styles = useMemo(() => StyleSheet.create({
   flex1: { flex: 1 },
   flexRow: { flexDirection: "row" },
   flexWrap: { flexWrap: "wrap" },
@@ -373,6 +387,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     paddingVertical: 12,
     marginTop: 32,
+    borderColor: colors.primary,
+    color: colors.onSurface,
   },
   headerRow: {
     flexDirection: "row",
@@ -392,7 +408,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: -0.5,
-    color: "#ffb2bb",
+    color: colors.primary,
   },
   welcomeTitle: {
     fontFamily: "JetBrainsMono",
@@ -400,13 +416,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 45,
     letterSpacing: -0.5,
-    color: "#ffd9e4",
+    color: colors.onSurface,
   },
   welcomeSubtitle: {
     fontFamily: "JetBrainsMono",
     fontSize: 16,
     lineHeight: 24,
-    color: "#e4bdc0",
+    color: colors.onSurfaceVariant,
     marginTop: 16,
   },
   tagItem: {
@@ -414,13 +430,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 9999,
-    backgroundColor: "#340d1f",
+    backgroundColor: colors.surfaceContainer,
   },
   tagDot: {
     width: 12,
     height: 12,
     borderRadius: 9999,
-    backgroundColor: "#ff4f75",
+    backgroundColor: colors.primary,
     marginRight: 8,
   },
   tagLabel: {
@@ -428,11 +444,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: 0.5,
-    color: "#ffd9e4",
+    color: colors.onSurfaceVariant,
   },
   codeBlock: {
-    backgroundColor: "#000000",
+    backgroundColor: colors.surfaceContainerLowest,
     padding: 16,
+    borderRadius: 8,
   },
   codeBlockHeader: {
     justifyContent: "space-between",
@@ -441,7 +458,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   codeBlockLabel: {
-    color: "#ffb2bb",
+    color: colors.primary,
     fontWeight: "700",
     fontSize: 10,
     textTransform: "uppercase",
@@ -449,40 +466,35 @@ const styles = StyleSheet.create({
   codeTextPink: {
     fontFamily: "JetBrainsMono",
     fontSize: 11,
-    color: "#ffb2bb",
+    color: colors.primary,
   },
   codeTextWhite: {
     fontFamily: "JetBrainsMono",
     fontSize: 11,
-    color: "#FFFFFF",
+    color: colors.onSurface,
     paddingLeft: 16,
   },
   codeTextPink2: {
     fontFamily: "JetBrainsMono",
     fontSize: 11,
-    color: "#ffb1c2",
+    color: colors.primary,
     paddingLeft: 16,
   },
   slideTitle: {
     fontFamily: "JetBrainsMono",
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffd9e4",
+    color: colors.onSurface,
   },
   slideSubtitle: {
     fontFamily: "JetBrainsMono",
     fontSize: 16,
-    color: "#e4bdc0",
+    color: colors.onSurfaceVariant,
     marginTop: 8,
   },
   optionCard: {
     padding: 16,
-  },
-  optionCardSelected: {
-    backgroundColor: "#ff4f75",
-  },
-  optionCardUnselected: {
-    backgroundColor: "#340d1f",
+    borderRadius: 20,
   },
   optionTitle: {
     fontFamily: "JetBrainsMono",
@@ -508,35 +520,36 @@ const styles = StyleSheet.create({
     fontFamily: "JetBrainsMono",
     fontSize: 32,
     fontWeight: "700",
-    color: "#ffd9e4",
+    color: colors.onSurface,
   },
   moduleCard: {
     padding: 16,
-    backgroundColor: "#340d1f",
+    borderRadius: 16,
+    backgroundColor: colors.surfaceContainer,
   },
   moduleNumber: {
     width: 32,
     height: 32,
     borderRadius: 9999,
-    backgroundColor: "#ff4f75",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   moduleNumberText: {
     fontFamily: "JetBrainsMono",
     fontWeight: "700",
-    color: "#000000",
+    color: colors.onPrimary,
   },
   moduleName: {
     fontFamily: "JetBrainsMono",
     fontSize: 20,
     fontWeight: "700",
-    color: "#ffd9e4",
+    color: colors.onSurface,
   },
   moduleDesc: {
     fontFamily: "JetBrainsMono",
     fontSize: 16,
-    color: "#e4bdc0",
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   readyCta: {
@@ -544,7 +557,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
     textAlign: "center",
-    color: "#ffb2bb",
+    color: colors.primary,
   },
   bottomBar: {
     position: "absolute",
@@ -553,7 +566,7 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 24,
     paddingTop: 24,
-    backgroundColor: "#2a0516",
+    backgroundColor: colors.surface,
   },
   dot: {
     width: 8,
@@ -563,8 +576,9 @@ const styles = StyleSheet.create({
   ctaButton: {
     width: "100%",
     paddingVertical: 16,
-    backgroundColor: "#ED225D",
+    backgroundColor: colors.primary,
     alignItems: "center",
+    borderRadius: 12,
   },
   ctaButtonText: {
     fontFamily: "JetBrainsMono",
@@ -572,11 +586,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textTransform: "uppercase",
     letterSpacing: 1,
-    color: "#000000",
+    color: colors.onPrimary,
   },
   headlineXl: {
     fontFamily: "JetBrainsMono",
     fontSize: 20,
     fontWeight: "700",
   },
-});
+}), [colors]);
