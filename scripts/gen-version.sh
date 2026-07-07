@@ -1,4 +1,4 @@
 #!/bin/sh
 set -e
-VERSION=$(git describe --tags --abbrev=0 2>/dev/null || node -p "require('./package.json').version")
-echo "export const APP_VERSION = \"$VERSION\";" > src/constants/Version.generated.ts
+SHORT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "0000000")
+echo "export const APP_VERSION = \"debug+$SHORT_HASH\";" > src/constants/Version.generated.ts

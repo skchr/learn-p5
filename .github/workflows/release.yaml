@@ -1,9 +1,14 @@
 name: Build & Publish Release APK
 
+# This workflow uses a moving tag (debug+<short-hash>) that is force-pushed
+# on every release. The tag always points to the latest release commit.
+# Before creating a new release, the previous one with the same tag name
+# is deleted to ensure clean artifact uploads.
+
 on:
   push:
     tags:
-      - "*"
+      - "debug+*"
 
 permissions:
   contents: write
@@ -13,6 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Delete previous release for this tag
+        run: |
+          gh release delete "${{ github.ref_name }}" --yes --cleanup-tag || true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
