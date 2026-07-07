@@ -71,14 +71,16 @@ const styles = StyleSheet.create({
  borderRadius: 0,
  minHeight: 52,
  },
- primaryText: {
- fontWeight: "900",
+  primaryText: {
+    fontFamily: "JetBrainsMono",
+    fontWeight: "900",
  fontSize: 20,
  textTransform: "uppercase",
  letterSpacing: 0.5,
  },
- outlineText: {
- fontWeight: "700",
+  outlineText: {
+    fontFamily: "JetBrainsMono",
+    fontWeight: "700",
  fontSize: 20,
  textTransform: "uppercase",
  letterSpacing: 1,

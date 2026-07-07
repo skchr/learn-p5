@@ -483,6 +483,55 @@ var p5FnPlugin = ViewPlugin.fromClass(P5FnPlugin, {
 
 var vimEnabled = false;
 
+var p5Theme = EditorView.theme({
+  '&': { backgroundColor: '${editorBg}', color: '${fg}' },
+  '.cm-content': { caretColor: '#ED225D', fontFamily: "'JetBrains Mono', monospace" },
+  '.cm-gutters': { backgroundColor: '${editorBg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
+  '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
+  '.cm-activeLine': { backgroundColor: '${activeBg}' },
+  '.cm-cursor': { borderLeft: '2px solid #ED225D' },
+  '.cm-selectionBackground': { backgroundColor: '${selBg}' },
+  '.cm-matchingBracket': { backgroundColor: 'rgba(237, 34, 93, 0.3)', outline: '1px solid #ED225D' },
+  '.cm-p5-fn': { fontWeight: '600' },
+});
+
+var p5Highlight = HighlightStyle.define([
+  { tag: tags.keyword, color: '${kwColor}' },
+  { tag: tags.definitionKeyword, color: '${kwColor}', fontWeight: 'bold' },
+  { tag: tags.moduleKeyword, color: '${kwColor}' },
+  { tag: tags.controlKeyword, color: '${kwColor}' },
+  { tag: tags.operator, color: '${opColor}' },
+  { tag: tags.arithmeticOperator, color: '${opColor}' },
+  { tag: tags.logicOperator, color: '${opColor}' },
+  { tag: tags.compareOperator, color: '${opColor}' },
+  { tag: tags.punctuation, color: '${opColor}' },
+  { tag: tags.separator, color: '${opColor}' },
+  { tag: tags.brace, color: '${opColor}' },
+  { tag: tags.bracket, color: '${opColor}' },
+  { tag: tags.paren, color: '${opColor}' },
+  { tag: tags.number, color: '${numColor}' },
+  { tag: tags.string, color: '${strColor}' },
+  { tag: tags.bool, color: '${numColor}' },
+  { tag: tags.null, color: '${numColor}' },
+  { tag: tags.variableName, color: '${fg}' },
+  { tag: tags.definition(tags.variableName), color: '${fnColor}' },
+  { tag: tags.function(tags.variableName), color: '${fnColor}' },
+  { tag: tags.definition(tags.function(tags.variableName)), color: '${fnColor}' },
+  { tag: tags.propertyName, color: '${fnColor}' },
+  { tag: tags.attributeName, color: '${fnColor}' },
+  { tag: tags.labelName, color: '${fnColor}' },
+  { tag: tags.comment, color: '${commentColor}', fontStyle: 'italic' },
+  { tag: tags.self, color: '${kwColor}' },
+  { tag: tags.typeName, color: '${typeColor}' },
+  { tag: tags.className, color: '${typeColor}' },
+  { tag: tags.standard(tags.tagName), color: '${kwColor}' },
+  { tag: tags.meta, color: '${fnColor}' },
+  { tag: tags.invalid, color: '${kwColor}' },
+  { tag: tags.modifier, color: '${kwColor}' },
+  { tag: tags.constant(tags.variableName), color: '${constColor}' },
+  { tag: tags.special(tags.variableName), color: '${constColor}' },
+]);
+
 function getExtensions() {
   var exts = [
     basicSetup,
@@ -567,55 +616,6 @@ function initEditorView(code) {
 
 function initEditor() {
   try {
-    const p5Theme = EditorView.theme({
-      '&': { backgroundColor: '${editorBg}', color: '${fg}' },
-      '.cm-content': { caretColor: '#ED225D', fontFamily: "'JetBrains Mono', monospace" },
-      '.cm-gutters': { backgroundColor: '${editorBg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
-      '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
-      '.cm-activeLine': { backgroundColor: '${activeBg}' },
-      '.cm-cursor': { borderLeft: '2px solid #ED225D' },
-      '.cm-selectionBackground': { backgroundColor: '${selBg}' },
-      '.cm-matchingBracket': { backgroundColor: 'rgba(237, 34, 93, 0.3)', outline: '1px solid #ED225D' },
-      '.cm-p5-fn': { fontWeight: '600' },
-    });
-
-    const p5Highlight = HighlightStyle.define([
-      { tag: tags.keyword, color: '${kwColor}' },
-      { tag: tags.definitionKeyword, color: '${kwColor}', fontWeight: 'bold' },
-      { tag: tags.moduleKeyword, color: '${kwColor}' },
-      { tag: tags.controlKeyword, color: '${kwColor}' },
-      { tag: tags.operator, color: '${opColor}' },
-      { tag: tags.arithmeticOperator, color: '${opColor}' },
-      { tag: tags.logicOperator, color: '${opColor}' },
-      { tag: tags.compareOperator, color: '${opColor}' },
-      { tag: tags.punctuation, color: '${opColor}' },
-      { tag: tags.separator, color: '${opColor}' },
-      { tag: tags.brace, color: '${opColor}' },
-      { tag: tags.bracket, color: '${opColor}' },
-      { tag: tags.paren, color: '${opColor}' },
-      { tag: tags.number, color: '${numColor}' },
-      { tag: tags.string, color: '${strColor}' },
-      { tag: tags.bool, color: '${numColor}' },
-      { tag: tags.null, color: '${numColor}' },
-      { tag: tags.variableName, color: '${fg}' },
-      { tag: tags.definition(tags.variableName), color: '${fnColor}' },
-      { tag: tags.function(tags.variableName), color: '${fnColor}' },
-      { tag: tags.definition(tags.function(tags.variableName)), color: '${fnColor}' },
-      { tag: tags.propertyName, color: '${fnColor}' },
-      { tag: tags.attributeName, color: '${fnColor}' },
-      { tag: tags.labelName, color: '${fnColor}' },
-      { tag: tags.comment, color: '${commentColor}', fontStyle: 'italic' },
-      { tag: tags.self, color: '${kwColor}' },
-      { tag: tags.typeName, color: '${typeColor}' },
-      { tag: tags.className, color: '${typeColor}' },
-      { tag: tags.standard(tags.tagName), color: '${kwColor}' },
-      { tag: tags.meta, color: '${fnColor}' },
-      { tag: tags.invalid, color: '${kwColor}' },
-      { tag: tags.modifier, color: '${kwColor}' },
-      { tag: tags.constant(tags.variableName), color: '${constColor}' },
-      { tag: tags.special(tags.variableName), color: '${constColor}' },
-    ]);
-
     initEditorView(INITIAL_CODE);
     view.dom.addEventListener('mousedown', function(e) {
       e.preventDefault();

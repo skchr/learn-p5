@@ -39,6 +39,7 @@ const createStyles = (colors: Record<string, string>) =>
  container: { flex: 1 },
  scrollContent: { flex: 1, paddingHorizontal: 16, paddingTop: 24 },
  sectionTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  textTransform: "uppercase",
  letterSpacing: 1,
@@ -54,9 +55,10 @@ const createStyles = (colors: Record<string, string>) =>
  paddingVertical: 16,
  },
  flexChild: { flex: 1 },
- settingTitle: { fontSize: 16, fontWeight: "700", color: colors.onSurface },
- settingDescription: { fontSize: 11, marginTop: 2, color: colors.textSecondary },
+ settingTitle: { fontFamily: "JetBrainsMono", fontSize: 16, fontWeight: "700", color: colors.onSurface },
+ settingDescription: { fontFamily: "JetBrainsMono", fontSize: 11, marginTop: 2, color: colors.textSecondary },
  nameInput: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  borderBottomWidth: 1,
  paddingVertical: 8,
@@ -351,7 +353,7 @@ export default function Settings() {
  >
  <Text style={{ fontSize: 18, fontWeight: "700", color: colors.onSurface }}>−</Text>
  </Pressable>
- <Text style={{ fontSize: 16, fontWeight: "700", color: colors.onSurface, minWidth: 32, textAlign: "center" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 16, fontWeight: "700", color: colors.onSurface, minWidth: 32, textAlign: "center" }}>
  {codeFontSize}
  </Text>
  <Pressable
@@ -406,6 +408,7 @@ export default function Settings() {
  >
  <Text
  style={{
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  textTransform: "uppercase",
@@ -455,6 +458,7 @@ export default function Settings() {
  </View>
  <Text
  style={{
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  textTransform: "uppercase",
@@ -505,6 +509,7 @@ export default function Settings() {
  >
  <Text
  style={{
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  textTransform: "uppercase",
@@ -575,7 +580,7 @@ export default function Settings() {
  backgroundColor: pressed ? colors.primaryContainer : colors.primary,
  })}
  >
- <Text style={{ fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
  Trigger
  </Text>
  </Pressable>
@@ -591,7 +596,7 @@ export default function Settings() {
  backgroundColor: pressed ? colors.primaryContainer : colors.primary,
  })}
  >
- <Text style={{ fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
  Trigger
  </Text>
  </Pressable>
@@ -618,7 +623,7 @@ export default function Settings() {
  backgroundColor: pressed ? colors.primaryContainer : colors.primary,
  })}
  >
- <Text style={{ fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
  Run
  </Text>
  </Pressable>
@@ -639,7 +644,7 @@ export default function Settings() {
  backgroundColor: pressed ? colors.errorContainer : colors.error,
  })}
  >
- <Text style={{ fontSize: 11, fontWeight: "700", color: colors.onError, textTransform: "uppercase" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onError, textTransform: "uppercase" }}>
  Reset
  </Text>
  </Pressable>
@@ -664,7 +669,7 @@ export default function Settings() {
  backgroundColor: pressed ? colors.primaryContainer : colors.primary,
  })}
  >
- <Text style={{ fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
  Set
  </Text>
  </Pressable>

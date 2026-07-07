@@ -320,8 +320,8 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <Text style={[popupTextStyles.popupDesc, { color: colors.onSurfaceVariant }]}>{ref.description}</Text>
  {ref.parameters.map(p => (
  <Text key={p.name} style={[popupTextStyles.popupParam, { color: colors.onSurfaceVariant }]}>
- <Text style={{ color: colors.primary, fontWeight: "700" }}>{p.name}</Text>
- {' '}<Text style={{ fontSize: 11, color: colors.primary }}>({p.type})</Text>: {p.description}
+  <Text style={{ fontFamily: "JetBrainsMono", color: colors.primary, fontWeight: "700" }}>{p.name}</Text>
+  {' '}<Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, color: colors.primary }}>({p.type})</Text>: {p.description}
  </Text>
 ))}
  </>
@@ -337,35 +337,39 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
 }
 
 const popupTextStyles = StyleSheet.create({
- popupTitle: {
- fontSize: 16,
- fontWeight: "700",
- marginBottom: 8,
- padding: 8,
- borderRadius: 6,
- borderWidth: 1,
- overflow: "hidden",
- },
- popupDesc: {
- fontSize: 14,
- lineHeight: 20,
- marginBottom: 12,
- },
- popupParam: {
- fontSize: 13,
- lineHeight: 18,
- marginBottom: 4,
- paddingLeft: 8,
- },
- refButton: {
- marginTop: 16,
- paddingHorizontal: 16,
- paddingVertical: 10,
- borderRadius: 8,
- alignItems: "center",
- },
- refButtonText: {
- fontSize: 12,
+  popupTitle: {
+   fontFamily: "JetBrainsMono",
+   fontSize: 16,
+   fontWeight: "700",
+   marginBottom: 8,
+   padding: 8,
+   borderRadius: 6,
+   borderWidth: 1,
+   overflow: "hidden",
+  },
+  popupDesc: {
+   fontFamily: "JetBrainsMono",
+   fontSize: 14,
+   lineHeight: 20,
+   marginBottom: 12,
+  },
+  popupParam: {
+   fontFamily: "JetBrainsMono",
+   fontSize: 13,
+   lineHeight: 18,
+   marginBottom: 4,
+   paddingLeft: 8,
+  },
+  refButton: {
+   marginTop: 16,
+   paddingHorizontal: 16,
+   paddingVertical: 10,
+   borderRadius: 8,
+   alignItems: "center",
+  },
+  refButtonText: {
+   fontFamily: "JetBrainsMono",
+   fontSize: 12,
  fontWeight: "700",
  textTransform: "uppercase",
  letterSpacing: 0.5,

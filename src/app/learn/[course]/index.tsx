@@ -362,10 +362,12 @@ const styles = StyleSheet.create({
  paddingHorizontal: 24,
  },
  notFoundTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 20,
  fontWeight: "700",
  },
  notFoundSubtitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  marginTop: 8,
  textAlign: "center",
@@ -385,6 +387,7 @@ const styles = StyleSheet.create({
  justifyContent: "center",
  },
  headerTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 24,
  fontWeight: "900",
  fontStyle: "italic",
@@ -398,6 +401,7 @@ const styles = StyleSheet.create({
  justifyContent: "flex-end",
  },
  lessonCount: {
+ fontFamily: "JetBrainsMono",
  fontSize: 18,
  fontWeight: "700",
  },
@@ -413,12 +417,14 @@ const styles = StyleSheet.create({
  gap: 16,
  },
  heroLabel: {
+ fontFamily: "JetBrainsMono",
  fontSize: 14,
  fontWeight: "700",
  letterSpacing: 1,
  textTransform: "uppercase",
  },
  heroTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 40,
  fontWeight: "700",
  letterSpacing: -0.5,
@@ -434,6 +440,7 @@ const styles = StyleSheet.create({
  alignSelf: "stretch",
  },
  heroDescription: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  fontWeight: "400",
  lineHeight: 24,
@@ -456,12 +463,14 @@ const styles = StyleSheet.create({
  marginBottom: 24,
  },
  sectionTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 24,
  fontWeight: "700",
  fontStyle: "italic",
  textTransform: "uppercase",
  },
  sectionSubtitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 13,
  fontWeight: "400",
  textTransform: "uppercase",
@@ -493,10 +502,12 @@ const styles = StyleSheet.create({
  flex: 1,
  },
  lessonTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 18,
  fontWeight: "700",
  },
  lessonModule: {
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  marginTop: 4,
@@ -510,6 +521,7 @@ const styles = StyleSheet.create({
  opacity: 0.3,
  },
  completedLabel: {
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  letterSpacing: 2,
@@ -523,6 +535,7 @@ const styles = StyleSheet.create({
  paddingVertical: 8,
  },
  completedTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  fontWeight: "400",
  textDecorationLine: "line-through",

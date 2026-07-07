@@ -213,9 +213,9 @@ function SymbolDetail({ symbol }: { symbol: string }) {
  Usage
  </Text>
  <View style={[styles.syntaxBox, { backgroundColor: colors.surfaceDim, marginBottom: 24 }]}>
- <Text style={{ fontSize: 16, lineHeight: 24 }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 16, lineHeight: 24 }}>
  {syntaxTokens.map((t, i) => (
- <Text key={i} style={{ color: t.color, fontSize: 16 }}>
+ <Text key={i} style={{ color: t.color, fontFamily: "JetBrainsMono", fontSize: 16 }}>
  {t.text}
  </Text>
 ))}
@@ -231,7 +231,7 @@ function SymbolDetail({ symbol }: { symbol: string }) {
  <View key={i} style={{ marginBottom: 16 }}>
  {sym.norender ? (
  <View style={[styles.codeBlock, { backgroundColor: colors.surfaceDim }]}>
- <Text style={{ fontSize: 13, lineHeight: 20, color: colors.onSurface }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 13, lineHeight: 20, color: colors.onSurface }}>
  {ex}
  </Text>
  </View>
@@ -246,7 +246,7 @@ function SymbolDetail({ symbol }: { symbol: string }) {
  bounces={false}
  />
  <View style={[styles.codeBlock, { backgroundColor: colors.surfaceDim, marginTop: 8 }]}>
- <Text style={{ fontSize: 13, lineHeight: 20, color: colors.onSurface }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 13, lineHeight: 20, color: colors.onSurface }}>
  {ex}
  </Text>
  </View>
@@ -510,19 +510,24 @@ const styles = StyleSheet.create({
  padding: 0,
  },
  headlineXl: {
+ fontFamily: "JetBrainsMono",
  fontSize: 20,
  fontWeight: "700",
  },
  bodySm: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  },
  bodyBase: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  },
  bodyXs: {
+ fontFamily: "JetBrainsMono",
  fontSize: 12,
  },
  monoSm: {
+ fontFamily: "JetBrainsMono",
  fontSize: 13,
  fontWeight: "700",
  },
@@ -531,6 +536,7 @@ const styles = StyleSheet.create({
  paddingVertical: 12,
  },
  browseButtonText: {
+ fontFamily: "JetBrainsMono",
  fontWeight: "900",
  fontSize: 13,
  textTransform: "uppercase",
@@ -542,6 +548,7 @@ const styles = StyleSheet.create({
  borderRadius: 6,
  },
  symbolNameText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 30,
  fontWeight: "900",
  },
@@ -551,11 +558,13 @@ const styles = StyleSheet.create({
  borderRadius: 4,
  },
  moduleBadgeText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 12,
  textTransform: "uppercase",
  letterSpacing: 0.5,
  },
  sectionTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 18,
  fontWeight: "700",
  },
@@ -566,6 +575,7 @@ const styles = StyleSheet.create({
  borderLeftColor: "#ED225D",
  },
  syntaxText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  },
  codeBlock: {
@@ -582,22 +592,27 @@ const styles = StyleSheet.create({
  paddingVertical: 12,
  },
  paramNameText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  fontWeight: "700",
  },
  paramDescText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  },
  paramTypeText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 12,
  textTransform: "uppercase",
  letterSpacing: 0.5,
  },
  refListTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 24,
  fontWeight: "700",
  },
  moduleGroupTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 18,
  fontWeight: "700",
  textTransform: "uppercase",
@@ -618,6 +633,7 @@ const styles = StyleSheet.create({
  maxWidth: "45%",
  },
  navButtonText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 12,
  fontWeight: "700",
  },
@@ -632,6 +648,7 @@ const styles = StyleSheet.create({
  borderRadius: 8,
  },
  officialDocsText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 13,
  fontWeight: "700",
  },

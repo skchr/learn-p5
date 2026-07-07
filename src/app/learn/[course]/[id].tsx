@@ -160,12 +160,14 @@ export default function Exercise() {
  paddingHorizontal: 24,
  },
  notFoundTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 20,
  fontWeight: "700",
  color: colors.onSurface,
  marginTop: 16,
  },
  notFoundSubtitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  color: colors.textSecondary,
  marginTop: 8,
@@ -183,6 +185,7 @@ export default function Exercise() {
  transform: [{ translateY: 2 }],
  },
  backButtonText: {
+ fontFamily: "JetBrainsMono",
  fontWeight: "900",
  fontSize: 13,
  textTransform: "uppercase",
@@ -204,6 +207,7 @@ export default function Exercise() {
  padding: 8,
  },
  logoText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 20,
  fontWeight: "700",
  color: colors.primary,
@@ -286,6 +290,7 @@ export default function Exercise() {
  marginBottom: 20,
  },
  modalTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 18,
  fontWeight: "700",
  },
@@ -293,6 +298,7 @@ export default function Exercise() {
  marginBottom: 16,
  },
  modalSectionTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  textTransform: "uppercase",
  letterSpacing: 1,
@@ -805,7 +811,7 @@ export default function Exercise() {
  >
  <Text style={{ fontSize: 18, fontWeight: "700", color: colors.onSurface }}>−</Text>
  </Pressable>
- <Text style={{ fontSize: 16, fontWeight: "700", color: colors.onSurface, minWidth: 32, textAlign: "center" }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 16, fontWeight: "700", color: colors.onSurface, minWidth: 32, textAlign: "center" }}>
  {codeFontSize}
  </Text>
  <Pressable
@@ -827,7 +833,7 @@ export default function Exercise() {
  <View style={styles.modalSection}>
  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Theme</Text>
  <View style={styles.modalRow}>
- <Text style={{ fontSize: 14, color: colors.onSurface }}>
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 14, color: colors.onSurface }}>
  {colorScheme === "dark" ? "Dark Mode" : "Light Mode"}
  </Text>
  <Switch
@@ -884,6 +890,7 @@ export default function Exercise() {
 ))}
  </View>
  <Text style={{
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  textTransform: "uppercase",
@@ -920,6 +927,7 @@ export default function Exercise() {
  })}
  >
  <Text style={{
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  fontWeight: "700",
  textTransform: "uppercase",

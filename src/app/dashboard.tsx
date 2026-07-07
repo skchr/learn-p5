@@ -204,6 +204,7 @@ export default function Dashboard() {
  paddingTop: 32,
  },
  subtitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  color: colors.textSecondary,
  marginTop: 4,
@@ -234,11 +235,13 @@ export default function Dashboard() {
  alignItems: "center",
  },
  statValue: {
+ fontFamily: "JetBrainsMono",
  fontSize: 24,
  fontWeight: "700",
  color: colors.primary,
  },
  statLabel: {
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  color: colors.textSecondary,
  marginTop: 4,
@@ -247,6 +250,7 @@ export default function Dashboard() {
  marginTop: 40,
  },
  sectionTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 24,
  fontWeight: "700",
  color: colors.onSurface,
@@ -263,11 +267,13 @@ export default function Dashboard() {
  opacity: 0.8,
  },
  nextCardTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 20,
  fontWeight: "700",
  color: colors.onSurface,
  },
  nextCardModule: {
+ fontFamily: "JetBrainsMono",
  fontSize: 11,
  color: colors.primary,
  textTransform: "uppercase",
@@ -275,6 +281,7 @@ export default function Dashboard() {
  marginTop: 4,
  },
  nextCardDescription: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  color: colors.textSecondary,
  marginTop: 8,
@@ -291,6 +298,7 @@ export default function Dashboard() {
  transform: [{ translateY: 2 }],
  },
  nextCardButtonText: {
+ fontFamily: "JetBrainsMono",
  fontWeight: "900",
  fontSize: 13,
  textTransform: "uppercase",
@@ -298,6 +306,7 @@ export default function Dashboard() {
  color: colors.onPrimary,
  },
  listTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  fontWeight: "700",
  color: colors.onSurface,
@@ -316,12 +325,14 @@ export default function Dashboard() {
  opacity: 0.8,
  },
  listItemNumber: {
+ fontFamily: "JetBrainsMono",
  fontSize: 13,
  fontWeight: "700",
  color: colors.textSecondary,
  width: 28,
  },
  listItemTitle: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  fontWeight: "700",
  color: colors.onSurface,
@@ -332,6 +343,7 @@ export default function Dashboard() {
  paddingVertical: 32,
  },
  allCompleteText: {
+ fontFamily: "JetBrainsMono",
  fontSize: 16,
  color: colors.textSecondary,
  textAlign: "center",
