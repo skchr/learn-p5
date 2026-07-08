@@ -269,23 +269,23 @@ function SymbolDetail({ symbol }: { symbol: string }) {
  ItemSeparatorComponent={() => (
  <View style={{ height: 1, backgroundColor: colors.outlineVariant + "30" }} />
 )}
- renderItem={({ item }) => (
- <View style={[styles.flexRow, styles.paramRow]}>
- <View style={styles.flex1}>
- <Text style={[styles.paramNameText, { color: colors.onSurface }]}>
- {item.name}
- </Text>
- </View>
- <View style={{ flex: 2 }}>
- <Text style={[styles.paramDescText, { color: colors.textSecondary, lineHeight: 24 }]}>
- {item.description}
- </Text>
- <Text style={[styles.paramTypeText, { color: colors.primary, marginTop: 2 }]}>
- {item.type}
- </Text>
- </View>
- </View>
-)}
+  renderItem={({ item }) => (
+  <View style={[styles.flexRow, styles.paramRow]}>
+  <View style={styles.flex1}>
+  <Text style={[styles.paramNameText, { color: colors.onSurface }]}>
+  {item.name}
+  </Text>
+  </View>
+  <View style={{ flex: 2 }}>
+  <Text style={[styles.paramDescText, { color: colors.textSecondary, lineHeight: 24 }]}>
+  {item.description || "No description"}
+  </Text>
+  <Text style={[styles.paramTypeText, { color: colors.primary, marginTop: 2 }]}>
+  {item.type}
+  </Text>
+  </View>
+  </View>
+  )}
  ListFooterComponent={
  <>
  <View style={[styles.flexRow, { alignItems: "center", gap: 12, marginTop: 24, justifyContent: "space-between" }]}>
@@ -432,23 +432,17 @@ export default function Reference() {
  accessibilityRole="button"
  accessibilityLabel={`View reference for ${sym.name}`}
  >
- <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
- {sym.name}()
- </Text>
- <Text
- style={[styles.bodyXs, { color: colors.textSecondary, flex: 2 }]}
- numberOfLines={1}
- >
- {sym.description}
- </Text>
- <MaterialCommunityIcons
- name="chevron-right"
- size={18}
- color={colors.onSurfaceVariant}
- />
- </Pressable>
+  <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
+  {sym.name}()
+  </Text>
+  <MaterialCommunityIcons
+  name="chevron-right"
+  size={18}
+  color={colors.onSurfaceVariant}
+  />
+  </Pressable>
 )
- : ({ item: group }) => (
+  : ({ item: group }) => (
  <View style={{ marginBottom: 24 }}>
  <Text style={[styles.moduleGroupTitle, { color: colors.onSurface, marginBottom: 12 }]}>
  {group.module}
@@ -465,23 +459,17 @@ export default function Reference() {
  accessibilityRole="button"
  accessibilityLabel={`View reference for ${sym.name}`}
  >
- <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
- {sym.name}()
- </Text>
- <Text
- style={[styles.bodyXs, { color: colors.textSecondary, flex: 2 }]}
- numberOfLines={1}
- >
- {sym.description}
- </Text>
- <MaterialCommunityIcons
- name="chevron-right"
- size={18}
- color={colors.onSurfaceVariant}
- />
- </Pressable>
+  <Text style={[styles.monoSm, { color: colors.primary, flex: 1 }]}>
+  {sym.name}()
+  </Text>
+  <MaterialCommunityIcons
+  name="chevron-right"
+  size={18}
+  color={colors.onSurfaceVariant}
+  />
+  </Pressable>
 ))}
- </View>
+  </View>
 )
  }
  />
@@ -531,11 +519,12 @@ const styles = StyleSheet.create({
  fontSize: 13,
  fontWeight: "700",
  },
- browseButton: {
- paddingHorizontal: 24,
- paddingVertical: 12,
- },
- browseButtonText: {
+  browseButton: {
+  paddingHorizontal: 24,
+  paddingVertical: 12,
+  borderRadius: 12,
+  },
+  browseButtonText: {
  fontFamily: "JetBrainsMono",
  fontWeight: "900",
  fontSize: 13,

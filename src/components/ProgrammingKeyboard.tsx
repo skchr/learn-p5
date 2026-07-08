@@ -402,14 +402,14 @@ const styles = StyleSheet.create({
  paddingHorizontal: Spacing.xs,
  gap: Spacing.xs,
  },
- keyboardIcon: {
- flexShrink: 0,
- paddingHorizontal: Spacing.sm + 4,
- paddingVertical: Spacing.sm,
- alignItems: "center",
- justifyContent: "center",
- borderRadius: Spacing.xs,
- },
+  keyboardIcon: {
+  flexShrink: 0,
+  paddingHorizontal: Spacing.sm + 4,
+  paddingVertical: Spacing.sm,
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: Spacing.sm,
+  },
  bottomCluster: {
  position: "absolute",
  left: 12,
@@ -427,25 +427,25 @@ const styles = StyleSheet.create({
  justifyContent: "center",
  gap: 3,
  },
- dpadBtn: {
- width: 44,
- height: 44,
- alignItems: "center",
- justifyContent: "center",
- borderRadius: 8,
- },
+  dpadBtn: {
+  width: 44,
+  height: 44,
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 12,
+  },
  dpadCenter: {
  width: 44,
  height: 44,
  },
- symbolButton: {
- flexShrink: 0,
- paddingHorizontal: Spacing.sm + 4,
- paddingVertical: 6,
- alignItems: "center",
- justifyContent: "center",
- borderRadius: Spacing.xs,
- },
+  symbolButton: {
+  flexShrink: 0,
+  paddingHorizontal: Spacing.sm + 4,
+  paddingVertical: 6,
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: Spacing.sm,
+  },
  symbolText: {
  ...Typography.mono,
  fontSize: 18,
@@ -457,11 +457,11 @@ const styles = StyleSheet.create({
  paddingVertical: Spacing.xs,
  gap: 6,
  },
- exerciseKey: {
- paddingHorizontal: 14,
- paddingVertical: 6,
- borderRadius: Spacing.xs,
- },
+  exerciseKey: {
+  paddingHorizontal: 14,
+  paddingVertical: 6,
+  borderRadius: Spacing.sm,
+  },
  exerciseKeyText: {
  ...Typography.monoLabel,
  },
@@ -472,11 +472,11 @@ const styles = StyleSheet.create({
  paddingVertical: Spacing.xs,
  gap: 6,
  },
- functionKey: {
- paddingHorizontal: Spacing.sm + 4,
- paddingVertical: 6,
- borderRadius: Spacing.xs,
- },
+  functionKey: {
+  paddingHorizontal: Spacing.sm + 4,
+  paddingVertical: 6,
+  borderRadius: Spacing.sm,
+  },
  functionKeyText: {
  ...Typography.mono,
  fontSize: 15,

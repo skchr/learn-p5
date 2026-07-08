@@ -85,14 +85,14 @@ export function getExerciseHtml(params: {
     src: url(data:font/truetype;charset=utf-8;base64,${JETBRAINS_MONO_BOLD_BASE64}) format('truetype');
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { min-height: 100%; background: ${colors.surface}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  html, body { min-height: 100%; background: ${colors.surface}; font-family: "JetBrains Mono", monospace; }
 
   .description {
     padding: 12px 16px;
     background: ${colors.surfaceContainer};
   }
   .description-title {
-    font-family: "SpaceGrotesk", sans-serif;
+    font-family: "JetBrains Mono", monospace;
     font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
@@ -271,14 +271,14 @@ export function getExerciseHtml(params: {
     border-radius: 12px;
     padding: 16px 20px;
     max-width: 300px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "JetBrains Mono", monospace;
     font-size: 14px;
     line-height: 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     z-index: 10000;
   }
   .tut-card-title {
-    font-family: "SpaceGrotesk", sans-serif;
+    font-family: "JetBrains Mono", monospace;
     font-weight: 700;
     font-size: 13px;
     text-transform: uppercase;

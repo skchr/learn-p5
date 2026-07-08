@@ -226,14 +226,14 @@ export default function Dashboard() {
  gap: 12,
  marginTop: 24,
  },
- statCard: {
- flex: 1,
- backgroundColor: colors.primary + "1A",
- borderRadius: 12,
- paddingHorizontal: 16,
- paddingVertical: 16,
- alignItems: "center",
- },
+  statCard: {
+  flex: 1,
+  backgroundColor: colors.primary + "1A",
+  borderRadius: 16,
+  paddingHorizontal: 16,
+  paddingVertical: 16,
+  alignItems: "center",
+  },
  statValue: {
  fontFamily: "JetBrainsMono",
  fontSize: 24,
@@ -256,13 +256,13 @@ export default function Dashboard() {
  color: colors.onSurface,
  marginBottom: 16,
  },
- nextCard: {
- backgroundColor: colors.surfaceDim,
- borderRadius: 12,
- paddingHorizontal: 20,
- paddingVertical: 20,
- marginBottom: 12,
- },
+  nextCard: {
+  backgroundColor: colors.surfaceDim,
+  borderRadius: 16,
+  paddingHorizontal: 20,
+  paddingVertical: 20,
+  marginBottom: 12,
+  },
  nextCardPressed: {
  opacity: 0.8,
  },
@@ -286,14 +286,14 @@ export default function Dashboard() {
  color: colors.textSecondary,
  marginTop: 8,
  },
- nextCardButton: {
- backgroundColor: colors.primary,
- borderRadius: 8,
- paddingHorizontal: 20,
- paddingVertical: 10,
- alignSelf: "flex-start",
- marginTop: 16,
- },
+  nextCardButton: {
+  backgroundColor: colors.primary,
+  borderRadius: 12,
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+  alignSelf: "flex-start",
+  marginTop: 16,
+  },
  nextCardButtonPressed: {
  transform: [{ translateY: 2 }],
  },
@@ -312,15 +312,15 @@ export default function Dashboard() {
  color: colors.onSurface,
  marginBottom: 12,
  },
- listItem: {
- flexDirection: "row",
- alignItems: "center",
- paddingVertical: 12,
- paddingHorizontal: 16,
- backgroundColor: colors.surfaceDim,
- borderRadius: 8,
- marginBottom: 8,
- },
+  listItem: {
+  flexDirection: "row",
+  alignItems: "center",
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  backgroundColor: colors.surfaceDim,
+  borderRadius: 12,
+  marginBottom: 8,
+  },
  listItemPressed: {
  opacity: 0.8,
  },
@@ -411,7 +411,7 @@ export default function Dashboard() {
  {nextExercise.title}
  </Text>
  <Text style={styles.nextCardModule}>
- {nextExercise.courseTitle} · {nextExercise.module}
+  {nextExercise.courseTitle}
  </Text>
  <Text style={styles.nextCardDescription} numberOfLines={2}>
  {nextExercise.description}

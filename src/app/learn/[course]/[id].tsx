@@ -679,7 +679,10 @@ export default function Exercise() {
  originWhitelist={["*"]}
  scrollEnabled={true}
  bounces={false}
- {...({ keyboardDisplayRequiresUserAction: false } as Record<string, boolean>)}
+  {...({
+    hideKeyboardAccessoryView: true,
+    keyboardDisplayRequiresUserAction: true,
+  } as Record<string, boolean>)}
  />
 )}
 
