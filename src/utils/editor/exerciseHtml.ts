@@ -61,6 +61,7 @@ export function getExerciseHtml(params: {
   editorTheme?: string;
   codeFontSize?: number;
   libraries?: string[];
+  wordWrap?: boolean;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
   const themeColors = getEditorTheme(params.editorTheme || "p5-learn", params.colorScheme);
@@ -325,14 +326,16 @@ export function getExerciseHtml(params: {
 
 ${
   params.solution
-    ? `<div class="solution-section" id="solution-section">
+    ? `<div class="solution-section">
   <button class="solution-header" id="solution-toggle">
     <span class="preview-label" style="margin-bottom:0">Target Solution</span>
-    <span class="solution-chevron" id="solution-chevron">&#9660;</span>
+    <span class="solution-chevron" id="solution-chevron">&#9650;</span>
   </button>
-  <div style="position:relative">
-    <div id="solution-sketch" class="sketch-box"></div>
-    <button id="solution-run-btn" class="run-btn">&#9654; Run</button>
+  <div id="solution-content" style="display:none">
+    <div style="position:relative">
+      <div id="solution-sketch" class="sketch-box"></div>
+      <button id="solution-run-btn" class="run-btn">&#9654; Run</button>
+    </div>
   </div>
 </div>`
     : ""
@@ -361,7 +364,7 @@ ${
 ${params.libraries?.includes("d3") ? `<script>${d3Source}</script>` : ""}
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
-${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber)}
+${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber, params.wordWrap ?? false)}
 </script>
 
 ${params.exerciseNumber === 1 ? `
@@ -379,7 +382,7 @@ ${params.exerciseNumber === 1 ? `
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number): string {
+function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number, wordWrap?: boolean): string {
   const isDark = colorScheme === "dark";
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
@@ -423,7 +426,37 @@ var CompletionContext = _CM.CompletionContext;
 let view;
 const INITIAL_CODE = ${codeArg};
 const SOLUTION_CODE = ${solutionArg};
+const WORD_WRAP = ${wordWrap ? 'true' : 'false'};
 var P5_COMPLETIONS = ${JSON.stringify(P5_FUNCTION_NAMES)};
+
+function postConsole(level, text) {
+  if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'console', level: level, text: text }));
+  }
+}
+(function() {
+  var origLog = console.log;
+  var origWarn = console.warn;
+  var origError = console.error;
+  console.log = function() {
+    var args = Array.prototype.slice.call(arguments).map(function(a) { return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a); });
+    postConsole('log', args.join(' '));
+    origLog.apply(console, arguments);
+  };
+  console.warn = function() {
+    var args = Array.prototype.slice.call(arguments).map(function(a) { return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a); });
+    postConsole('warn', args.join(' '));
+    origWarn.apply(console, arguments);
+  };
+  console.error = function() {
+    var args = Array.prototype.slice.call(arguments).map(function(a) { return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a); });
+    postConsole('error', args.join(' '));
+    origError.apply(console, arguments);
+  };
+  window.onerror = function(message, source, lineno, colno, error) {
+    postConsole('error', message + ' (line ' + lineno + ')');
+  };
+})();
 
 function p5CompletionSource(context) {
   var word = context.matchBefore(/\\w*/);
@@ -548,6 +581,7 @@ function getExtensions() {
       }
     }),
   ];
+  if (WORD_WRAP) exts.push(EditorView.lineWrapping());
   return exts;
 }
 
@@ -746,6 +780,9 @@ function handleMessage(data) {
   try {
     var msg = typeof data === 'string' ? JSON.parse(data) : data;
     switch (msg.type) {
+      case 'clearConsole':
+        postConsole('clear', '');
+        break;
       case 'setCode':
         if (view && msg.code !== view.state.doc.toString()) {
           view.dispatch({
@@ -837,6 +874,33 @@ function handleMessage(data) {
           view.focus();
         }
         break;
+      case 'formatAndRun':
+        if (!view) { console.error('Editor not initialized'); break; }
+        view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+        indentSelection({ state: view.state, dispatch: view.dispatch });
+        view.dispatch({ selection: { anchor: view.state.doc.length } });
+        var codeToRun = view.state.doc.toString();
+        try {
+          new Function(codeToRun);
+        } catch(e) {
+          var msg = e.message || 'Syntax error';
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'formatError', message: msg }));
+          }
+          break;
+        }
+        renderSketch('user-sketch', codeToRun);
+        if (typeof window.__tutRun === 'function') window.__tutRun();
+        if (SOLUTION_CODE && codeToRun.trim() === SOLUTION_CODE.trim()) {
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'exerciseComplete' }));
+          }
+        }
+        setTimeout(function() {
+          var el = document.getElementById('user-sketch');
+          if (el) smoothScrollTo(el, 600);
+        }, 100);
+        break;
       case 'runSketch':
         if (!view) { console.error('Editor not initialized'); break; }
         var userCode = view.state.doc.toString();
@@ -871,12 +935,12 @@ document.querySelectorAll('.symbol').forEach(function(el) {
 var solutionToggle = document.getElementById('solution-toggle');
 if (solutionToggle) {
   solutionToggle.addEventListener('click', function() {
-    var section = document.getElementById('solution-section');
+    var content = document.getElementById('solution-content');
     var chevron = document.getElementById('solution-chevron');
-    if (section) {
-      var isVisible = section.style.display !== 'none';
-      section.style.display = isVisible ? 'none' : '';
-      if (chevron) chevron.innerHTML = isVisible ? '&#9660;' : '&#9650;';
+    if (content) {
+      var isHidden = content.style.display === 'none';
+      content.style.display = isHidden ? '' : 'none';
+      if (chevron) chevron.innerHTML = isHidden ? '&#9660;' : '&#9650;';
     }
   });
 }

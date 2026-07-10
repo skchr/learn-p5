@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useReducer, useMemo, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, Modal, Switch } from "react-native";
+import { View, Text, Pressable, StyleSheet, Modal, Switch, FlatList } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WebView } from "react-native-webview";
-import { useDrawerContext } from "../../../contexts/DrawerContext";
+
 import { useThemeContext } from "../../../components/ThemeProvider";
 import { Colors } from "../../../constants/Colors";
 import { DEFAULTS } from "../../../constants/Defaults";
@@ -84,9 +84,8 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
 
 export default function Exercise() {
  const { course, id } = useLocalSearchParams<{ course: string; id: string }>();
- const router = useRouter();
- const insets = useSafeAreaInsets();
- const { openDrawer } = useDrawerContext();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
  const [state, dispatch] = useReducer(exerciseReducer, {
  exercise: null,
  loading: true,
@@ -109,6 +108,9 @@ export default function Exercise() {
  const [codeFontSize, setCodeFontSize] = useState<number>(DEFAULTS.codeFontSize);
   const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
   const [enabledLibraries, setEnabledLibraries] = useState<string[]>([]);
+  const [wordWrap, setWordWrap] = useState(false);
+  const [consoleVisible, setConsoleVisible] = useState(false);
+  const [consoleLogs, setConsoleLogs] = useState<{ level: string; text: string }[]>([]);
   const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
  const [toastKey, setToastKey] = useState(0);
  const [toastVisible, setToastVisible] = useState(false);
@@ -138,8 +140,9 @@ export default function Exercise() {
  colorScheme: colorScheme === "dark" ? "dark" : "light",
   editorTheme,
   codeFontSize,
-  libraries: enabledLibraries,
-  });
+   libraries: enabledLibraries,
+   wordWrap,
+   });
   }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, enabledLibraries]);
 
  const styles = useMemo(
@@ -208,15 +211,14 @@ export default function Exercise() {
  menuButton: {
  padding: 8,
  },
- logoText: {
- fontFamily: "JetBrainsMono",
- fontSize: 20,
- fontWeight: "700",
- color: colors.primary,
- marginLeft: 8,
- textTransform: "uppercase",
- letterSpacing: -0.5,
- },
+  headerTitle: {
+  fontFamily: "JetBrainsMono",
+  fontSize: 16,
+  fontWeight: "700",
+  color: colors.onSurface,
+  marginLeft: 8,
+  flex: 1,
+  },
  spacer: {
  flex: 1,
  },
@@ -306,14 +308,33 @@ export default function Exercise() {
  letterSpacing: 1,
  marginBottom: 8,
  },
- modalRow: {
- flexDirection: "row",
- alignItems: "center",
- justifyContent: "space-between",
- gap: 8,
- },
- }),
- [colorScheme]
+  modalRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 8,
+  },
+  consolePanel: {
+  borderTopWidth: StyleSheet.hairlineWidth,
+  borderTopColor: "rgba(0,0,0,0.1)",
+  },
+  consoleHeader: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+  borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  consoleTitle: {
+  fontFamily: "JetBrainsMono",
+  fontSize: 10,
+  fontWeight: "700",
+  textTransform: "uppercase",
+  letterSpacing: 1,
+  },
+  }),
+  [colorScheme]
 );
 
  useEffect(() => {
@@ -380,9 +401,20 @@ export default function Exercise() {
  case "openRef":
  router.push(`/ref?symbol=${msg.symbol}`);
  break;
- case "exerciseComplete":
- dispatch({ type: "EXERCISE_COMPLETE" });
- break;
+  case "exerciseComplete":
+  dispatch({ type: "EXERCISE_COMPLETE" });
+  break;
+  case "formatError":
+  dispatch({ type: "RUN_DONE" });
+  showToast("Syntax error: " + msg.message);
+  break;
+  case "console":
+  if (msg.level === "clear") {
+  setConsoleLogs([]);
+  } else {
+  setConsoleLogs((prev) => [...prev, { level: msg.level, text: msg.text }]);
+  }
+  break;
  case "goToNextLesson":
  loadCourse(course).then((courseData) => {
  if (!courseData) return;
@@ -451,14 +483,13 @@ export default function Exercise() {
  }
  }, [editorViewReady]);
 
- const handleRun = useCallback(() => {
- if (!state.exercise) return;
- dispatch({ type: "RUN_START" });
- if (webViewRef.current && editorViewReady) {
- webViewRef.current.postMessage(JSON.stringify({ type: "runSketch" }));
- }
- setTimeout(() => dispatch({ type: "RUN_DONE" }), 500);
- }, [state.exercise, editorViewReady]);
+  const handleRun = useCallback(() => {
+  if (!state.exercise) return;
+  dispatch({ type: "RUN_START" });
+  if (webViewRef.current && editorViewReady) {
+  webViewRef.current.postMessage(JSON.stringify({ type: "formatAndRun" }));
+  }
+  }, [state.exercise, editorViewReady]);
 
  const handleFormat = useCallback(() => {
  if (webViewRef.current && editorViewReady) {
@@ -491,10 +522,13 @@ export default function Exercise() {
   AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
   setKeyboardHeight(val || "medium");
   });
-  AsyncStorage.getItem("setting_enabledLibraries").then((val) => {
-  if (val) setEnabledLibraries(JSON.parse(val));
-  });
-  }, [])
+   AsyncStorage.getItem("setting_enabledLibraries").then((val) => {
+   if (val) setEnabledLibraries(JSON.parse(val));
+   });
+   AsyncStorage.getItem("setting_wordWrap").then((val) => {
+   if (val) setWordWrap(val === "true");
+   });
+   }, [])
 );
 
  const changeCodeFontSize = useCallback((delta: number) => {
@@ -636,30 +670,30 @@ export default function Exercise() {
 
  return (
  <View style={styles.container}>
- <View
- style={[styles.header, { paddingTop: insets.top + 4 }]}
- >
- <Pressable
- onPress={openDrawer}
- style={styles.menuButton}
- accessibilityRole="button"
- accessibilityLabel="Open navigation menu"
- >
- <MaterialCommunityIcons name="menu" size={24} color={colors.onSurfaceVariant} />
- </Pressable>
- <Text style={styles.logoText}>
- P5.LEARN
- </Text>
- <View style={styles.spacer} />
- <Pressable
- onPress={() => setSettingsMenuVisible(true)}
- style={styles.menuButton}
- accessibilityRole="button"
- accessibilityLabel="Editor settings"
- >
- <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.onSurfaceVariant} />
- </Pressable>
- </View>
+  <View
+  style={[styles.header, { paddingTop: insets.top + 4 }]}
+  >
+  <Pressable
+  onPress={() => router.push(`/learn/${course}`)}
+  style={styles.menuButton}
+  accessibilityRole="button"
+  accessibilityLabel="Back to module"
+  >
+  <MaterialCommunityIcons name="chevron-left" size={24} color={colors.primary} />
+  </Pressable>
+  <Text style={styles.headerTitle} numberOfLines={1}>
+  {state.exercise?.title ?? "Exercise"}
+  </Text>
+  <View style={styles.spacer} />
+  <Pressable
+  onPress={() => setSettingsMenuVisible(true)}
+  style={styles.menuButton}
+  accessibilityRole="button"
+  accessibilityLabel="Editor settings"
+  >
+  <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.onSurfaceVariant} />
+  </Pressable>
+  </View>
 
  {exerciseHtml && (
   <WebView
@@ -686,24 +720,26 @@ export default function Exercise() {
  ]}
  pointerEvents="box-none"
  >
- <Pressable
- onPress={handleRun}
- disabled={state.isRunning}
- style={({ pressed }) => [
- styles.runButton,
- { backgroundColor: colors.primary },
- pressed && styles.runButtonPressed,
- ]}
- accessibilityRole="button"
- accessibilityLabel="Run sketch"
- accessibilityState={{ disabled: state.isRunning }}
- >
- <MaterialCommunityIcons
- name={state.isRunning ? "reload" : "play"}
- size={28}
- color="#FFFFFF"
- />
- </Pressable>
+  <Pressable
+  onPress={handleRun}
+  onLongPress={() => setConsoleVisible((v) => !v)}
+  delayLongPress={500}
+  disabled={state.isRunning}
+  style={({ pressed }) => [
+  styles.runButton,
+  { backgroundColor: colors.primary },
+  pressed && styles.runButtonPressed,
+  ]}
+  accessibilityRole="button"
+  accessibilityLabel="Run sketch"
+  accessibilityState={{ disabled: state.isRunning }}
+  >
+  <MaterialCommunityIcons
+  name={state.isRunning ? "reload" : "play"}
+  size={28}
+  color="#FFFFFF"
+  />
+  </Pressable>
  </View>
 
  <StreakToast
@@ -722,6 +758,45 @@ export default function Exercise() {
  onAction={toastActionRef.current}
  onDismiss={() => setToastVisible(false)}
  />
+
+  {consoleVisible && (
+  <View style={[styles.consolePanel, { backgroundColor: colors.surfaceContainer, maxHeight: 120 }]}>
+  <View style={[styles.consoleHeader, { borderBottomColor: colors.outlineVariant + "33" }]}>
+  <Text style={[styles.consoleTitle, { color: colors.textSecondary }]}>Console</Text>
+  <Pressable
+  onPress={() => {
+  if (webViewRef.current) {
+  webViewRef.current.postMessage(JSON.stringify({ type: "clearConsole" }));
+  }
+  setConsoleLogs([]);
+  }}
+  style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+  >
+  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 10, color: colors.primary, textTransform: "uppercase" }}>Clear</Text>
+  </Pressable>
+  </View>
+  <FlatList
+  data={consoleLogs}
+  keyExtractor={(_, i) => String(i)}
+  renderItem={({ item }) => (
+  <Text
+  style={{
+  fontFamily: "JetBrainsMono",
+  fontSize: 11,
+  color: item.level === "error" ? "#ED225D" : item.level === "warn" ? "#F59E0B" : colors.onSurface,
+  paddingVertical: 1,
+  paddingHorizontal: 8,
+  }}
+  numberOfLines={3}
+  >
+  {item.text}
+  </Text>
+  )}
+  style={{ flex: 1 }}
+  contentContainerStyle={{ paddingVertical: 4 }}
+  />
+  </View>
+  )}
 
   {keyboardVisible && keyboardMode === "programming" && (
   <ProgrammingKeyboard
@@ -923,6 +998,24 @@ export default function Exercise() {
  </Text>
  </Pressable>
 ))}
+  </View>
+  </View>
+
+  <View style={styles.modalSection}>
+  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Word Wrap</Text>
+  <View style={styles.modalRow}>
+  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 14, color: colors.onSurface, flex: 1 }}>
+  Wrap code to fit width
+  </Text>
+  <Switch
+  value={wordWrap}
+  onValueChange={(val) => {
+  setWordWrap(val);
+  AsyncStorage.setItem("setting_wordWrap", val.toString());
+  }}
+  trackColor={{ false: "#767577", true: "#ED225D" }}
+  thumbColor="#ffffff"
+  />
   </View>
   </View>
 

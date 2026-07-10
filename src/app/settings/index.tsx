@@ -632,7 +632,7 @@ export default function Settings() {
  <View style={styles.flexChild}>
  <Text style={styles.settingTitle}>Reset All Progress</Text>
  <Text style={styles.settingDescription}>
- Clear all completed lessons and courses
+  Clear all completed lessons and modules
  </Text>
  </View>
  <Pressable

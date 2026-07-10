@@ -85,43 +85,43 @@ export default function CourseDetail() {
  ]}
  >
  <View style={{ width: 40 }} />
- <Text style={[styles.headerTitle, { color: colors.primary }]}>
- Course
- </Text>
- <View style={{ width: 40 }} />
- </View>
- <View style={styles.centeredContainer}>
- <ActivityIndicator size="large" color={colors.primary} />
- </View>
- </View>
+  <Text style={[styles.headerTitle, { color: colors.primary }]}>
+  Module
+  </Text>
+  <View style={{ width: 40 }} />
+  </View>
+  <View style={styles.centeredContainer}>
+  <ActivityIndicator size="large" color={colors.primary} />
+  </View>
+  </View>
 );
- }
+  }
 
- if (!courseData) {
- return (
- <View style={[styles.container, { backgroundColor: colors.surface }]}>
- <View
- style={[
- styles.header,
- { backgroundColor: colors.surface },
- ]}
- >
- <Pressable onPress={() => router.back()} style={styles.backButton}>
- <MaterialCommunityIcons
- name="arrow-left"
- size={24}
- color={colors.primary}
- />
- </Pressable>
- <Text style={[styles.headerTitle, { color: colors.primary }]}>
- Course
- </Text>
+  if (!courseData) {
+  return (
+  <View style={[styles.container, { backgroundColor: colors.surface }]}>
+  <View
+  style={[
+  styles.header,
+  { backgroundColor: colors.surface },
+  ]}
+  >
+  <Pressable onPress={() => router.back()} style={styles.backButton}>
+  <MaterialCommunityIcons
+  name="arrow-left"
+  size={24}
+  color={colors.primary}
+  />
+  </Pressable>
+  <Text style={[styles.headerTitle, { color: colors.primary }]}>
+  Module
+  </Text>
  <View style={{ width: 40 }} />
  </View>
  <View style={styles.notFoundContainer}>
- <Text style={[styles.notFoundTitle, { color: colors.onSurface }]}>
- Course not found
- </Text>
+  <Text style={[styles.notFoundTitle, { color: colors.onSurface }]}>
+  Module not found
+  </Text>
  <Text
  style={[styles.notFoundSubtitle, { color: colors.textSecondary }]}
  >

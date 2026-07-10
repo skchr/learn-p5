@@ -35,7 +35,7 @@ export default function Learn() {
  Choose a course to begin your creative coding journey.
  </Text>
  <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>
- Available Courses
+  Available Modules
  </Text>
  </>
  }
@@ -61,7 +61,7 @@ export default function Learn() {
 ) : error ? (
  <View style={[styles.errorContainer, { backgroundColor: colors.error + "1A" }]}>
  <Text style={[styles.errorText, { color: colors.error }]}>
- Couldn&apos;t load courses: {error}
+  Couldn&apos;t load modules: {error}
  </Text>
  </View>
 ) : null
