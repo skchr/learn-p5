@@ -32,7 +32,7 @@ export default function Learn() {
  ListHeaderComponent={
  <>
  <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
- Choose a course to begin your creative coding journey.
+ Choose a module to begin your creative coding journey.
  </Text>
  <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>
   Available Modules

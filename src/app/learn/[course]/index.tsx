@@ -125,7 +125,7 @@ export default function CourseDetail() {
  <Text
  style={[styles.notFoundSubtitle, { color: colors.textSecondary }]}
  >
- The course &ldquo;{course}&rdquo; doesn&apos;t exist yet.
+ The module &ldquo;{course}&rdquo; doesn&apos;t exist yet.
  </Text>
  </View>
  </View>
