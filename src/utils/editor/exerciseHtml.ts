@@ -43,7 +43,7 @@ function escapeHtml(text: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/\n/g, "<br>");
 }
 
 function jsString(s: string): string {
@@ -91,7 +91,7 @@ export function getExerciseHtml(params: {
   html, body { min-height: 100%; background: ${colors.surface}; font-family: "JetBrains Mono", monospace; }
 
   .description {
-    padding: 12px 16px;
+    padding: 16px 20px;
     background: ${colors.surfaceContainer};
   }
   .description-title {
@@ -101,11 +101,11 @@ export function getExerciseHtml(params: {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: ${colors.primary};
-    margin-bottom: 4px;
+    margin-bottom: 8px;
   }
   .description-text {
     font-size: 16px;
-    line-height: 24px;
+    line-height: 26px;
     color: ${colors.onSurfaceVariant};
   }
   .symbol {

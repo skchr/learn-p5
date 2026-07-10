@@ -19,6 +19,7 @@ import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/referen
 import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
 import { EDITOR_THEMES, getThemeSwatches } from "../../../utils/editor/themes";
 import { useStreak } from "../../../hooks/useStreak";
+import { useDrawerContext } from "../../../contexts/DrawerContext";
 
 const EXERCISE_CODE_PREFIX = "exerciseCode_";
 
@@ -94,9 +95,10 @@ export default function Exercise() {
  isRunning: false,
  completed: false,
  });
- const { colorScheme, toggleTheme } = useThemeContext();
- const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
- const webViewRef = useRef<WebView>(null);
+  const { colorScheme, toggleTheme } = useThemeContext();
+  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
+  const { openDrawer } = useDrawerContext();
+  const webViewRef = useRef<WebView>(null);
  const [webViewReady, setWebViewReady] = useState(false);
  const [editorViewReady, setEditorViewReady] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(true);
@@ -128,22 +130,27 @@ export default function Exercise() {
  setToastVisible(true);
  }, []);
 
- const exerciseHtml = useMemo(() => {
- if (!state.exercise) return null;
- return getExerciseHtml({
- title: state.exercise.title,
- moduleName: state.exercise.module,
- instruction: state.exercise.instruction,
- exerciseNumber: parseInt(id?.replace("exercise-", "") ?? "1", 10),
- startingCode: state.exercise.startingCode ?? "",
- solution: state.exercise.solution ?? "",
- colorScheme: colorScheme === "dark" ? "dark" : "light",
-  editorTheme,
-  codeFontSize,
+  const exerciseHtml = useMemo(() => {
+  if (!state.exercise) return null;
+  return getExerciseHtml({
+  title: state.exercise.title,
+  moduleName: state.exercise.module,
+  instruction: state.exercise.instruction,
+  exerciseNumber: parseInt(id?.replace("exercise-", "") ?? "1", 10),
+  startingCode: state.exercise.startingCode ?? "",
+  solution: state.exercise.solution ?? "",
+  colorScheme: colorScheme === "dark" ? "dark" : "light",
+   editorTheme,
    libraries: enabledLibraries,
    wordWrap,
    });
-  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, enabledLibraries]);
+  }, [state.exercise, colorScheme, id, editorTheme, wordWrap, enabledLibraries]);
+
+  useEffect(() => {
+    if (webViewRef.current && editorViewReady) {
+      webViewRef.current.postMessage(JSON.stringify({ type: "setFontSize", fontSize: codeFontSize }));
+    }
+  }, [codeFontSize, editorViewReady]);
 
  const styles = useMemo(
  () =>
@@ -650,7 +657,7 @@ export default function Exercise() {
  </Text>
  <View style={styles.notFoundButtonWrapper}>
  <Pressable
- onPress={() => router.push(`/learn/${course}`)}
+  onPress={() => router.back()}
  style={({ pressed }) => [
  styles.backButton,
  pressed && styles.backButtonPressed,
@@ -673,14 +680,22 @@ export default function Exercise() {
   <View
   style={[styles.header, { paddingTop: insets.top + 4 }]}
   >
-  <Pressable
-  onPress={() => router.push(`/learn/${course}`)}
-  style={styles.menuButton}
-  accessibilityRole="button"
-  accessibilityLabel="Back to module"
-  >
-  <MaterialCommunityIcons name="chevron-left" size={24} color={colors.primary} />
-  </Pressable>
+   <Pressable
+   onPress={() => router.back()}
+   style={styles.menuButton}
+   accessibilityRole="button"
+   accessibilityLabel="Back"
+   >
+   <MaterialCommunityIcons name="chevron-left" size={24} color={colors.primary} />
+   </Pressable>
+   <Pressable
+   onPress={openDrawer}
+   style={styles.menuButton}
+   accessibilityRole="button"
+   accessibilityLabel="Open navigation menu"
+   >
+   <MaterialCommunityIcons name="menu" size={24} color={colors.onSurfaceVariant} />
+   </Pressable>
   <Text style={styles.headerTitle} numberOfLines={1}>
   {state.exercise?.title ?? "Exercise"}
   </Text>
