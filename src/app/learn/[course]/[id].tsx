@@ -100,15 +100,16 @@ export default function Exercise() {
  const webViewRef = useRef<WebView>(null);
  const [webViewReady, setWebViewReady] = useState(false);
  const [editorViewReady, setEditorViewReady] = useState(false);
- const [keyboardVisible, setKeyboardVisible] = useState(true);
- const [keyboardMode, setKeyboardMode] = useState<"programming" | "qwerty">("programming");
- const [vimEnabled, setVimEnabled] = useState(false); const [codeSyncKey, setCodeSyncKey] = useState(0);
+  const [keyboardVisible, setKeyboardVisible] = useState(true);
+  const [keyboardMode, setKeyboardMode] = useState<"programming" | "qwerty">("programming");
+  const [codeSyncKey, setCodeSyncKey] = useState(0);
  const codeRef = useRef(state.code);
  codeRef.current = state.code;
  const [editorTheme, setEditorTheme] = useState<string>("p5-learn");
  const [codeFontSize, setCodeFontSize] = useState<number>(DEFAULTS.codeFontSize);
- const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
- const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
+  const [enabledLibraries, setEnabledLibraries] = useState<string[]>([]);
+  const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
  const [toastKey, setToastKey] = useState(0);
  const [toastVisible, setToastVisible] = useState(false);
  const [toastMessage, setToastMessage] = useState("");
@@ -135,10 +136,11 @@ export default function Exercise() {
  startingCode: state.exercise.startingCode ?? "",
  solution: state.exercise.solution ?? "",
  colorScheme: colorScheme === "dark" ? "dark" : "light",
- editorTheme,
- codeFontSize,
- });
- }, [state.exercise, colorScheme, id, editorTheme, codeFontSize]);
+  editorTheme,
+  codeFontSize,
+  libraries: enabledLibraries,
+  });
+  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, enabledLibraries]);
 
  const styles = useMemo(
  () =>
@@ -277,12 +279,12 @@ export default function Exercise() {
  alignItems: "center",
  padding: 24,
  },
- modalCard: {
- width: "100%",
- maxWidth: 360,
- borderRadius: 16,
- padding: 24,
- },
+  modalCard: {
+  width: "100%",
+  maxWidth: 360,
+  borderRadius: 24,
+  padding: 28,
+  },
  modalHeader: {
  flexDirection: "row",
  alignItems: "center",
@@ -437,18 +439,6 @@ export default function Exercise() {
  setKeyboardMode((prev) => (prev === "programming" ? "qwerty" : "programming"));
  }, []);
 
- const handleToggleVim = useCallback(
- (enabled: boolean) => {
- setVimEnabled(enabled);
- if (webViewRef.current && editorViewReady) {
- webViewRef.current.postMessage(
- JSON.stringify({ type: "toggleVimMode", enabled })
-);
- }
- },
- [editorViewReady]
-);
-
  const handleBackspace = useCallback(() => {
  if (webViewRef.current && editorViewReady) {
  webViewRef.current.postMessage(JSON.stringify({ type: "backspace" }));
@@ -498,10 +488,13 @@ export default function Exercise() {
  AsyncStorage.getItem("setting_codeFontSize").then((val) => {
  setCodeFontSize(val ? parseInt(val, 10) : DEFAULTS.codeFontSize);
  });
- AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
- setKeyboardHeight(val || "medium");
- });
- }, [])
+  AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
+  setKeyboardHeight(val || "medium");
+  });
+  AsyncStorage.getItem("setting_enabledLibraries").then((val) => {
+  if (val) setEnabledLibraries(JSON.parse(val));
+  });
+  }, [])
 );
 
  const changeCodeFontSize = useCallback((delta: number) => {
@@ -669,21 +662,21 @@ export default function Exercise() {
  </View>
 
  {exerciseHtml && (
- <WebView
- ref={webViewRef}
- source={{ html: exerciseHtml }}
- style={styles.webview}
- onMessage={handleMessage}
- javaScriptEnabled
- domStorageEnabled
- originWhitelist={["*"]}
- scrollEnabled={true}
- bounces={false}
+  <WebView
+  ref={webViewRef}
+  source={{ html: exerciseHtml }}
+  style={styles.webview}
+  onMessage={handleMessage}
+  javaScriptEnabled
+  domStorageEnabled
+  originWhitelist={["*"]}
+  scrollEnabled={true}
+  bounces={false}
   {...({
     hideKeyboardAccessoryView: true,
     keyboardDisplayRequiresUserAction: true,
   } as Record<string, boolean>)}
- />
+  />
 )}
 
  <View
@@ -730,32 +723,34 @@ export default function Exercise() {
  onDismiss={() => setToastVisible(false)}
  />
 
- {keyboardVisible && keyboardMode === "programming" && (
- <ProgrammingKeyboard
- onInsert={handleInsert}
- exerciseSymbols={exerciseSymbols}
- onToggleKeyboard={handleToggleKeyboard}
- onToggleQwerty={handleToggleKeyboardMode}
- onBackspace={handleBackspace}
- onNewline={handleNewline}
- onFormat={handleFormat}
- onCursorMove={handleCursorMove}
- onOpenReference={(symbol) => router.push(`/ref?symbol=${symbol}`)}
- keyboardVisible={keyboardVisible}
- usedFunctions={usedFunctions}
- height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
- />
+  {keyboardVisible && keyboardMode === "programming" && (
+  <ProgrammingKeyboard
+  onInsert={handleInsert}
+  exerciseSymbols={exerciseSymbols}
+  onToggleKeyboard={handleToggleKeyboard}
+  onToggleQwerty={handleToggleKeyboardMode}
+  onBackspace={handleBackspace}
+  onNewline={handleNewline}
+  onFormat={handleFormat}
+  onCursorMove={handleCursorMove}
+  onOpenReference={(symbol) => router.push(`/ref?symbol=${symbol}`)}
+  keyboardVisible={keyboardVisible}
+  usedFunctions={usedFunctions}
+  height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
+  onDismissKeyboard={() => setKeyboardVisible(false)}
+  />
 )}
 
- {keyboardVisible && keyboardMode === "qwerty" && (
- <QwertyKeyboard
- onInsert={handleInsert}
- onBackspace={handleBackspace}
- onNewline={handleNewline}
- onCursorMove={handleCursorMove}
- onToggleProgramming={handleToggleKeyboardMode}
- height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
- />
+{keyboardVisible && keyboardMode === "qwerty" && (
+  <QwertyKeyboard
+  onInsert={handleInsert}
+  onBackspace={handleBackspace}
+  onNewline={handleNewline}
+  onCursorMove={handleCursorMove}
+  onToggleProgramming={handleToggleKeyboardMode}
+  height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
+  onDismissKeyboard={() => setKeyboardVisible(false)}
+  />
 )}
 
  {!keyboardVisible && (
@@ -802,12 +797,12 @@ export default function Exercise() {
  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Font Size</Text>
  <View style={styles.modalRow}>
  <Pressable
- onPress={() => changeCodeFontSize(-2)}
- style={({ pressed }) => ({
- width: 36,
- height: 36,
- borderRadius: 8,
- backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
+  onPress={() => changeCodeFontSize(-2)}
+  style={({ pressed }) => ({
+  width: 40,
+  height: 40,
+  borderRadius: 9999,
+  backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
  alignItems: "center",
  justifyContent: "center",
  })}
@@ -818,12 +813,12 @@ export default function Exercise() {
  {codeFontSize}
  </Text>
  <Pressable
- onPress={() => changeCodeFontSize(2)}
- style={({ pressed }) => ({
- width: 36,
- height: 36,
- borderRadius: 8,
- backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
+  onPress={() => changeCodeFontSize(2)}
+  style={({ pressed }) => ({
+  width: 40,
+  height: 40,
+  borderRadius: 9999,
+  backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
  alignItems: "center",
  justifyContent: "center",
  })}
@@ -848,22 +843,7 @@ export default function Exercise() {
  </View>
  </View>
 
- <View style={styles.modalSection}>
- <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Editing</Text>
- <View style={styles.modalRow}>
- <Text style={{ fontSize: 14, color: colors.onSurface }}>
- Vim Mode
- </Text>
- <Switch
- value={vimEnabled}
- onValueChange={handleToggleVim}
- trackColor={{ false: "#767577", true: "#ED225D" }}
- thumbColor="#ffffff"
- />
- </View>
- </View>
-
- <View style={styles.modalSection}>
+  <View style={styles.modalSection}>
  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Editor Theme</Text>
  <View style={[styles.modalRow, { flexWrap: "wrap", gap: 6 }]}>
  {Object.entries(EDITOR_THEMES).map(([key, theme]) => {
@@ -918,15 +898,17 @@ export default function Exercise() {
  style={({ pressed }) => ({
  paddingHorizontal: 12,
  paddingVertical: 6,
- borderRadius: 6,
- minWidth: 42,
- alignItems: "center",
- backgroundColor:
- keyboardHeight === opt
- ? colors.primary
- : pressed
- ? colors.primaryContainer + "33"
- : colors.surfaceContainer,
+  borderRadius: 9999,
+  minWidth: 44,
+  height: 36,
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor:
+  keyboardHeight === opt
+  ? colors.primary
+  : pressed
+  ? colors.primaryContainer + "33"
+  : colors.surfaceContainer,
  })}
  >
  <Text style={{
@@ -941,11 +923,33 @@ export default function Exercise() {
  </Text>
  </Pressable>
 ))}
- </View>
- </View>
- </Pressable>
- </Pressable>
- </Modal>
- </View>
+  </View>
+  </View>
+
+  <View style={styles.modalSection}>
+  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Libraries</Text>
+  <View style={styles.modalRow}>
+  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 14, color: colors.onSurface, flex: 1 }}>
+  D3-Delaunay
+  </Text>
+  <Switch
+  value={enabledLibraries.includes("d3")}
+  onValueChange={(val) => {
+  const next = val ? [...enabledLibraries, "d3"] : enabledLibraries.filter((l) => l !== "d3");
+  setEnabledLibraries(next);
+  AsyncStorage.setItem("setting_enabledLibraries", JSON.stringify(next));
+  }}
+  trackColor={{ false: "#767577", true: "#ED225D" }}
+  thumbColor="#ffffff"
+  />
+  </View>
+  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, color: colors.textSecondary, marginTop: 4, paddingHorizontal: 2 }}>
+  Adds Delaunay triangulation &amp; Voronoi diagram support via d3-delaunay. Available as d3 global.
+  </Text>
+  </View>
+  </Pressable>
+  </Pressable>
+  </Modal>
+  </View>
 );
 }

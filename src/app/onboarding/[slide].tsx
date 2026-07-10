@@ -82,15 +82,15 @@ export default function OnboardingSlide() {
  slideAnim.value = withTiming(0, { duration: 400 });
  }, [slide]);
 
- if (!slide || !(slide in slideContent)) {
- return (
- <View style={[styles.flex1, { backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" }]}>
- <Text style={[styles.headlineXl, { color: colors.onSurface }]}>
- Slide not found
- </Text>
- </View>
+  if (!slide || !(slide in slideContent)) {
+  return (
+  <View style={{ flex: 1, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" }}>
+  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 24, fontWeight: "700", color: colors.onSurface }}>
+  Slide not found
+  </Text>
+  </View>
 );
- }
+  }
 
  const content = slideContent[slide as keyof typeof slideContent];
 

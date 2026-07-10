@@ -70,8 +70,8 @@ const p5Theme = EditorView.theme({
   '.cm-gutters': { backgroundColor: '${bg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
   '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
   '.cm-activeLine': { backgroundColor: '${activeBg}' },
-  '.cm-cursor': { borderLeft: '2px solid #ED225D', animation: 'cm-blink 1s step-end infinite' },
-  '@keyframes cm-blink': { '50%': { borderLeftColor: 'transparent' } },
+  '.cm-cursor': { borderLeft: '0.7em solid rgba(237, 34, 93, 0.35)', width: 0, boxSizing: 'border-box', marginLeft: '1px' },
+  '.cm-content': { caretColor: 'transparent' },
 
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
   '.cm-matchingBracket': { backgroundColor: 'rgba(237, 34, 93, 0.3)', outline: '1px solid #ED225D' },

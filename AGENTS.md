@@ -31,10 +31,6 @@ Reference data (symbol descriptions, params, modules) is sourced from the p5.js 
 The code editor uses CodeMirror 6 bundled via `scripts/bundle-editor.mjs` into `src/utils/editor/codemirror-bundle.generated.ts`.
 - To add a new CodeMirror extension, add it to `src/utils/editor/bundleEntry.ts` re-export list, add npm dependency, then regenerate the bundle by running `node scripts/bundle-editor.mjs`.
 
-## Vim Mode
-
-Vim editing is provided by `@replit/codemirror-vim` (v6.2.0). It is toggled via the settings modal's "Vim Mode" switch. When enabled, a `toggleVimMode` message is sent to the WebView which recreates the CodeMirror EditorState with the `vim()` extension.
-
 ## QWERTY Keyboard
 
 The custom `QwertyKeyboard` component (`src/components/QwertyKeyboard.tsx`) provides a standard QWERTY layout with long-press alternates for numbers/symbols. It replaces the former system keyboard integration. The `SystemKeyboardToolbar` component has been removed entirely.
@@ -46,9 +42,21 @@ The reference page (`src/app/ref/index.tsx`) uses `fuse.js` v7.1.0 for fuzzy sea
 ## Offline p5.js
 
 The p5.js source is vendored in `src/utils/p5Source.ts` (v1.11.3) and used directly in both exercise HTML (`exerciseHtml.ts`) and example HTML (`exampleHtml.ts`) — no CDN dependency.
+The p5 exercises **must always use v2 of the library**.
+
+## Third-Party Libraries
+
+Third-party JS libraries can be added to the editor settings modal as optional toggles. Vendored library sources go in `src/utils/<name>Source.ts` (pattern: `p5Source.ts`, `d3Source.ts`). They are injected as `<script>` tags in `exerciseHtml.ts` when the corresponding toggle is enabled in the "Libraries" section of editor settings.
+
+- `d3-delaunay` (vendored in `src/utils/d3Source.ts`): exposed as the `d3` global (`d3.Delaunay`, `d3.Voronoi`). Toggle in settings to include in user sketches.
 
 ## Keyboard System
 
 - `ProgrammingKeyboard` and `QwertyKeyboard` are toggled via `keyboardMode` state (`"programming" | "qwerty"`) in `[id].tsx`.
 - The system keyboard integration has been removed entirely. The editor always uses the custom input model (`inputmode='none'`, `contentEditable='false'`).
 - The `onRequestSystemKeyboard` prop has been replaced with `onToggleQwerty` on `ProgrammingKeyboard`.
+- Both keyboards accept `onDismissKeyboard` prop which hides the keyboard when the chevron-down button is pressed.
+
+## Shake to Report
+
+Shake detection is implemented via `expo-sensors` Accelerometer in `src/hooks/useShakeReport.ts` and activated in the root layout (`src/app/_layout.tsx`). A shake above ~2.5g threshold triggers an Alert offering to open the GitHub Issues page.

@@ -1,5 +1,6 @@
 import { CODEMIRROR_BUNDLE } from "./codemirror-bundle.generated";
 import { p5Source } from "../p5Source";
+import { d3Source } from "../d3Source";
 import { P5_FUNCTION_NAMES } from "../../data/reference";
 import { Colors } from "../../constants/Colors";
 import { getEditorTheme, EditorThemeColors } from "./themes";
@@ -59,6 +60,7 @@ export function getExerciseHtml(params: {
   colorScheme: "light" | "dark";
   editorTheme?: string;
   codeFontSize?: number;
+  libraries?: string[];
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
   const themeColors = getEditorTheme(params.editorTheme || "p5-learn", params.colorScheme);
@@ -238,9 +240,8 @@ export function getExerciseHtml(params: {
   .cm-editor.cm-focused { outline: none; }
   .cm-editor .cm-gutters { background: ${editorBg}; border-right: 1px solid ${params.colorScheme === 'dark' ? '#292A2E' : '#E5E7EB'}; color: ${params.colorScheme === 'dark' ? '#6B7280' : '#9CA3AF'}; }
   .cm-editor .cm-activeLineGutter { background: ${params.colorScheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; }
-  .cm-editor .cm-activeLine { background: ${params.colorScheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; }
-  .cm-editor .cm-cursor { border-left-color: #ED225D; animation: cm-blink 1s step-end infinite; }
-  @keyframes cm-blink { 50% { border-left-color: transparent; } }
+  .cm-editor .cm-activeLine { background: ${params.colorScheme === 'dark' ? 'rgba(237,34,93,0.12)' : 'rgba(237,34,93,0.1)'}; }
+  .cm-editor .cm-content { caret-color: transparent; }
   .cm-editor .cm-selectionBackground,
   .cm-editor.cm-focused .cm-selectionBackground { background: ${params.colorScheme === 'dark' ? 'rgba(237, 34, 93, 0.2)' : 'rgba(237, 34, 93, 0.15)'} !important; }
   .cm-editor .cm-matchingBracket {
@@ -357,6 +358,7 @@ ${
 
 
 <script>${p5Source}</script>
+${params.libraries?.includes("d3") ? `<script>${d3Source}</script>` : ""}
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
 ${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber)}
@@ -481,15 +483,13 @@ var p5FnPlugin = ViewPlugin.fromClass(P5FnPlugin, {
   decorations: function(v) { return v.decorations; }
 });
 
-var vimEnabled = false;
-
 var p5Theme = EditorView.theme({
   '&': { backgroundColor: '${editorBg}', color: '${fg}' },
   '.cm-content': { caretColor: '#ED225D', fontFamily: "'JetBrains Mono', monospace" },
   '.cm-gutters': { backgroundColor: '${editorBg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
   '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
   '.cm-activeLine': { backgroundColor: '${activeBg}' },
-  '.cm-cursor': { borderLeft: '2px solid #ED225D' },
+  '.cm-cursor': { borderLeft: '0.7em solid rgba(237, 34, 93, 0.35)', width: 0, boxSizing: 'border-box', marginLeft: '1px' },
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
   '.cm-matchingBracket': { backgroundColor: 'rgba(237, 34, 93, 0.3)', outline: '1px solid #ED225D' },
   '.cm-p5-fn': { fontWeight: '600' },
@@ -548,13 +548,6 @@ function getExtensions() {
       }
     }),
   ];
-  if (vimEnabled) {
-    try {
-      exts.push(_CM.vim());
-    } catch (_e) {
-      // vim extension not available in the bundle
-    }
-  }
   return exts;
 }
 
@@ -779,15 +772,6 @@ function handleMessage(data) {
           }
           view.focus();
         } else {
-          postEditorReady();
-        }
-        break;
-      case 'toggleVimMode':
-        vimEnabled = msg.enabled;
-        if (view) {
-          var code = view.state.doc.toString();
-          view.destroy();
-          initEditorView(code);
           postEditorReady();
         }
         break;

@@ -63,12 +63,12 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: 14,
-    paddingHorizontal: 28,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 14,
-    minHeight: 48,
+    borderRadius: 9999,
+    minHeight: 52,
   },
   primaryText: {
     fontFamily: "JetBrainsMono",

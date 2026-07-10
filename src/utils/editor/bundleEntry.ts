@@ -6,7 +6,6 @@ import { indentSelection } from "@codemirror/commands";
 import { javascript } from "@codemirror/lang-javascript";
 import { autocompletion, CompletionContext } from "@codemirror/autocomplete";
 import { tags } from "@lezer/highlight";
-import { vim } from "@replit/codemirror-vim";
 
 export {
   basicSetup,
@@ -24,5 +23,4 @@ export {
   tags,
   autocompletion,
   CompletionContext,
-  vim,
 };

@@ -6,8 +6,10 @@ import ThemeProvider from "../components/ThemeProvider";
 import DrawerProvider from "../contexts/DrawerContext";
 import SideDrawer from "../components/SideDrawer";
 import DrawerFab from "../components/DrawerFab";
+import { useShakeReport } from "../hooks/useShakeReport";
 
 export default function RootLayout() {
+  useShakeReport();
   const [loaded] = useFonts({
     JetBrainsMono: require("../../assets/fonts/JetBrainsMono-Regular.ttf"),
     "JetBrainsMono-Bold": require("../../assets/fonts/JetBrainsMono-Bold.ttf"),

@@ -9,24 +9,25 @@ import { P5_SYMBOLS } from "../data/reference";
 import { p5Functions, p5FunctionLabels, pairedSymbols, singleSymbols, P5FunctionDef, PairedSymbol } from "../data/keyboardLayout";
 
 interface ProgrammingKeyboardProps {
- onInsert: (text: string, cursorOffset?: number) => void;
- exerciseSymbols?: string[];
- onToggleKeyboard?: () => void;
- onToggleQwerty?: () => void;
- onBackspace?: () => void;
- onNewline?: () => void;
- onFormat?: () => void;
- onCursorMove?: (direction: 'left' | 'right' | 'up' | 'down') => void;
- onOpenReference?: (symbol: string) => void;
- keyboardVisible?: boolean;
- usedFunctions?: string[];
- height?: number;
+  onInsert: (text: string, cursorOffset?: number) => void;
+  exerciseSymbols?: string[];
+  onToggleKeyboard?: () => void;
+  onToggleQwerty?: () => void;
+  onBackspace?: () => void;
+  onNewline?: () => void;
+  onFormat?: () => void;
+  onCursorMove?: (direction: 'left' | 'right' | 'up' | 'down') => void;
+  onOpenReference?: (symbol: string) => void;
+  keyboardVisible?: boolean;
+  usedFunctions?: string[];
+  height?: number;
+  onDismissKeyboard?: () => void;
 }
 
 const BACKSPACE_DELAY = 300;
 const BACKSPACE_INTERVAL = 60;
 
-export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onToggleQwerty, onBackspace, onNewline, onFormat, onCursorMove, onOpenReference, keyboardVisible = true, usedFunctions = [], height = 280 }: ProgrammingKeyboardProps) {
+export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], onToggleKeyboard, onToggleQwerty, onBackspace, onNewline, onFormat, onCursorMove, onOpenReference, keyboardVisible = true, usedFunctions = [], height = 280, onDismissKeyboard }: ProgrammingKeyboardProps) {
  const { colorScheme } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const isMediumKeyboard = height === 280;
@@ -147,16 +148,27 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  accessibilityRole="button"
  accessibilityLabel="New line"
  >
- <MaterialCommunityIcons name="keyboard-return" size={18} color={colors.onSurfaceVariant} />
- </Pressable>
- </View>
- <ScrollView
- horizontal
- showsHorizontalScrollIndicator={false}
- style={styles.symbolsScroll}
- contentContainerStyle={styles.symbolsContent}
- >
- {pairedSymbols.map((pair) => {
+  <MaterialCommunityIcons name="keyboard-return" size={18} color={colors.onSurfaceVariant} />
+    </Pressable>
+    </View>
+    <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    style={styles.symbolsScroll}
+    contentContainerStyle={styles.symbolsContent}
+    >
+    <Pressable
+    onPress={onDismissKeyboard}
+    style={({ pressed }) => [
+    styles.dismissBtn,
+    { backgroundColor: pressed ? colors.primaryContainer : "transparent" },
+    ]}
+    accessibilityRole="button"
+    accessibilityLabel="Hide keyboard"
+    >
+    <MaterialCommunityIcons name="chevron-down" size={18} color={colors.onSurfaceVariant} />
+    </Pressable>
+    {pairedSymbols.map((pair) => {
  const hinted = pair.hintTrigger && pair.hintTrigger === hintType;
  return (
  <Pressable
@@ -438,14 +450,23 @@ const styles = StyleSheet.create({
  width: 44,
  height: 44,
  },
+  dismissBtn: {
+   flexShrink: 0,
+   paddingHorizontal: 6,
+   paddingVertical: 6,
+   alignItems: "center",
+   justifyContent: "center",
+   borderRadius: Spacing.sm,
+   marginRight: 2,
+   },
   symbolButton: {
-  flexShrink: 0,
-  paddingHorizontal: Spacing.sm + 4,
-  paddingVertical: 6,
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: Spacing.sm,
-  },
+   flexShrink: 0,
+   paddingHorizontal: Spacing.sm + 4,
+   paddingVertical: 6,
+   alignItems: "center",
+   justifyContent: "center",
+   borderRadius: Spacing.sm,
+   },
  symbolText: {
  ...Typography.mono,
  fontSize: 18,
