@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { View, Text, Pressable, Linking, StyleSheet, ScrollView } from "react-native";
 import { WebView } from "react-native-webview";
-import Svg, { Path } from "react-native-svg";
+import { Svg, Path } from "react-native-svg";
 import { Colors } from "../constants/Colors";
 import { Spacing } from "../constants/Spacing";
 import { Typography } from "../constants/Typography";
