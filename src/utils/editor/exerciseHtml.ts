@@ -62,7 +62,7 @@ export function getExerciseHtml(params: {
   ctaColor?: string;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
-  const ctaColor = params.ctaColor ?? ctaColor;
+  const ctaColor = params.ctaColor ?? colors.cta;
   const themeColors = getEditorTheme(params.editorTheme || "p5-learn", params.colorScheme);
   const editorBg = themeColors.bg;
   const fontSize = params.codeFontSize ?? 22;
