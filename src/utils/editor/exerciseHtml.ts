@@ -394,7 +394,7 @@ ${
 <script>${p5Source}</script>
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
-${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber)}
+${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber, ctaColor)}
 </script>
 
 ${params.exerciseNumber === 1 ? `
@@ -412,10 +412,11 @@ ${params.exerciseNumber === 1 ? `
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number): string {
+function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number, ctaColor?: string): string {
   const isDark = colorScheme === "dark";
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
+  const cta = ctaColor ?? '#FF69B4';
 
   const {
     bg: editorBg,
@@ -520,13 +521,13 @@ var vimEnabled = false;
 
 var p5Theme = EditorView.theme({
   '&': { backgroundColor: '${editorBg}', color: '${fg}' },
-  '.cm-content': { caretColor: '${ctaColor}', fontFamily: "'JetBrains Mono', monospace" },
+  '.cm-content': { caretColor: '${cta}', fontFamily: "'JetBrains Mono', monospace" },
   '.cm-gutters': { backgroundColor: '${editorBg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
   '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
   '.cm-activeLine': { backgroundColor: '${activeBg}' },
-  '.cm-cursor': { borderLeft: '2px solid ${ctaColor}' },
+  '.cm-cursor': { borderLeft: '2px solid ${cta}' },
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
-  '.cm-matchingBracket': { backgroundColor: 'rgba(255, 105, 180, 0.3)', outline: '1px solid ${ctaColor}' },
+  '.cm-matchingBracket': { backgroundColor: 'rgba(255, 105, 180, 0.3)', outline: '1px solid ${cta}' },
   '.cm-p5-fn': { fontWeight: '600' },
 });
 
