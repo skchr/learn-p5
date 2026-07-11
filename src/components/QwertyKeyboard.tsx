@@ -19,7 +19,6 @@ type KeyMode = "letters" | "symbols1" | "symbols2";
 
 const KEY_GAP = 6;
 const CONTAINER_PADDING = 8;
-const UTILITY_HEIGHT = 24;
 const TOOLBAR_HEIGHT = 36;
 const LONG_PRESS_DELAY = 400;
 const REPEAT_INTERVAL = 80;
@@ -79,11 +78,6 @@ export default function QwertyKeyboard({
   const keyLayouts = useRef<Record<string, { x: number; w: number }>>({});
 
   const isDark = colorScheme === "dark";
-  const KB_BG = isDark ? "#000000" : "#D1D5DB";
-  const KEY_BG = isDark ? "#2C2C2E" : "#FFFFFF";
-  const KEY_BG_PRESSED = isDark ? "#3A3A3C" : "#E5E7EB";
-  const KEY_TEXT = isDark ? "#FFFFFF" : "#1C1B1F";
-  const UTILITY_ICON_OPACITY = 0.4;
 
   const currentRows = useMemo(() => {
     if (keyMode === "symbols1") return SYMBOLS1_ROWS;
@@ -91,7 +85,7 @@ export default function QwertyKeyboard({
     return LETTER_ROWS;
   }, [keyMode]);
 
-  const ROW_AREA_HEIGHT = height - UTILITY_HEIGHT - TOOLBAR_HEIGHT;
+  const ROW_AREA_HEIGHT = height - TOOLBAR_HEIGHT;
   const ROW_COUNT = 5;
   const keyHeight = Math.max(34, Math.min(Math.floor((ROW_AREA_HEIGHT - (ROW_COUNT - 1) * KEY_GAP) / ROW_COUNT), 46));
 
@@ -185,19 +179,19 @@ export default function QwertyKeyboard({
           flex: flexVal,
           height: keyHeight,
           borderRadius: 6,
-          backgroundColor: pressed ? KEY_BG_PRESSED : KEY_BG,
+          backgroundColor: pressed ? colors.surfaceContainerHigh : colors.surfaceContainer,
           alignItems: "center",
           justifyContent: "center",
         })}
         accessibilityRole="button"
         accessibilityLabel={char}
       >
-        <Text style={[styles.keyText, { color: KEY_TEXT }]}>
+        <Text style={[styles.keyText, { color: colors.onSurface }]}>
           {char}
         </Text>
       </Pressable>
     ),
-    [keyHeight, handleKeyPressIn, handleKeyPressOut, KEY_BG, KEY_BG_PRESSED, KEY_TEXT],
+    [keyHeight, handleKeyPressIn, handleKeyPressOut, colors],
   );
 
   const renderActionKey = useCallback(
@@ -213,18 +207,18 @@ export default function QwertyKeyboard({
             flex: flexVal,
             height: keyHeight,
             borderRadius: 6,
-            backgroundColor: pressed ? KEY_BG_PRESSED : KEY_BG,
+            backgroundColor: pressed ? colors.surfaceContainerHigh : colors.surfaceContainer,
             alignItems: "center",
             justifyContent: "center",
           })}
           accessibilityRole="button"
           accessibilityLabel={label}
         >
-          <MaterialCommunityIcons name={icon} size={20} color={KEY_TEXT} />
+          <MaterialCommunityIcons name={icon} size={20} color={colors.onSurfaceVariant} />
         </Pressable>
       );
     },
-    [onBackspace, onNewline, keyHeight, KEY_BG, KEY_BG_PRESSED, KEY_TEXT],
+    [onBackspace, onNewline, keyHeight, colors],
   );
 
   const renderRow = useCallback(
@@ -246,6 +240,68 @@ export default function QwertyKeyboard({
     onInsert(s);
   }, [onInsert]);
 
+  const renderToolbar = useCallback(
+    () => (
+      <View style={[styles.toolbarRow, { borderBottomColor: colors.outlineVariant + "66" }]}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.symbolsScrollContent}
+          keyboardShouldPersistTaps="always"
+        >
+          {onDismissKeyboard && (
+            <Pressable
+              onPress={onDismissKeyboard}
+              style={({ pressed }) => ({
+                padding: 4,
+                borderRadius: 6,
+                backgroundColor: pressed ? colors.surfaceContainerHigh : "transparent",
+                marginRight: 4,
+              })}
+              accessibilityRole="button"
+              accessibilityLabel="Hide keyboard"
+            >
+              <MaterialCommunityIcons name="chevron-down" size={16} color={colors.onSurfaceVariant} />
+            </Pressable>
+          )}
+          {onToggleProgramming && (
+            <Pressable
+              onPress={onToggleProgramming}
+              style={({ pressed }) => ({
+                padding: 4,
+                borderRadius: 6,
+                backgroundColor: pressed ? colors.surfaceContainerHigh : "transparent",
+                marginRight: 6,
+              })}
+              accessibilityRole="button"
+              accessibilityLabel="Switch keyboard mode"
+            >
+              <MaterialCommunityIcons name="code-tags" size={16} color={colors.primary} />
+            </Pressable>
+          )}
+          {SYMBOL_TOOLBAR_ITEMS.map((s) => (
+            <Pressable
+              key={s}
+              onPress={() => handleSymbolToolbarPress(s)}
+              style={({ pressed }) => ({
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: 6,
+                backgroundColor: pressed ? colors.surfaceContainerHigh : "transparent",
+                marginHorizontal: 2,
+              })}
+            >
+              <Text style={[styles.symbolToolbarText, { color: colors.onSurfaceVariant }]}>
+                {s}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
+    ),
+    [onDismissKeyboard, onToggleProgramming, handleSymbolToolbarPress, colors],
+  );
+
   const renderBottomRow = useCallback(
     () => {
       const commaChar = keyMode === "symbols1" ? "_" : keyMode === "symbols2" ? "-" : ",";
@@ -259,14 +315,14 @@ export default function QwertyKeyboard({
               flex: 1.3,
               height: keyHeight,
               borderRadius: 6,
-              backgroundColor: pressed ? KEY_BG_PRESSED : KEY_BG,
+              backgroundColor: pressed ? colors.surfaceContainerHigh : colors.surfaceContainer,
               alignItems: "center",
               justifyContent: "center",
             })}
             accessibilityRole="button"
             accessibilityLabel={bottomLeftLabel}
           >
-            <Text style={[styles.keyText, { color: KEY_TEXT, fontSize: 13 }]}>
+            <Text style={[styles.keyText, { color: colors.onSurfaceVariant, fontSize: 13 }]}>
               {bottomLeftLabel}
             </Text>
           </Pressable>
@@ -277,14 +333,14 @@ export default function QwertyKeyboard({
               flex: 0.85,
               height: keyHeight,
               borderRadius: 6,
-              backgroundColor: pressed ? KEY_BG_PRESSED : KEY_BG,
+              backgroundColor: pressed ? colors.surfaceContainerHigh : colors.surfaceContainer,
               alignItems: "center",
               justifyContent: "center",
             })}
             accessibilityRole="button"
             accessibilityLabel={commaChar}
           >
-            <Text style={[styles.keyText, { color: KEY_TEXT }]}>
+            <Text style={[styles.keyText, { color: colors.onSurface }]}>
               {commaChar}
             </Text>
           </Pressable>
@@ -296,7 +352,7 @@ export default function QwertyKeyboard({
               flex: 4,
               height: keyHeight,
               borderRadius: 6,
-              backgroundColor: pressed ? KEY_BG_PRESSED : KEY_BG,
+              backgroundColor: pressed ? colors.surfaceContainerHigh : colors.surfaceContainer,
               alignItems: "center",
               justifyContent: "center",
             })}
@@ -311,14 +367,14 @@ export default function QwertyKeyboard({
               flex: 0.85,
               height: keyHeight,
               borderRadius: 6,
-              backgroundColor: pressed ? KEY_BG_PRESSED : KEY_BG,
+              backgroundColor: pressed ? colors.surfaceContainerHigh : colors.surfaceContainer,
               alignItems: "center",
               justifyContent: "center",
             })}
             accessibilityRole="button"
             accessibilityLabel={periodChar}
           >
-            <Text style={[styles.keyText, { color: KEY_TEXT }]}>
+            <Text style={[styles.keyText, { color: colors.onSurface }]}>
               {periodChar}
             </Text>
           </Pressable>
@@ -327,56 +383,14 @@ export default function QwertyKeyboard({
         </View>
       );
     },
-    [keyHeight, keyMode, handleModeToggle, onInsert, onDismissKeyboard, onToggleProgramming, bottomLeftLabel, renderActionKey, KEY_BG, KEY_BG_PRESSED, KEY_TEXT],
+    [keyHeight, keyMode, handleModeToggle, onInsert, onDismissKeyboard, onToggleProgramming, bottomLeftLabel, renderActionKey, colors],
   );
 
-  const showUtility = onToggleProgramming || onDismissKeyboard;
   const popupBottom = keyHeight * 3 + KEY_GAP * 4 + 12;
 
   return (
-    <View style={[styles.container, { backgroundColor: KB_BG, height }]}>
-      {showUtility && (
-        <View style={[styles.utilityBar, { height: UTILITY_HEIGHT, borderBottomColor: isDark ? "#1C1C1E" : "#C4C4C6" }]}>
-          <View style={{ flex: 1 }} />
-          {onToggleProgramming && (
-            <Pressable onPress={onToggleProgramming} style={styles.utilityIcon} accessibilityRole="button" accessibilityLabel="Switch keyboard mode">
-              <MaterialCommunityIcons name="code-tags" size={13} color={KEY_TEXT} style={{ opacity: UTILITY_ICON_OPACITY }} />
-            </Pressable>
-          )}
-          {onDismissKeyboard && (
-            <Pressable onPress={onDismissKeyboard} style={styles.utilityIcon} accessibilityRole="button" accessibilityLabel="Hide keyboard">
-              <MaterialCommunityIcons name="chevron-down" size={13} color={KEY_TEXT} style={{ opacity: UTILITY_ICON_OPACITY }} />
-            </Pressable>
-          )}
-        </View>
-      )}
-
-      <View style={[styles.toolbarRow, { height: TOOLBAR_HEIGHT, borderBottomColor: isDark ? "#1C1C1E" : "#C4C4C6" }]}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.symbolsScrollContent}
-          keyboardShouldPersistTaps="always"
-        >
-          {SYMBOL_TOOLBAR_ITEMS.map((s) => (
-            <Pressable
-              key={s}
-              onPress={() => handleSymbolToolbarPress(s)}
-              style={({ pressed }) => ({
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 6,
-                backgroundColor: pressed ? KEY_BG_PRESSED : "transparent",
-                marginHorizontal: 2,
-              })}
-            >
-              <Text style={[styles.symbolToolbarText, { color: KEY_TEXT }]}>
-                {s}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
+    <View style={[styles.container, { backgroundColor: colors.surfaceContainerLow, height }]}>
+      {renderToolbar()}
 
       <View style={styles.keysArea}>
         {renderRow(currentRows.row1, false)}
@@ -396,13 +410,13 @@ export default function QwertyKeyboard({
                 { translateX: popupPos.x },
                 { scale: popupAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) },
               ],
-              backgroundColor: KEY_BG_PRESSED,
+              backgroundColor: colors.surfaceContainerHigh,
               bottom: popupBottom,
             },
           ]}
           pointerEvents="none"
         >
-          <Text style={[styles.popupChar, { color: KEY_TEXT }]}>
+          <Text style={[styles.popupChar, { color: colors.onSurface }]}>
             {popupChar}
           </Text>
         </Animated.View>
@@ -414,15 +428,6 @@ export default function QwertyKeyboard({
 const styles = StyleSheet.create({
   container: {
     overflow: "hidden",
-  },
-  utilityBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingRight: 4,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  utilityIcon: {
-    padding: 4,
   },
   toolbarRow: {
     borderBottomWidth: StyleSheet.hairlineWidth,
