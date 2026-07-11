@@ -108,7 +108,7 @@ export const shapesCourse = {
       title: "Line Weight",
       module: "Shapes",
       description: "Combine strokeWeight() with shapes to add depth and emphasis.",
-      instruction: "Vary strokeWeight() for emphasis. Draw three concentric circles with different stroke thicknesses:\n\n1. Outer circle (d=250) — thick stroke (weight 12), red\n2. Middle circle (d=170) — medium stroke (weight 8), blue\n3. Inner circle (d=90) — thin stroke (weight 4), yellow\n\nUse noFill() so only the outlines are visible.",",
+      instruction: "Vary strokeWeight() for emphasis. Draw three concentric circles with different stroke thicknesses:\n\n1. Outer circle (d=250) — thick stroke (weight 12), red\n2. Middle circle (d=170) — medium stroke (weight 8), blue\n3. Inner circle (d=90) — thin stroke (weight 4), yellow\n\nUse noFill() so only the outlines are visible.",
       startingCode: "function setup() {\n  createCanvas(400, 400);\n}\n\nfunction draw() {\n  background(20);\n  noFill();\n}",
       solution: "function setup() {\n  createCanvas(400, 400);\n}\n\nfunction draw() {\n  background(20);\n  noFill();\n  stroke(255, 100, 100);\n  strokeWeight(12);\n  circle(200, 200, 250);\n  stroke(100, 200, 255);\n  strokeWeight(8);\n  circle(200, 200, 170);\n  stroke(255, 220, 100);\n  strokeWeight(4);\n  circle(200, 200, 90);\n}"
     },
