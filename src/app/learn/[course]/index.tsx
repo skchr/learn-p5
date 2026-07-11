@@ -139,26 +139,16 @@ export default function CourseDetail() {
  styles.header,
  { backgroundColor: colors.surface },
  ]}
- >
- <Pressable onPress={() => router.back()} style={styles.backButton}>
- <MaterialCommunityIcons
- name="arrow-left"
- size={24}
- color={colors.primary}
- />
- </Pressable>
- <View style={{ width: 40 }} />
- <View style={styles.headerRight}>
- <Text style={[styles.lessonCount, { color: colors.primary }]}>
- {courseData.lessons.length}
- </Text>
- <MaterialCommunityIcons
- name="trophy"
- size={22}
- color={colors.primary}
- />
- </View>
- </View>
+  >
+  <Pressable onPress={() => router.back()} style={styles.backButton}>
+  <MaterialCommunityIcons
+    name="arrow-left"
+    size={24}
+    color={colors.primary}
+  />
+  </Pressable>
+  <View style={{ flex: 1 }} />
+  </View>
 
  <ScrollView
  style={styles.scrollView}

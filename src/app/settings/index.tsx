@@ -279,7 +279,7 @@ export default function Settings() {
  <Switch
  value={colorScheme === "dark"}
  onValueChange={toggleTheme}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>
@@ -298,7 +298,7 @@ export default function Settings() {
  <Switch
  value={dailyReminder}
  onValueChange={toggleDailyReminder}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>
@@ -321,7 +321,7 @@ export default function Settings() {
  <Switch
  value={snippetAlternatives}
  onValueChange={toggleSnippetAlternatives}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>
@@ -538,7 +538,7 @@ export default function Settings() {
  <Switch
  value={showDrawerFab}
  onValueChange={toggleShowDrawerFab}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>
@@ -557,7 +557,7 @@ export default function Settings() {
  <Switch
  value={devMode}
  onValueChange={toggleDevMode}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>

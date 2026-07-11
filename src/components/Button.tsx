@@ -33,7 +33,7 @@ export default function Button({
         styles.base,
         variant === "primary"
           ? {
-              backgroundColor: colors.primary,
+              backgroundColor: colors.cta,
             }
           : {
               backgroundColor: colorScheme === "dark" ? colors.surfaceContainerHigh : "#FFFFFF",

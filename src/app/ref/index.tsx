@@ -557,12 +557,12 @@ const styles = StyleSheet.create({
  fontSize: 18,
  fontWeight: "700",
  },
- syntaxBox: {
- paddingHorizontal: 16,
- paddingVertical: 12,
- borderLeftWidth: 3,
- borderLeftColor: "#ED225D",
- },
+  syntaxBox: {
+  paddingHorizontal: 16,
+  paddingVertical: 12,
+  borderLeftWidth: 3,
+  borderLeftColor: "#FF69B4",
+  },
  syntaxText: {
  fontFamily: "JetBrainsMono",
  fontSize: 16,

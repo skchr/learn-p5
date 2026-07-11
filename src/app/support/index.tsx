@@ -170,7 +170,7 @@ export default function Support() {
  <MaterialCommunityIcons
  name="bug-outline"
  size={28}
- color="#ED225D"
+  color={colors.cta}
  />
  <View style={styles.flex1}>
  <Text style={styles.cardTitle}>

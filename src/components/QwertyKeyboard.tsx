@@ -94,9 +94,9 @@ export default function QwertyKeyboard({
 
   const dims = useMemo(() => {
     const availWidth = screenWidth - CONTAINER_PADDING * 2;
-    const keySize = Math.floor((availWidth - (ROW1_LETTER_COUNT + 1) * KEY_GAP) / ROW1_UNITS);
+    const keySize = Math.floor((availWidth - (ROW1_LETTER_COUNT + 1) * KEY_GAP) / ROW1_UNITS * 1.003);
     const rowsArea = height - TOOLBAR_HEIGHT - BOTTOM_EXTRA;
-    const keyHeight = Math.max(40, Math.floor((rowsArea - KEY_GAP * 3) / 4));
+    const keyHeight = Math.max(40, Math.floor((rowsArea - KEY_GAP * 3) / 4 * 1.003));
     return {
       keySize,
       actionKeyWidth: Math.floor(keySize * ACTION_KEY_RATIO),
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   symbolsScroll: {
-    maxHeight: 36,
+    maxHeight: 44,
     flex: 1,
   },
   symbolsContent: {
@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   },
   symbolText: {
     ...Typography.mono,
-    fontSize: 16,
+    fontSize: 18,
   },
   keysContainer: {
     alignItems: "center",

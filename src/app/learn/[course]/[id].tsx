@@ -696,11 +696,11 @@ export default function Exercise() {
  <Pressable
  onPress={handleRun}
  disabled={state.isRunning}
- style={({ pressed }) => [
- styles.runButton,
- { backgroundColor: colors.primary },
- pressed && styles.runButtonPressed,
- ]}
+  style={({ pressed }) => [
+  styles.runButton,
+  { backgroundColor: colors.cta },
+  pressed && styles.runButtonPressed,
+  ]}
  accessibilityRole="button"
  accessibilityLabel="Run sketch"
  accessibilityState={{ disabled: state.isRunning }}
@@ -842,7 +842,7 @@ export default function Exercise() {
  <Switch
  value={colorScheme === "dark"}
  onValueChange={toggleTheme}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>
@@ -857,7 +857,7 @@ export default function Exercise() {
  <Switch
  value={vimEnabled}
  onValueChange={handleToggleVim}
- trackColor={{ false: "#767577", true: "#ED225D" }}
+  trackColor={{ false: "#767577", true: colors.cta }}
  thumbColor="#ffffff"
  />
  </View>

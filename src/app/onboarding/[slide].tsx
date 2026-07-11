@@ -431,14 +431,14 @@ export default function OnboardingSlide() {
  <Pressable
  key={opt.value}
  onPress={() => updateData({ experience: opt.value })}
- style={[styles.optionCard, selected ? { backgroundColor: "#FF69B4" } : { backgroundColor: colors.surfaceContainer }]}
+ style={[styles.optionCard, selected ? { backgroundColor: colors.cta } : { backgroundColor: colors.surfaceContainer }]}
  accessibilityRole="button"
  accessibilityLabel={opt.label}
  >
- <Text style={[styles.optionTitle, { color: selected ? "#000000" : colors.onSurface }]}>
+ <Text style={[styles.optionTitle, { color: selected ? colors.onPrimary : colors.onSurface }]}>
  {opt.label}
  </Text>
- <Text style={[styles.optionDesc, { color: selected ? "rgba(0,0,0,0.7)" : colors.onSurfaceVariant }]}>
+ <Text style={[styles.optionDesc, { color: selected ? colors.onPrimary : colors.onSurfaceVariant }]}>
  {opt.description}
  </Text>
  </Pressable>
@@ -460,14 +460,14 @@ export default function OnboardingSlide() {
  <Pressable
  key={opt.value}
  onPress={() => updateData({ path: opt.value })}
- style={[styles.optionCard, selected ? { backgroundColor: "#FF69B4" } : { backgroundColor: colors.surfaceContainer }]}
+ style={[styles.optionCard, selected ? { backgroundColor: colors.cta } : { backgroundColor: colors.surfaceContainer }]}
  accessibilityRole="button"
  accessibilityLabel={opt.title}
  >
- <Text style={[styles.pathTitle, { color: selected ? "#000000" : colors.onSurface }]}>
+ <Text style={[styles.pathTitle, { color: selected ? colors.onPrimary : colors.onSurface }]}>
  {opt.title}
  </Text>
- <Text style={[styles.pathDesc, { color: selected ? "rgba(0,0,0,0.7)" : colors.onSurfaceVariant }]}>
+ <Text style={[styles.pathDesc, { color: selected ? colors.onPrimary : colors.onSurfaceVariant }]}>
  {opt.description}
  </Text>
  </Pressable>
