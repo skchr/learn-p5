@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { View, Text, TextInput, Switch, Pressable, ScrollView, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import Header from "../../components/Header";
@@ -69,6 +70,7 @@ const createStyles = (colors: Record<string, string>) =>
 
 export default function Settings() {
  const { colorScheme, toggleTheme } = useThemeContext();
+ const router = useRouter();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const styles = createStyles(colors);
  const [dailyReminder, setDailyReminder] = useState(false);
@@ -549,25 +551,49 @@ export default function Settings() {
  <View style={styles.card}>
  <View style={styles.cardRow}>
  <View style={styles.flexChild}>
- <Text style={styles.settingTitle}>Dev Mode</Text>
- <Text style={styles.settingDescription}>
- Enable debug controls for testing
- </Text>
- </View>
- <Switch
- value={devMode}
- onValueChange={toggleDevMode}
-  trackColor={{ false: "#767577", true: colors.cta }}
- thumbColor="#ffffff"
- />
- </View>
- </View>
+<Text style={styles.settingTitle}>Dev Mode</Text>
+  <Text style={styles.settingDescription}>
+    Enable debug controls for testing
+  </Text>
+  </View>
+  <Switch
+  value={devMode}
+  onValueChange={toggleDevMode}
+   trackColor={{ false: "#767577", true: colors.cta }}
+  thumbColor="#ffffff"
+  />
+</View>
+  </View>
 
- {devMode && (
- <>
- <Text style={[styles.sectionTitle, styles.sectionMargin]}>
- Component Triggers
- </Text>
+  {devMode && (
+  <>
+  <View style={styles.card}>
+  <View style={styles.cardRow}>
+  <View style={styles.flexChild}>
+  <Text style={styles.settingTitle}>View Error Logs</Text>
+  <Text style={styles.settingDescription}>
+  Open stored error logs for debugging
+  </Text>
+  </View>
+  <Pressable
+  onPress={() => router.push("/settings/error-logs")}
+  style={({ pressed }) => ({
+  paddingHorizontal: 14,
+  paddingVertical: 8,
+  borderRadius: 8,
+  backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+  })}
+  >
+  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
+  Open
+  </Text>
+  </Pressable>
+  </View>
+  </View>
+
+  <Text style={[styles.sectionTitle, styles.sectionMargin]}>
+  Component Triggers
+  </Text>
  <View style={styles.card}>
  <View style={styles.cardRow}>
  <Text style={styles.settingTitle}>Show Toast</Text>
@@ -674,9 +700,30 @@ export default function Settings() {
  </Text>
  </Pressable>
  </View>
+
+ <View style={[styles.cardRow, { borderTopWidth: 1, borderTopColor: colors.surfaceContainerHighest, flexWrap: "wrap", gap: 8 }]}>
+ <View style={{ width: "100%", marginBottom: 4 }}>
+ <Text style={styles.settingTitle}>Error Logs</Text>
+ <Text style={styles.settingDescription}>
+ View recent error logs from the app
+ </Text>
+ </View>
+ <Pressable
+ onPress={() => router.push("/settings/error-logs")}
+ style={({ pressed }) => ({
+ paddingHorizontal: 14,
+ paddingVertical: 8,
+ borderRadius: 8,
+ backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+ })}
+ >
+ <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
+ View Logs
+ </Text>
+ </Pressable>
  </View>
  </>
-)}
+ )}
  </ScrollView>
 
  <Toast

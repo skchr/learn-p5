@@ -15,18 +15,25 @@ export default function CourseDetail() {
  const [courseData, setCourseData] = useState<Course | null>(null);
  const [loading, setLoading] = useState(true);
  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+ const [error, setError] = useState<string | null>(null);
  const { colorScheme } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
 
  const loadData = useCallback(async () => {
  if (!course) return;
+ setError(null);
+ try {
  const data = await loadCourse(course);
  setCourseData(data);
  try {
  const val = await AsyncStorage.getItem("completedLessons");
  if (val) setCompletedLessons(JSON.parse(val));
  } catch {}
+ } catch (e) {
+ setError(e instanceof Error ? e.message : "Failed to load course");
+ } finally {
  setLoading(false);
+ }
  }, [course]);
 
  useEffect(() => {
@@ -75,7 +82,7 @@ export default function CourseDetail() {
  return false;
  }
 
- if (loading) {
+if (loading) {
  return (
  <View style={[styles.container, { backgroundColor: colors.surface }]}>
  <View
@@ -94,7 +101,57 @@ export default function CourseDetail() {
  <ActivityIndicator size="large" color={colors.primary} />
  </View>
  </View>
-);
+ );
+ }
+
+ if (error) {
+ return (
+ <View style={[styles.container, { backgroundColor: colors.surface }]}>
+ <View
+ style={[
+ styles.header,
+ { backgroundColor: colors.surface },
+ ]}
+ >
+ <Pressable onPress={() => router.back()} style={styles.backButton}>
+ <MaterialCommunityIcons
+ name="arrow-left"
+ size={24}
+ color={colors.primary}
+ />
+ </Pressable>
+ <Text style={[styles.headerTitle, { color: colors.primary }]}>
+ Course
+ </Text>
+ <View style={{ width: 40 }} />
+ </View>
+ <View style={styles.notFoundContainer}>
+ <Text style={[styles.notFoundTitle, { color: colors.onSurface }]}>
+ Load Error
+ </Text>
+ <Text
+ style={[styles.notFoundSubtitle, { color: colors.textSecondary }]}
+ >
+ {error}
+ </Text>
+ <View style={styles.notFoundButtonWrapper}>
+ <Pressable
+ onPress={() => router.back()}
+ style={({ pressed }) => [
+ styles.backButton,
+ pressed && styles.backButtonPressed,
+ ]}
+ accessibilityRole="button"
+ accessibilityLabel="Back to courses"
+ >
+ <Text style={styles.backButtonText}>
+ Back to courses
+ </Text>
+ </Pressable>
+ </View>
+ </View>
+ </View>
+ );
  }
 
  if (!courseData) {
@@ -351,6 +408,12 @@ const styles = StyleSheet.create({
  justifyContent: "center",
  paddingHorizontal: 24,
  },
+ notFoundInner: {
+ flex: 1,
+ alignItems: "center",
+ justifyContent: "center",
+ paddingHorizontal: 24,
+ },
  notFoundTitle: {
  fontFamily: "JetBrainsMono",
  fontSize: 20,
@@ -361,6 +424,9 @@ const styles = StyleSheet.create({
  fontSize: 16,
  marginTop: 8,
  textAlign: "center",
+ },
+ notFoundButtonWrapper: {
+ marginTop: 24,
  },
  header: {
  flexDirection: "row",

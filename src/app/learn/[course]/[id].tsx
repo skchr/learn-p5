@@ -33,11 +33,13 @@ interface ExerciseState {
  startingCode: string;
  isRunning: boolean;
  completed: boolean;
+ error: string | null;
 }
 
 type ExerciseAction =
  | { type: "LOAD_START" }
  | { type: "LOAD_DONE"; exercise: Lesson | null; course: string; id: string }
+ | { type: "LOAD_ERROR"; error: string }
  | { type: "SET_CODE"; code: string }
  | { type: "RESET_CODE"; course: string; id: string }
  | { type: "APPEND_CODE"; text: string; cursorOffset?: number }
@@ -48,7 +50,7 @@ type ExerciseAction =
 function exerciseReducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
  switch (action.type) {
  case "LOAD_START":
- return { ...state, loading: true };
+ return { ...state, loading: true, error: null };
  case "LOAD_DONE": {
  const ex = action.exercise;
  const baseCode = ex?.startingCode ?? "";
@@ -63,8 +65,11 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
  exercise: ex ? { ...ex, startingCode } : null,
  startingCode,
  code: startingCode,
+ error: null,
  };
  }
+ case "LOAD_ERROR":
+ return { ...state, loading: false, error: action.error };
  case "SET_CODE":
  return { ...state, code: action.code };
  case "RESET_CODE":
@@ -87,14 +92,15 @@ export default function Exercise() {
  const router = useRouter();
  const insets = useSafeAreaInsets();
  const { openDrawer } = useDrawerContext();
- const [state, dispatch] = useReducer(exerciseReducer, {
+const [state, dispatch] = useReducer(exerciseReducer, {
  exercise: null,
  loading: true,
  code: "",
  startingCode: "",
  isRunning: false,
  completed: false,
- });
+ error: null,
+});
  const { colorScheme, toggleTheme } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const webViewRef = useRef<WebView>(null);
@@ -318,11 +324,27 @@ export default function Exercise() {
  const load = async () => {
  if (!course || !id) return;
  dispatch({ type: "LOAD_START" });
+ try {
  const ex = await loadExercise(course, id);
  dispatch({ type: "LOAD_DONE", exercise: ex, course, id });
  const saved = await AsyncStorage.getItem(getExerciseCodeKey(course, id));
  if (saved) {
  dispatch({ type: "SET_CODE", code: saved });
+ }
+ } catch (e: unknown) {
+ const errMsg = e instanceof Error ? e.message : String(e);
+ const errStack = e instanceof Error ? e.stack : "";
+ const logEntry = {
+ timestamp: new Date().toISOString(),
+ route: `/learn/${course}/${id}`,
+ error: errMsg,
+ stack: errStack,
+ };
+ const existing = await AsyncStorage.getItem("error_log");
+ const logs = existing ? JSON.parse(existing) : [];
+ logs.push(logEntry);
+ await AsyncStorage.setItem("error_log", JSON.stringify(logs.slice(-20)));
+ dispatch({ type: "LOAD_ERROR", error: errMsg });
  }
  };
  load();
@@ -602,12 +624,43 @@ export default function Exercise() {
  return runButtonBottom + 60;
  }, [runButtonBottom]);
 
- if (state.loading) {
+if (state.loading) {
  return (
  <View style={styles.loadingContainer}>
  <MaterialCommunityIcons name="loading" size={32} color={colors.primary} />
  </View>
-);
+ );
+ }
+
+ if (state.error) {
+ return (
+ <View style={styles.notFoundContainer}>
+ <View style={styles.notFoundInner}>
+ <MaterialCommunityIcons name="alert-circle-outline" size={48} color={colors.error} />
+ <Text style={styles.notFoundTitle}>
+ Load Error
+ </Text>
+ <Text style={styles.notFoundSubtitle}>
+ {state.error}
+ </Text>
+ <View style={styles.notFoundButtonWrapper}>
+ <Pressable
+ onPress={() => router.push(`/learn/${course}`)}
+ style={({ pressed }) => [
+ styles.backButton,
+ pressed && styles.backButtonPressed,
+ ]}
+ accessibilityRole="button"
+ accessibilityLabel="Back to course"
+ >
+ <Text style={styles.backButtonText}>
+ Back to course
+ </Text>
+ </Pressable>
+ </View>
+ </View>
+ </View>
+ );
  }
 
  if (!state.exercise) {
