@@ -30,7 +30,7 @@ function getGreeting(): string {
 
 export default function Dashboard() {
  const router = useRouter();
- const { colorScheme } = useThemeContext();
+ const { colorScheme, ctaColor } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
  const [courses, setCourses] = useState<Course[]>([]);
@@ -287,7 +287,6 @@ export default function Dashboard() {
  marginTop: 8,
  },
   nextCardButton: {
-  backgroundColor: colors.primary,
   borderRadius: 12,
   paddingHorizontal: 20,
   paddingVertical: 10,
@@ -422,6 +421,7 @@ export default function Dashboard() {
  }
  style={({ pressed }) => [
  styles.nextCardButton,
+ { backgroundColor: ctaColor },
  pressed && styles.nextCardButtonPressed,
  ]}
  accessibilityRole="button"

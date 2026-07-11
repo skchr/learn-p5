@@ -481,10 +481,10 @@ const styles = StyleSheet.create({
  },
  heroTitle: {
  fontFamily: "JetBrainsMono",
- fontSize: 40,
+ fontSize: 28,
  fontWeight: "700",
- letterSpacing: -0.5,
- lineHeight: 44,
+ letterSpacing: -0.3,
+ lineHeight: 34,
  },
  heroDescriptionRow: {
  flexDirection: "row",

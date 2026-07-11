@@ -1,19 +1,25 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { useColorScheme as useRNColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DEFAULTS } from "../constants/Defaults";
 
 type ThemeColorScheme = "light" | "dark";
 
 interface ThemeContextValue {
   colorScheme: ThemeColorScheme;
   toggleTheme: () => void;
+  ctaColor: string;
+  setCtaColor: (color: string) => void;
 }
 
 const THEME_KEY = "userColorScheme";
+const CTA_COLOR_KEY = "setting_ctaColor";
 
 const ThemeContext = createContext<ThemeContextValue>({
   colorScheme: "light",
   toggleTheme: () => {},
+  ctaColor: DEFAULTS.ctaColor,
+  setCtaColor: () => {},
 });
 
 export function useThemeContext() {
@@ -27,12 +33,16 @@ interface ThemeProviderProps {
 export default function ThemeProvider({ children }: ThemeProviderProps) {
   const systemScheme = useRNColorScheme();
   const [userScheme, setUserScheme] = useState<ThemeColorScheme | null>(null);
+  const [ctaColor, setCtaColorState] = useState(DEFAULTS.ctaColor);
 
   useEffect(() => {
-    AsyncStorage.getItem(THEME_KEY)
-      .then((stored) => {
-        if (stored === "light" || stored === "dark") {
-          setUserScheme(stored);
+    AsyncStorage.multiGet([THEME_KEY, CTA_COLOR_KEY])
+      .then(([schemeEntry, ctaEntry]) => {
+        if (schemeEntry[1] === "light" || schemeEntry[1] === "dark") {
+          setUserScheme(schemeEntry[1]);
+        }
+        if (ctaEntry[1]) {
+          setCtaColorState(ctaEntry[1]);
         }
       })
       .catch(() => {});
@@ -50,8 +60,13 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     setUserScheme((prev) => (prev === "light" ? "dark" : "light"));
   }, []);
 
+  const setCtaColor = useCallback((color: string) => {
+    setCtaColorState(color);
+    AsyncStorage.setItem(CTA_COLOR_KEY, color).catch(() => {});
+  }, []);
+
   return (
-    <ThemeContext.Provider value={{ colorScheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ colorScheme, toggleTheme, ctaColor, setCtaColor }}>
       {children}
     </ThemeContext.Provider>
   );

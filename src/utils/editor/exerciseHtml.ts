@@ -59,8 +59,10 @@ export function getExerciseHtml(params: {
   colorScheme: "light" | "dark";
   editorTheme?: string;
   codeFontSize?: number;
+  ctaColor?: string;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
+  const ctaColor = params.ctaColor ?? ctaColor;
   const themeColors = getEditorTheme(params.editorTheme || "p5-learn", params.colorScheme);
   const editorBg = themeColors.bg;
   const fontSize = params.codeFontSize ?? 22;
@@ -164,7 +166,7 @@ export function getExerciseHtml(params: {
     position: absolute;
     bottom: 8px;
     right: 8px;
-    background: ${colors.cta};
+    background: ${ctaColor};
     color: #fff;
     border: none;
     border-radius: 20px;
@@ -265,13 +267,13 @@ export function getExerciseHtml(params: {
   .cm-editor .cm-gutters { background: ${editorBg}; border-right: 1px solid ${params.colorScheme === 'dark' ? '#292A2E' : '#E5E7EB'}; color: ${params.colorScheme === 'dark' ? '#6B7280' : '#9CA3AF'}; }
   .cm-editor .cm-activeLineGutter { background: ${params.colorScheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; }
   .cm-editor .cm-activeLine { background: ${params.colorScheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; }
-  .cm-editor .cm-cursor { border-left-color: ${colors.cta}; animation: cm-blink 1s step-end infinite; }
+  .cm-editor .cm-cursor { border-left-color: ${ctaColor}; animation: cm-blink 1s step-end infinite; }
   @keyframes cm-blink { 50% { border-left-color: transparent; } }
   .cm-editor .cm-selectionBackground,
   .cm-editor.cm-focused .cm-selectionBackground { background: ${params.colorScheme === 'dark' ? 'rgba(255, 105, 180, 0.2)' : 'rgba(255, 105, 180, 0.15)'} !important; }
   .cm-editor .cm-matchingBracket {
     background: rgba(255, 105, 180, 0.3);
-    outline: 1px solid ${colors.cta};
+    outline: 1px solid ${ctaColor};
   }
   body { padding-bottom: 80px; }
 
@@ -327,7 +329,7 @@ export function getExerciseHtml(params: {
   .tut-dismiss {
     display: inline-block;
     margin-top: 12px;
-    background: ${colors.cta};
+    background: ${ctaColor};
     color: ${colors.onPrimary};
     border: none;
     border-radius: 8px;
@@ -518,13 +520,13 @@ var vimEnabled = false;
 
 var p5Theme = EditorView.theme({
   '&': { backgroundColor: '${editorBg}', color: '${fg}' },
-  '.cm-content': { caretColor: '${colors.cta}', fontFamily: "'JetBrains Mono', monospace" },
+  '.cm-content': { caretColor: '${ctaColor}', fontFamily: "'JetBrains Mono', monospace" },
   '.cm-gutters': { backgroundColor: '${editorBg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
   '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
   '.cm-activeLine': { backgroundColor: '${activeBg}' },
-  '.cm-cursor': { borderLeft: '2px solid ${colors.cta}' },
+  '.cm-cursor': { borderLeft: '2px solid ${ctaColor}' },
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
-  '.cm-matchingBracket': { backgroundColor: 'rgba(255, 105, 180, 0.3)', outline: '1px solid ${colors.cta}' },
+  '.cm-matchingBracket': { backgroundColor: 'rgba(255, 105, 180, 0.3)', outline: '1px solid ${ctaColor}' },
   '.cm-p5-fn': { fontWeight: '600' },
 });
 

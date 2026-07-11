@@ -101,7 +101,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  completed: false,
  error: null,
 });
- const { colorScheme, toggleTheme } = useThemeContext();
+ const { colorScheme, toggleTheme, ctaColor } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const webViewRef = useRef<WebView>(null);
  const [webViewReady, setWebViewReady] = useState(false);
@@ -143,8 +143,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  colorScheme: colorScheme === "dark" ? "dark" : "light",
  editorTheme,
  codeFontSize,
+ ctaColor,
  });
- }, [state.exercise, colorScheme, id, editorTheme, codeFontSize]);
+ }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor]);
 
  const styles = useMemo(
  () =>
@@ -751,7 +752,7 @@ if (state.loading) {
  disabled={state.isRunning}
   style={({ pressed }) => [
   styles.runButton,
-  { backgroundColor: colors.cta },
+  { backgroundColor: ctaColor },
   pressed && styles.runButtonPressed,
   ]}
  accessibilityRole="button"
@@ -892,12 +893,12 @@ if (state.loading) {
  <Text style={{ fontFamily: "JetBrainsMono", fontSize: 14, color: colors.onSurface }}>
  {colorScheme === "dark" ? "Dark Mode" : "Light Mode"}
  </Text>
- <Switch
- value={colorScheme === "dark"}
- onValueChange={toggleTheme}
-  trackColor={{ false: "#767577", true: colors.cta }}
- thumbColor="#ffffff"
- />
+  <Switch
+  value={colorScheme === "dark"}
+  onValueChange={toggleTheme}
+   trackColor={{ false: "#767577", true: ctaColor }}
+  thumbColor="#ffffff"
+  />
  </View>
  </View>
 
@@ -907,12 +908,12 @@ if (state.loading) {
  <Text style={{ fontSize: 14, color: colors.onSurface }}>
  Vim Mode
  </Text>
- <Switch
- value={vimEnabled}
- onValueChange={handleToggleVim}
-  trackColor={{ false: "#767577", true: colors.cta }}
- thumbColor="#ffffff"
- />
+  <Switch
+  value={vimEnabled}
+  onValueChange={handleToggleVim}
+   trackColor={{ false: "#767577", true: ctaColor }}
+  thumbColor="#ffffff"
+  />
  </View>
  </View>
 

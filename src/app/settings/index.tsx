@@ -13,6 +13,7 @@ import { DEFAULTS } from "../../constants/Defaults";
 import { STREAK_TIERS } from "../../hooks/useStreak";
 import { EDITOR_THEMES, getThemeSwatches } from "../../utils/editor/themes";
 import { loadAllCourses } from "../../utils/courseLoader";
+import { PROCESSING_COLOR_HEX } from "../../constants/ProcessingColors";
 
 const STREAK_KEYS = {
  count: "streak_count",
@@ -69,7 +70,7 @@ const createStyles = (colors: Record<string, string>) =>
  });
 
 export default function Settings() {
- const { colorScheme, toggleTheme } = useThemeContext();
+ const { colorScheme, toggleTheme, ctaColor, setCtaColor } = useThemeContext();
  const router = useRouter();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const styles = createStyles(colors);
@@ -281,9 +282,35 @@ export default function Settings() {
  <Switch
  value={colorScheme === "dark"}
  onValueChange={toggleTheme}
-  trackColor={{ false: "#767577", true: colors.cta }}
+  trackColor={{ false: "#767577", true: ctaColor }}
  thumbColor="#ffffff"
  />
+ </View>
+
+ <View style={[styles.cardRow, { borderTopWidth: 1, borderTopColor: colors.surfaceContainerHighest, flexWrap: "wrap", gap: 8 }]}>
+ <View style={{ width: "100%", marginBottom: 4 }}>
+ <Text style={styles.settingTitle}>Accent Color</Text>
+ <Text style={styles.settingDescription}>
+ Choose a CTA color for buttons and highlights
+ </Text>
+ </View>
+ {PROCESSING_COLOR_HEX.map((hex) => (
+ <Pressable
+ key={hex}
+ onPress={() => setCtaColor(hex)}
+ style={({ pressed }) => ({
+ width: 32,
+ height: 32,
+ borderRadius: 16,
+ backgroundColor: hex,
+ borderWidth: ctaColor === hex ? 3 : 0,
+ borderColor: ctaColor === hex ? colors.onSurface : "transparent",
+ opacity: pressed ? 0.8 : 1,
+ })}
+ accessibilityRole="button"
+ accessibilityLabel={`Set accent color to ${hex}`}
+ />
+ ))}
  </View>
  </View>
 
@@ -300,7 +327,7 @@ export default function Settings() {
  <Switch
  value={dailyReminder}
  onValueChange={toggleDailyReminder}
-  trackColor={{ false: "#767577", true: colors.cta }}
+  trackColor={{ false: "#767577", true: ctaColor }}
  thumbColor="#ffffff"
  />
  </View>
@@ -323,7 +350,7 @@ export default function Settings() {
  <Switch
  value={snippetAlternatives}
  onValueChange={toggleSnippetAlternatives}
-  trackColor={{ false: "#767577", true: colors.cta }}
+  trackColor={{ false: "#767577", true: ctaColor }}
  thumbColor="#ffffff"
  />
  </View>
@@ -540,7 +567,7 @@ export default function Settings() {
  <Switch
  value={showDrawerFab}
  onValueChange={toggleShowDrawerFab}
-  trackColor={{ false: "#767577", true: colors.cta }}
+  trackColor={{ false: "#767577", true: ctaColor }}
  thumbColor="#ffffff"
  />
  </View>
@@ -559,7 +586,7 @@ export default function Settings() {
   <Switch
   value={devMode}
   onValueChange={toggleDevMode}
-   trackColor={{ false: "#767577", true: colors.cta }}
+   trackColor={{ false: "#767577", true: ctaColor }}
   thumbColor="#ffffff"
   />
 </View>

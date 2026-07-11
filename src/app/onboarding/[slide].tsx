@@ -67,7 +67,7 @@ export default function OnboardingSlide() {
  const { data, updateData, completeOnboarding } = useOnboarding();
  const fadeAnim = useSharedValue(0);
  const slideAnim = useSharedValue(30);
- const { colorScheme } = useThemeContext();
+ const { colorScheme, ctaColor } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
 
  const animatedStyle = useAnimatedStyle(() => ({
@@ -321,15 +321,14 @@ export default function OnboardingSlide() {
  },
  ctaButton: {
  width: "100%",
- paddingVertical: 16,
- backgroundColor: colors.primary,
+ paddingVertical: 12,
  alignItems: "center",
- borderRadius: 12,
+ borderRadius: 14,
  },
  ctaButtonText: {
  fontFamily: "JetBrainsMono",
  fontWeight: "700",
- fontSize: 20,
+ fontSize: 14,
  textTransform: "uppercase",
  letterSpacing: 1,
  color: colors.onPrimary,
@@ -431,7 +430,7 @@ export default function OnboardingSlide() {
  <Pressable
  key={opt.value}
  onPress={() => updateData({ experience: opt.value })}
- style={[styles.optionCard, selected ? { backgroundColor: colors.cta } : { backgroundColor: colors.surfaceContainer }]}
+style={[styles.optionCard, selected ? { backgroundColor: ctaColor } : { backgroundColor: colors.surfaceContainer }]}
  accessibilityRole="button"
  accessibilityLabel={opt.label}
  >
@@ -442,7 +441,7 @@ export default function OnboardingSlide() {
  {opt.description}
  </Text>
  </Pressable>
-);
+ );
  })}
  </View>
  </View>
@@ -460,7 +459,7 @@ export default function OnboardingSlide() {
  <Pressable
  key={opt.value}
  onPress={() => updateData({ path: opt.value })}
- style={[styles.optionCard, selected ? { backgroundColor: colors.cta } : { backgroundColor: colors.surfaceContainer }]}
+ style={[styles.optionCard, selected ? { backgroundColor: ctaColor } : { backgroundColor: colors.surfaceContainer }]}
  accessibilityRole="button"
  accessibilityLabel={opt.title}
  >
@@ -564,7 +563,7 @@ export default function OnboardingSlide() {
  {isLast ? (
  <Pressable
  onPress={handleGetStarted}
- style={styles.ctaButton}
+ style={[styles.ctaButton, { backgroundColor: ctaColor }]}
  accessibilityRole="button"
  accessibilityLabel="Get Started"
  >
@@ -578,6 +577,7 @@ export default function OnboardingSlide() {
  disabled={!canProceed}
  style={({ pressed }) => [
  styles.ctaButton,
+ { backgroundColor: ctaColor },
  !canProceed && { opacity: 0.4 },
  pressed && canProceed && { opacity: 0.8 },
  ]}

@@ -136,7 +136,7 @@ const createStyles = (colors: Record<string, string>) =>
 
 export default function Support() {
  const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
- const { colorScheme } = useThemeContext();
+ const { colorScheme, ctaColor } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const styles = createStyles(colors);
 
@@ -170,7 +170,7 @@ export default function Support() {
  <MaterialCommunityIcons
  name="bug-outline"
  size={28}
-  color={colors.cta}
+   color={ctaColor}
  />
  <View style={styles.flex1}>
  <Text style={styles.cardTitle}>
