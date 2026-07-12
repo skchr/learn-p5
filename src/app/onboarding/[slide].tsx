@@ -67,7 +67,7 @@ export default function OnboardingSlide() {
  const { data, updateData, completeOnboarding } = useOnboarding();
  const fadeAnim = useSharedValue(0);
  const slideAnim = useSharedValue(30);
- const { colorScheme, ctaColor } = useThemeContext();
+ const { colorScheme, ctaColor, derivedColors } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
 
  const animatedStyle = useAnimatedStyle(() => ({
@@ -82,44 +82,6 @@ export default function OnboardingSlide() {
  slideAnim.value = withTiming(0, { duration: 400 });
  }, [slide]);
 
- if (!slide || !(slide in slideContent)) {
- return (
- <View style={[styles.flex1, { backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" }]}>
- <Text style={[styles.headlineXl, { color: colors.onSurface }]}>
- Slide not found
- </Text>
- </View>
-);
- }
-
- const content = slideContent[slide as keyof typeof slideContent];
-
- const handleNext = () => {
- const nextId = getNextSlideId(slide);
- if (nextId) {
- router.replace(`/onboarding/${nextId}`);
- }
- };
-
- const handleBack = () => {
- const prevId = getPrevSlideId(slide);
- if (prevId) {
- router.replace(`/onboarding/${prevId}`);
- }
- };
-
- const handleGetStarted = async () => {
- await completeOnboarding();
- router.replace("/dashboard");
- };
-
- const isLast = isLastSlide(slide);
- const isFirst = isFirstSlide(slide);
-
- const needsSelection = slide === "2" || slide === "3";
- const hasSelection = slide === "2" ? !!data.experience : slide === "3" ? !!data.path : true;
- const canProceed = !needsSelection || hasSelection;
-
  const styles = useMemo(() => StyleSheet.create({
  flex1: { flex: 1 },
  flexRow: { flexDirection: "row" },
@@ -133,7 +95,7 @@ export default function OnboardingSlide() {
  borderBottomWidth: 2,
  paddingVertical: 12,
  marginTop: 32,
- borderColor: colors.primary,
+ borderColor: derivedColors.primary,
  color: colors.onSurface,
  },
  headerRow: {
@@ -147,16 +109,8 @@ export default function OnboardingSlide() {
  height: 40,
  alignItems: "center",
  justifyContent: "center",
- },
- headerTitle: {
- fontFamily: "JetBrainsMono",
- fontSize: 20,
- fontWeight: "700",
- textTransform: "uppercase",
- letterSpacing: -0.5,
- color: colors.primary,
- },
- welcomeTitle: {
+  },
+  welcomeTitle: {
  fontFamily: "JetBrainsMono",
  fontSize: 32,
  fontWeight: "700",
@@ -182,7 +136,7 @@ export default function OnboardingSlide() {
  width: 12,
  height: 12,
  borderRadius: 9999,
- backgroundColor: colors.primary,
+ backgroundColor: derivedColors.primary,
  marginRight: 8,
  },
  tagLabel: {
@@ -204,7 +158,7 @@ export default function OnboardingSlide() {
  paddingBottom: 8,
  },
  codeBlockLabel: {
- color: colors.primary,
+ color: derivedColors.primary,
  fontWeight: "700",
  fontSize: 11,
  textTransform: "uppercase",
@@ -212,7 +166,7 @@ export default function OnboardingSlide() {
  codeTextPink: {
  fontFamily: "JetBrainsMono",
  fontSize: 12,
- color: colors.primary,
+ color: derivedColors.primary,
  },
  codeTextWhite: {
  fontFamily: "JetBrainsMono",
@@ -223,7 +177,7 @@ export default function OnboardingSlide() {
  codeTextPink2: {
  fontFamily: "JetBrainsMono",
  fontSize: 12,
- color: colors.primary,
+ color: derivedColors.primary,
  paddingLeft: 16,
  },
  slideTitle: {
@@ -277,7 +231,7 @@ export default function OnboardingSlide() {
  width: 32,
  height: 32,
  borderRadius: 9999,
- backgroundColor: colors.primary,
+ backgroundColor: derivedColors.primary,
  alignItems: "center",
  justifyContent: "center",
  },
@@ -303,7 +257,7 @@ export default function OnboardingSlide() {
  fontSize: 20,
  fontWeight: "700",
  textAlign: "center",
- color: colors.primary,
+ color: derivedColors.primary,
  },
  bottomBar: {
  position: "absolute",
@@ -340,6 +294,44 @@ export default function OnboardingSlide() {
  },
 }), [colors]);
 
+ if (!slide || !(slide in slideContent)) {
+ return (
+ <View style={{ flex: 1, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" }}>
+ <Text style={[{ fontFamily: "JetBrainsMono", fontSize: 24, fontWeight: "900" }, { color: colors.onSurface }]}>
+ Slide not found
+ </Text>
+ </View>
+ );
+ }
+
+ const content = slideContent[slide as keyof typeof slideContent];
+
+ const handleNext = () => {
+ const nextId = getNextSlideId(slide);
+ if (nextId) {
+ router.replace(`/onboarding/${nextId}`);
+ }
+ };
+
+ const handleBack = () => {
+ const prevId = getPrevSlideId(slide);
+ if (prevId) {
+ router.replace(`/onboarding/${prevId}`);
+ }
+ };
+
+ const handleGetStarted = async () => {
+ await completeOnboarding();
+ router.replace("/dashboard");
+ };
+
+ const isLast = isLastSlide(slide);
+ const isFirst = isFirstSlide(slide);
+
+ const needsSelection = slide === "2" || slide === "3";
+ const hasSelection = slide === "2" ? !!data.experience : slide === "3" ? !!data.path : true;
+ const canProceed = !needsSelection || hasSelection;
+
  return (
  <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
  <View style={[styles.headerRow, { paddingTop: insets.top + 8 }]}>
@@ -357,11 +349,7 @@ export default function OnboardingSlide() {
  />
  </Pressable>
 )}
- <View style={styles.flex1} />
- <Text style={styles.headerTitle}>
- LEARN P5.JS
- </Text>
- <View style={styles.flex1} />
+  <View style={styles.flex1} />
  </View>
 
  <Animated.View
@@ -503,7 +491,7 @@ style={[styles.optionCard, selected ? { backgroundColor: ctaColor } : { backgrou
  accessibilityRole="button"
  accessibilityLabel="Skip entering name"
  >
- <Text style={[styles.slideSubtitle, { color: colors.primary, fontWeight: "700" }]}>
+ <Text style={[styles.slideSubtitle, { color: derivedColors.primary, fontWeight: "700" }]}>
  Skip →
  </Text>
  </Pressable>
@@ -555,7 +543,7 @@ style={[styles.optionCard, selected ? { backgroundColor: ctaColor } : { backgrou
  {["1", "2", "3", "4", "5"].map((dot) => (
  <View
  key={dot}
- style={[styles.dot, { backgroundColor: dot === slide ? colors.primary : colors.outlineVariant }]}
+ style={[styles.dot, { backgroundColor: dot === slide ? derivedColors.primary : colors.outlineVariant }]}
  />
 ))}
  </View>

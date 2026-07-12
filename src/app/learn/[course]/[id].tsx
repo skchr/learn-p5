@@ -101,7 +101,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  completed: false,
  error: null,
 });
- const { colorScheme, toggleTheme, ctaColor } = useThemeContext();
+ const { colorScheme, toggleTheme, ctaColor, derivedColors } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const webViewRef = useRef<WebView>(null);
  const [webViewReady, setWebViewReady] = useState(false);
@@ -133,18 +133,19 @@ const [state, dispatch] = useReducer(exerciseReducer, {
 
  const exerciseHtml = useMemo(() => {
  if (!state.exercise) return null;
- return getExerciseHtml({
- title: state.exercise.title,
- moduleName: state.exercise.module,
- instruction: state.exercise.instruction,
- exerciseNumber: parseInt(id?.replace("exercise-", "") ?? "1", 10),
- startingCode: state.exercise.startingCode ?? "",
- solution: state.exercise.solution ?? "",
- colorScheme: colorScheme === "dark" ? "dark" : "light",
- editorTheme,
- codeFontSize,
- ctaColor,
- });
+  return getExerciseHtml({
+    title: state.exercise.title,
+    moduleName: state.exercise.module,
+    instruction: state.exercise.instruction,
+    exerciseNumber: parseInt(id?.replace("exercise-", "") ?? "1", 10),
+    startingCode: state.exercise.startingCode ?? "",
+    solution: state.exercise.solution ?? "",
+    colorScheme: colorScheme === "dark" ? "dark" : "light",
+    editorTheme,
+    codeFontSize,
+    ctaColor,
+    validation: state.exercise.validation,
+  });
  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor]);
 
  const styles = useMemo(
@@ -184,7 +185,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  marginTop: 24,
  },
  backButton: {
- backgroundColor: colors.primary,
+ backgroundColor: derivedColors.primary,
  paddingHorizontal: 24,
  paddingVertical: 12,
  },
@@ -217,7 +218,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  fontFamily: "JetBrainsMono",
  fontSize: 20,
  fontWeight: "700",
- color: colors.primary,
+ color: derivedColors.primary,
  marginLeft: 8,
  textTransform: "uppercase",
  letterSpacing: -0.5,
@@ -401,9 +402,12 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  case "openRef":
  router.push(`/ref?symbol=${msg.symbol}`);
  break;
- case "exerciseComplete":
- dispatch({ type: "EXERCISE_COMPLETE" });
- break;
+    case "exerciseComplete":
+      dispatch({ type: "EXERCISE_COMPLETE" });
+      break;
+    case "validationFailed":
+      showToast(msg.reason || "Not quite right — check the instructions");
+      break;
  case "goToNextLesson":
  loadCourse(course).then((courseData) => {
  if (!courseData) return;
@@ -628,7 +632,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
 if (state.loading) {
  return (
  <View style={styles.loadingContainer}>
- <MaterialCommunityIcons name="loading" size={32} color={colors.primary} />
+ <MaterialCommunityIcons name="loading" size={32} color={derivedColors.primary} />
  </View>
  );
  }
@@ -668,7 +672,7 @@ if (state.loading) {
  return (
  <View style={styles.notFoundContainer}>
  <View style={styles.notFoundInner}>
- <MaterialCommunityIcons name="alert-circle-outline" size={48} color={colors.primary} />
+ <MaterialCommunityIcons name="alert-circle-outline" size={48} color={derivedColors.primary} />
  <Text style={styles.notFoundTitle}>
  Exercise not found
  </Text>
@@ -708,9 +712,9 @@ if (state.loading) {
  >
  <MaterialCommunityIcons name="menu" size={24} color={colors.onSurfaceVariant} />
  </Pressable>
- <Text style={styles.logoText}>
- P5.LEARN
- </Text>
+  <Text style={styles.logoText} numberOfLines={1}>
+  {state.exercise?.title ?? ""}
+  </Text>
  <View style={styles.spacer} />
  <Pressable
  onPress={() => setSettingsMenuVisible(true)}
@@ -861,7 +865,7 @@ if (state.loading) {
  width: 36,
  height: 36,
  borderRadius: 8,
- backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
+ backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer,
  alignItems: "center",
  justifyContent: "center",
  })}
@@ -877,7 +881,7 @@ if (state.loading) {
  width: 36,
  height: 36,
  borderRadius: 8,
- backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainer,
+ backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer,
  alignItems: "center",
  justifyContent: "center",
  })}
@@ -935,9 +939,9 @@ if (state.loading) {
  borderRadius: 6,
  backgroundColor:
  editorTheme === key
- ? colors.primary
+ ? derivedColors.primary
  : pressed
- ? colors.primaryContainer + "33"
+ ? derivedColors.primaryContainer + "33"
  : colors.surfaceContainer,
  })}
  >
@@ -977,9 +981,9 @@ if (state.loading) {
  alignItems: "center",
  backgroundColor:
  keyboardHeight === opt
- ? colors.primary
+ ? derivedColors.primary
  : pressed
- ? colors.primaryContainer + "33"
+ ? derivedColors.primaryContainer + "33"
  : colors.surfaceContainer,
  })}
  >

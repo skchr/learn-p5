@@ -20,21 +20,21 @@ const p5LogoPaths = [
 
 import { PROCESSING_COLORS } from "../constants/ProcessingColors";
 
-let _randomColor: number[] | null = null;
+let _randomColor: readonly number[] | null = null;
 
-function getRandomBrandColor(): number[] {
+function getRandomBrandColor(): readonly number[] {
  if (!_randomColor) {
  _randomColor = PROCESSING_COLORS[Math.floor(Math.random() * PROCESSING_COLORS.length)];
  }
  return _randomColor;
 }
 
-function buildProcessingHtml(isDark: boolean, brandColor: number[]): string {
+function buildProcessingHtml(isDark: boolean, brandColor: readonly number[]): string {
  return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:transparent;display:flex;align-items:center;justify-content:center}canvas{display:block}</style></head><body><script>' + p5Source.replace(/<\/script>/gi, '<\\/script>') + '<\/script><script>new p5(function(p){p.setup=function(){p.createCanvas(250,250)};var t=0;p.draw=function(){p.clear();var u=p.width/8;p.strokeCap(p.SQUARE);p.strokeWeight(1.5*u);p.stroke(' + brandColor.join(",") + ');var off=p.sin(t)*u*0.3;p.bezier(4*u,1*u,7*u+off,1*u+off,7*u,5*u,4*u,5*u);p.stroke(' + brandColor.map(function (c) { return Math.max(0, c - 50) }).join(",") + ');p.line(1*u,6*u,4*u,2*u);p.stroke(' + brandColor.map(function (c) { return Math.min(255, c + 80) }).join(",") + ');p.line(1*u,3*u,2*u,5*u);t+=0.03}})<\/script></body></html>';
 }
 
 export default function About() {
- const { colorScheme } = useThemeContext();
+ const { colorScheme, derivedColors } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const isDark = colorScheme === "dark";
  const brandColor = getRandomBrandColor();
@@ -55,7 +55,7 @@ export default function About() {
  </Text>
  <Svg width={100} height={46} viewBox="0 0 250 114" style={styles.logo}>
  {p5LogoPaths.map((d, i) => (
- <Path key={`about-p5-path-${i}`} d={d} fill={colors.primary} />
+ <Path key={`about-p5-path-${i}`} d={d} fill={derivedColors.primary} />
 ))}
  </Svg>
  <Text style={[styles.definitionText, { color: colors.textSecondary }]}>
@@ -69,7 +69,7 @@ export default function About() {
  accessibilityRole="link"
  accessibilityLabel="Visit p5js.org"
  >
- <Text style={[styles.link, { color: colors.primary }]}>
+ <Text style={[styles.link, { color: derivedColors.primary }]}>
  Visit p5js.org →
  </Text>
  </Pressable>
@@ -102,7 +102,7 @@ export default function About() {
  accessibilityRole="link"
  accessibilityLabel="Visit processing.org"
  >
- <Text style={[styles.link, { color: colors.primary }]}>
+ <Text style={[styles.link, { color: derivedColors.primary }]}>
  Visit processing.org →
  </Text>
  </Pressable>

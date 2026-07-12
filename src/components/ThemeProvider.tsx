@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { useColorScheme as useRNColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DEFAULTS } from "../constants/Defaults";
+import { deriveColorsFromAccent, type DerivedColors } from "../utils/colorUtils";
 
 type ThemeColorScheme = "light" | "dark";
 
@@ -10,6 +11,7 @@ interface ThemeContextValue {
   toggleTheme: () => void;
   ctaColor: string;
   setCtaColor: (color: string) => void;
+  derivedColors: DerivedColors;
 }
 
 const THEME_KEY = "userColorScheme";
@@ -20,6 +22,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   toggleTheme: () => {},
   ctaColor: DEFAULTS.ctaColor,
   setCtaColor: () => {},
+  derivedColors: deriveColorsFromAccent(DEFAULTS.ctaColor, false),
 });
 
 export function useThemeContext() {
@@ -65,8 +68,13 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     AsyncStorage.setItem(CTA_COLOR_KEY, color).catch(() => {});
   }, []);
 
+  const derivedColors = useMemo(
+    () => deriveColorsFromAccent(ctaColor, colorScheme === "dark"),
+    [ctaColor, colorScheme]
+  );
+
   return (
-    <ThemeContext.Provider value={{ colorScheme, toggleTheme, ctaColor, setCtaColor }}>
+    <ThemeContext.Provider value={{ colorScheme, toggleTheme, ctaColor, setCtaColor, derivedColors }}>
       {children}
     </ThemeContext.Provider>
   );

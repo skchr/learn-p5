@@ -70,7 +70,7 @@ const createStyles = (colors: Record<string, string>) =>
   });
 
 export default function Settings() {
-  const { colorScheme, toggleTheme, ctaColor, setCtaColor } = useThemeContext();
+  const { colorScheme, toggleTheme, ctaColor, setCtaColor, derivedColors } = useThemeContext();
   const router = useRouter();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
   const styles = createStyles(colors);
@@ -259,7 +259,7 @@ export default function Settings() {
           </View>
           <View style={[styles.cardRow, { borderTopWidth: 1, borderTopColor: colors.surfaceContainerHighest }]}>
             <TextInput
-              style={[styles.nameInput, { color: colors.primary, borderColor: colors.outlineVariant }]}
+              style={[styles.nameInput, { color: derivedColors.primary, borderColor: colors.outlineVariant }]}
               placeholder="Enter your name"
               placeholderTextColor={colors.textSecondary}
               value={displayName}
@@ -372,7 +372,7 @@ export default function Settings() {
                   width: 36,
                   height: 36,
                   borderRadius: 8,
-                  backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainerHigh,
+                  backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainerHigh,
                   alignItems: "center",
                   justifyContent: "center",
                 })}
@@ -390,7 +390,7 @@ export default function Settings() {
                   width: 36,
                   height: 36,
                   borderRadius: 8,
-                  backgroundColor: pressed ? colors.primaryContainer : colors.surfaceContainerHigh,
+                  backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainerHigh,
                   alignItems: "center",
                   justifyContent: "center",
                 })}
@@ -424,9 +424,9 @@ export default function Settings() {
                     borderRadius: 6,
                     backgroundColor:
                       codeBackground === opt
-                        ? colors.primary
+                        ? derivedColors.primary
                         : pressed
-                          ? colors.primaryContainer + "33"
+                          ? derivedColors.primaryContainer + "33"
                           : colors.surfaceContainerHigh,
                   })}
                   accessibilityRole="button"
@@ -473,9 +473,9 @@ export default function Settings() {
                     borderRadius: 6,
                     backgroundColor:
                       editorTheme === key
-                        ? colors.primary
+                        ? derivedColors.primary
                         : pressed
-                          ? colors.primaryContainer + "33"
+                          ? derivedColors.primaryContainer + "33"
                           : colors.surfaceContainerHigh,
                   })}
                 >
@@ -527,9 +527,9 @@ export default function Settings() {
                     alignItems: "center",
                     backgroundColor:
                       keyboardHeight === opt
-                        ? colors.primary
+                        ? derivedColors.primary
                         : pressed
-                          ? colors.primaryContainer + "33"
+                          ? derivedColors.primaryContainer + "33"
                           : colors.surfaceContainerHigh,
                   })}
                   accessibilityRole="button"
@@ -607,7 +607,7 @@ export default function Settings() {
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 8,
-                    backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+                    backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
                   })}
                 >
                   <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
@@ -629,7 +629,7 @@ export default function Settings() {
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 8,
-                    backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+                    backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
                   })}
                 >
                   <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
@@ -645,7 +645,7 @@ export default function Settings() {
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 8,
-                    backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+                    backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
                   })}
                 >
                   <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
@@ -672,7 +672,7 @@ export default function Settings() {
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 8,
-                    backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+                    backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
                   })}
                 >
                   <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
@@ -706,7 +706,7 @@ export default function Settings() {
                   <Text style={styles.settingTitle}>Set Streak Count</Text>
                 </View>
                 <TextInput
-                  style={[styles.nameInput, { color: colors.primary, borderColor: colors.outlineVariant, flex: 0, minWidth: 80, maxWidth: 100 }]}
+                  style={[styles.nameInput, { color: derivedColors.primary, borderColor: colors.outlineVariant, flex: 0, minWidth: 80, maxWidth: 100 }]}
                   value={debugStreakCount}
                   onChangeText={setDebugStreakCount}
                   keyboardType="number-pad"
@@ -718,7 +718,7 @@ export default function Settings() {
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 8,
-                    backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+                    backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
                   })}
                 >
                   <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>
@@ -739,7 +739,7 @@ export default function Settings() {
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 8,
-                    backgroundColor: pressed ? colors.primaryContainer : colors.primary,
+                    backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
                   })}
                 >
                   <Text style={{ fontFamily: "JetBrainsMono", fontSize: 11, fontWeight: "700", color: colors.onPrimary, textTransform: "uppercase" }}>

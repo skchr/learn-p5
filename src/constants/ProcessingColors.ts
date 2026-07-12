@@ -11,7 +11,7 @@ export const PROCESSING_COLORS = [
  [233, 30, 99],
 ] as const;
 
-export function rgbToHex(r: number, g: number, b: number): string {
+function rgbToHex(r: number, g: number, b: number): string {
  return (
  "#" +
  [r, g, b].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, "0")).join("")
