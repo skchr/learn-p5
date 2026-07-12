@@ -10,7 +10,7 @@ import StreakToast from "../../components/StreakToast";
 import { useThemeContext } from "../../components/ThemeProvider";
 import { Colors } from "../../constants/Colors";
 import { DEFAULTS } from "../../constants/Defaults";
-import { STREAK_TIERS } from "../../hooks/useStreak";
+
 import { EDITOR_THEMES, getThemeSwatches } from "../../utils/editor/themes";
 import { loadAllCourses } from "../../utils/courseLoader";
 import { PROCESSING_COLOR_HEX } from "../../constants/ProcessingColors";
@@ -237,8 +237,6 @@ export default function Settings() {
     ]);
   };
 
-  const keyboardHeightPixels = DEFAULTS.keyboardHeightPixels;
-
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Header title="Settings" />
@@ -422,12 +420,9 @@ export default function Settings() {
                     paddingHorizontal: 12,
                     paddingVertical: 6,
                     borderRadius: 6,
-                    backgroundColor:
-                      codeBackground === opt
-                        ? derivedColors.primary
-                        : pressed
-                          ? derivedColors.primaryContainer + "33"
-                          : colors.surfaceContainerHigh,
+                    borderBottomWidth: codeBackground === opt ? 2 : 0,
+                    borderBottomColor: codeBackground === opt ? derivedColors.primary : "transparent",
+                    backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainerHigh,
                   })}
                   accessibilityRole="button"
                   accessibilityLabel={
@@ -441,7 +436,7 @@ export default function Settings() {
                       fontWeight: "700",
                       textTransform: "uppercase",
                       letterSpacing: 0.5,
-                      color: codeBackground === opt ? colors.onPrimary : colors.onSurfaceVariant,
+                      color: colors.onSurfaceVariant,
                     }}
                   >
                     {opt === "auto" ? "Auto" : opt === "#FFFFFF" ? "Light" : "Dark"}
@@ -471,12 +466,9 @@ export default function Settings() {
                     paddingHorizontal: 10,
                     paddingVertical: 5,
                     borderRadius: 6,
-                    backgroundColor:
-                      editorTheme === key
-                        ? derivedColors.primary
-                        : pressed
-                          ? derivedColors.primaryContainer + "33"
-                          : colors.surfaceContainerHigh,
+                    borderBottomWidth: editorTheme === key ? 2 : 0,
+                    borderBottomColor: editorTheme === key ? derivedColors.primary : "transparent",
+                    backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainerHigh,
                   })}
                 >
                   <View style={{ flexDirection: "row", gap: 2 }}>
@@ -491,7 +483,7 @@ export default function Settings() {
                       fontWeight: "700",
                       textTransform: "uppercase",
                       letterSpacing: 0.5,
-                      color: editorTheme === key ? colors.onPrimary : colors.onSurfaceVariant,
+                      color: colors.onSurfaceVariant,
                     }}
                   >
                     {theme.label}
@@ -525,12 +517,9 @@ export default function Settings() {
                     borderRadius: 6,
                     minWidth: 42,
                     alignItems: "center",
-                    backgroundColor:
-                      keyboardHeight === opt
-                        ? derivedColors.primary
-                        : pressed
-                          ? derivedColors.primaryContainer + "33"
-                          : colors.surfaceContainerHigh,
+                    borderBottomWidth: keyboardHeight === opt ? 2 : 0,
+                    borderBottomColor: keyboardHeight === opt ? derivedColors.primary : "transparent",
+                    backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainerHigh,
                   })}
                   accessibilityRole="button"
                   accessibilityLabel={`${opt} keyboard`}
@@ -542,7 +531,7 @@ export default function Settings() {
                       fontWeight: "700",
                       textTransform: "uppercase",
                       letterSpacing: 0.5,
-                      color: keyboardHeight === opt ? colors.onPrimary : colors.onSurfaceVariant,
+                      color: colors.onSurfaceVariant,
                     }}
                   >
                     {opt === "small" ? "S" : opt === "medium" ? "M" : "T"}

@@ -4,14 +4,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDrawerContext } from "../contexts/DrawerContext";
 import { useThemeContext } from "./ThemeProvider";
-import { Colors } from "../constants/Colors";
 
 const SETTING_KEY = "setting_showDrawerFab";
 
 export default function DrawerFab() {
   const { openDrawer } = useDrawerContext();
-  const { colorScheme, derivedColors } = useThemeContext();
-  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
+  const { derivedColors } = useThemeContext();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

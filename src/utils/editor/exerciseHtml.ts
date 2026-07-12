@@ -62,9 +62,13 @@ export function getExerciseHtml(params: {
   codeFontSize?: number;
   ctaColor?: string;
   validation?: ValidationRule[];
+  wordWrap?: boolean;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
   const ctaColor = params.ctaColor ?? colors.cta;
+  const cta = ctaColor;
+  const ctaH = cta.replace('#', '');
+  const ctaRgb = `${parseInt(ctaH.substring(0,2),16)},${parseInt(ctaH.substring(2,4),16)},${parseInt(ctaH.substring(4,6),16)}`;
   const themeColors = getEditorTheme(params.editorTheme || "p5-learn", params.colorScheme, ctaColor);
   const editorBg = themeColors.bg;
   const fontSize = params.codeFontSize ?? 22;
@@ -95,15 +99,6 @@ export function getExerciseHtml(params: {
     padding: 16px;
     background: ${colors.surfaceContainer};
   }
-  .description-title {
-    font-family: "JetBrains Mono", monospace;
-    font-weight: 700;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: ${colors.primary};
-    margin-bottom: 8px;
-  }
   .description-text {
     font-size: 15px;
     line-height: 22px;
@@ -113,7 +108,7 @@ export function getExerciseHtml(params: {
   .symbol {
     font-weight: 700;
     text-decoration: underline;
-    color: ${colors.primary};
+    color: ${cta};
     cursor: pointer;
   }
 
@@ -237,8 +232,8 @@ export function getExerciseHtml(params: {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: ${colors.primary};
-    background: ${colors.primaryContainer}66;
+    color: ${cta};
+    background: rgba(${ctaRgb}, 0.12);
     padding: 2px 6px;
     border-radius: 3px;
   }
@@ -348,7 +343,6 @@ export function getExerciseHtml(params: {
 <body>
 
 <div class="description">
-  <div class="description-title">Exercise ${params.exerciseNumber}: ${escapeHtml(params.title)}</div>
   <div class="description-text">${instructionHtml}</div>
 </div>
 
@@ -396,7 +390,7 @@ ${
 <script>${p5Source}</script>
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
-${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber, ctaColor, params.validation)}
+${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber, ctaColor, params.validation, params.wordWrap)}
 </script>
 
 ${params.exerciseNumber === 1 ? `
@@ -414,8 +408,7 @@ ${params.exerciseNumber === 1 ? `
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number, ctaColor?: string, validation?: ValidationRule[]): string {
-  const isDark = colorScheme === "dark";
+function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number, ctaColor?: string, validation?: ValidationRule[], wordWrap?: boolean): string {
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
   const cta = ctaColor ?? '#FF69B4';
@@ -430,7 +423,6 @@ function getBridgeScript(startingCode: string, solution: string, theme: EditorTh
     activeBg,
     selBg,
     keyword: kwColor,
-    definitionKeyword: defKwColor,
     string: strColor,
     number: numColor,
     comment: commentColor,
@@ -457,6 +449,12 @@ var Decoration = _CM.Decoration;
 var DecorationSet = _CM.DecorationSet;
 var autocompletion = _CM.autocompletion;
 var CompletionContext = _CM.CompletionContext;
+var lineWrapping = _CM.lineWrapping;
+var prettierLib = _CM.prettier;
+var prettierEstree = _CM.prettierPluginEstree;
+var prettierAcorn = _CM.prettierPluginAcorn;
+
+var WORD_WRAP = ${wordWrap ?? false};
 
 let view;
 const INITIAL_CODE = ${codeArg};
@@ -521,8 +519,6 @@ P5FnPlugin.prototype.update = function(update) {
 var p5FnPlugin = ViewPlugin.fromClass(P5FnPlugin, {
   decorations: function(v) { return v.decorations; }
 });
-
-var vimEnabled = false;
 
 var p5Theme = EditorView.theme({
   '&': { backgroundColor: '${editorBg}', color: '${fg}' },
@@ -589,13 +585,7 @@ function getExtensions() {
       }
     }),
   ];
-  if (vimEnabled) {
-    try {
-      exts.push(_CM.vim());
-    } catch (_e) {
-      // vim extension not available in the bundle
-    }
-  }
+  if (WORD_WRAP) { exts.push(lineWrapping); }
   return exts;
 }
 
@@ -823,15 +813,6 @@ function handleMessage(data) {
           postEditorReady();
         }
         break;
-      case 'toggleVimMode':
-        vimEnabled = msg.enabled;
-        if (view) {
-          var code = view.state.doc.toString();
-          view.destroy();
-          initEditorView(code);
-          postEditorReady();
-        }
-        break;
       case 'focus':
         if (view) {
           view.focus();
@@ -888,14 +869,42 @@ function handleMessage(data) {
         break;
       case 'format':
         if (view) {
-          view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
-          indentSelection({ state: view.state, dispatch: view.dispatch });
-          view.dispatch({ selection: { anchor: view.state.doc.length } });
-          view.focus();
+          try {
+            var codeToFormat = view.state.doc.toString();
+            var pw = WORD_WRAP ? 80 : 120;
+            if (typeof prettierLib !== 'undefined' && prettierLib.format) {
+              prettierLib.format(codeToFormat, {
+                parser: 'acorn',
+                plugins: [prettierEstree, prettierAcorn],
+                printWidth: pw,
+                semi: true,
+                singleQuote: false,
+              }).then(function(formatted) {
+                if (formatted !== codeToFormat) {
+                  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });
+                }
+                view.focus();
+              }).catch(function() { view.focus(); });
+            } else {
+              view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
+              indentSelection({ state: view.state, dispatch: view.dispatch });
+              view.dispatch({ selection: { anchor: view.state.doc.length } });
+              view.focus();
+            }
+          } catch(e) { view.focus(); }
         }
         break;
       case 'runSketch':
         if (!view) { console.error('Editor not initialized'); break; }
+        if (typeof prettierLib !== 'undefined' && prettierLib.format) {
+          var rawCode = view.state.doc.toString();
+          var pw2 = WORD_WRAP ? 80 : 120;
+          prettierLib.format(rawCode, { parser: 'acorn', plugins: [prettierEstree, prettierAcorn], printWidth: pw2, semi: true, singleQuote: false }).then(function(formatted) {
+            if (formatted !== rawCode) {
+              view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });
+            }
+          }).catch(function() {});
+        }
         var userCode = view.state.doc.toString();
         renderSketch('user-sketch', userCode);
         if (typeof window.__tutRun === 'function') window.__tutRun();

@@ -108,7 +108,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  const [editorViewReady, setEditorViewReady] = useState(false);
  const [keyboardVisible, setKeyboardVisible] = useState(true);
  const [keyboardMode, setKeyboardMode] = useState<"programming" | "qwerty">("programming");
- const [vimEnabled, setVimEnabled] = useState(false); const [codeSyncKey, setCodeSyncKey] = useState(0);
+ const [codeSyncKey, setCodeSyncKey] = useState(0);
  const codeRef = useRef(state.code);
  codeRef.current = state.code;
  const [editorTheme, setEditorTheme] = useState<string>("p5-learn");
@@ -214,15 +214,14 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  menuButton: {
  padding: 8,
  },
- logoText: {
- fontFamily: "JetBrainsMono",
- fontSize: 20,
- fontWeight: "700",
- color: derivedColors.primary,
- marginLeft: 8,
- textTransform: "uppercase",
- letterSpacing: -0.5,
- },
+  logoText: {
+    fontFamily: "JetBrainsMono",
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.onSurface,
+    marginLeft: 8,
+    letterSpacing: -0.5,
+  },
  spacer: {
  flex: 1,
  },
@@ -463,18 +462,6 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  const handleToggleKeyboardMode = useCallback(() => {
  setKeyboardMode((prev) => (prev === "programming" ? "qwerty" : "programming"));
  }, []);
-
- const handleToggleVim = useCallback(
- (enabled: boolean) => {
- setVimEnabled(enabled);
- if (webViewRef.current && editorViewReady) {
- webViewRef.current.postMessage(
- JSON.stringify({ type: "toggleVimMode", enabled })
-);
- }
- },
- [editorViewReady]
-);
 
  const handleBackspace = useCallback(() => {
  if (webViewRef.current && editorViewReady) {
@@ -907,21 +894,6 @@ if (state.loading) {
  </View>
 
  <View style={styles.modalSection}>
- <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Editing</Text>
- <View style={styles.modalRow}>
- <Text style={{ fontSize: 14, color: colors.onSurface }}>
- Vim Mode
- </Text>
-  <Switch
-  value={vimEnabled}
-  onValueChange={handleToggleVim}
-   trackColor={{ false: "#767577", true: ctaColor }}
-  thumbColor="#ffffff"
-  />
- </View>
- </View>
-
- <View style={styles.modalSection}>
  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Editor Theme</Text>
  <View style={[styles.modalRow, { flexWrap: "wrap", gap: 6 }]}>
  {Object.entries(EDITOR_THEMES).map(([key, theme]) => {
@@ -937,26 +909,23 @@ if (state.loading) {
  paddingHorizontal: 10,
  paddingVertical: 5,
  borderRadius: 6,
- backgroundColor:
- editorTheme === key
- ? derivedColors.primary
- : pressed
- ? derivedColors.primaryContainer + "33"
- : colors.surfaceContainer,
- })}
- >
- <View style={{ flexDirection: "row", gap: 2 }}>
- {swatches.map((s, i) => (
- <View key={i} style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: s }} />
-))}
- </View>
- <Text style={{
- fontFamily: "JetBrainsMono",
- fontSize: 11,
- fontWeight: "700",
- textTransform: "uppercase",
- letterSpacing: 0.5,
- color: editorTheme === key ? colors.onPrimary : colors.onSurfaceVariant,
+  borderBottomWidth: editorTheme === key ? 2 : 0,
+  borderBottomColor: editorTheme === key ? derivedColors.primary : "transparent",
+  backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainer,
+  })}
+  >
+  <View style={{ flexDirection: "row", gap: 2 }}>
+  {swatches.map((s, i) => (
+  <View key={i} style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: s }} />
+  ))}
+  </View>
+  <Text style={{
+  fontFamily: "JetBrainsMono",
+  fontSize: 11,
+  fontWeight: "700",
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: colors.onSurfaceVariant,
  }}>
  {theme.label}
  </Text>
@@ -979,21 +948,18 @@ if (state.loading) {
  borderRadius: 6,
  minWidth: 42,
  alignItems: "center",
- backgroundColor:
- keyboardHeight === opt
- ? derivedColors.primary
- : pressed
- ? derivedColors.primaryContainer + "33"
- : colors.surfaceContainer,
- })}
- >
- <Text style={{
- fontFamily: "JetBrainsMono",
- fontSize: 11,
- fontWeight: "700",
- textTransform: "uppercase",
- letterSpacing: 0.5,
- color: keyboardHeight === opt ? colors.onPrimary : colors.onSurfaceVariant,
+  borderBottomWidth: keyboardHeight === opt ? 2 : 0,
+  borderBottomColor: keyboardHeight === opt ? derivedColors.primary : "transparent",
+  backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainer,
+  })}
+  >
+  <Text style={{
+  fontFamily: "JetBrainsMono",
+  fontSize: 11,
+  fontWeight: "700",
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: colors.onSurfaceVariant,
  }}>
  {opt === "small" ? "S" : opt === "medium" ? "M" : "T"}
  </Text>

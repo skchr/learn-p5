@@ -31,10 +31,6 @@ Reference data (symbol descriptions, params, modules) is sourced from the p5.js 
 The code editor uses CodeMirror 6 bundled via `scripts/bundle-editor.mjs` into `src/utils/editor/codemirror-bundle.generated.ts`.
 - To add a new CodeMirror extension, add it to `src/utils/editor/bundleEntry.ts` re-export list, add npm dependency, then regenerate the bundle by running `node scripts/bundle-editor.mjs`.
 
-## Vim Mode
-
-Vim editing is provided by `@replit/codemirror-vim` (v6.2.0). It is toggled via the settings modal's "Vim Mode" switch. When enabled, a `toggleVimMode` message is sent to the WebView which recreates the CodeMirror EditorState with the `vim()` extension.
-
 ## QWERTY Keyboard
 
 The custom `QwertyKeyboard` component (`src/components/QwertyKeyboard.tsx`) provides a standard QWERTY layout with long-press alternates for numbers/symbols. It replaces the former system keyboard integration. The `SystemKeyboardToolbar` component has been removed entirely.

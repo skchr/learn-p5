@@ -3,7 +3,7 @@ import { useRef, useMemo, useState, useCallback } from "react";
 import { View, Text, FlatList, Pressable, Alert, StyleSheet, Linking, TextInput } from "react-native";
 import { WebView } from "react-native-webview";
 import Header from "../../components/Header";
-import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, P5SymbolView as P5Symbol } from "../../data/reference";
+import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, GENERATED_REFERENCE, P5SymbolView as P5Symbol } from "../../data/reference";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "../../components/ThemeProvider";
 import { Colors } from "../../constants/Colors";
@@ -410,13 +410,18 @@ export default function Reference() {
  <FlatList
  style={[styles.flex1, { paddingHorizontal: 16 }]}
  contentContainerStyle={{ paddingTop: 12, paddingBottom: 32 }}
- ListHeaderComponent={
- !filteredSymbols ? (
- <Text style={[styles.bodyBase, { color: colors.textSecondary, marginBottom: 24 }]}>
- Browse the full p5.js API reference and documentation.
- </Text>
-) : null
- }
+  ListHeaderComponent={
+    !filteredSymbols ? (
+      <View style={{ marginBottom: 24 }}>
+        <Text style={[styles.headlineXl, { color: colors.onSurface, marginBottom: 4 }]}>
+          p5.js Reference
+        </Text>
+        <Text style={[styles.bodySm, { color: colors.textSecondary }]}>
+          v{GENERATED_REFERENCE.metadata.p5Version}
+        </Text>
+      </View>
+    ) : null
+  }
  data={filteredSymbols || MODULE_GROUPS}
  keyExtractor={filteredSymbols ? (item) => item.name : (item) => item.module}
  renderItem={

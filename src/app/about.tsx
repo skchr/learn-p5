@@ -110,7 +110,7 @@ export default function About() {
 
  <View style={[styles.versionBadge, { backgroundColor: colors.surfaceDim }]}>
  <Text style={[styles.versionText, { color: colors.textSecondary }]}>
- {APP_VERSION}
+    {APP_VERSION} • p5.js v2.3.0
  </Text>
  </View>
 

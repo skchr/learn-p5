@@ -30,7 +30,7 @@ export default function Header({ title, subtitle, right }: HeaderProps) {
  accessibilityRole="button"
  accessibilityLabel="Open navigation menu"
  >
- <Text style={[styles.menuIcon, { color: colors.onSurface }]}>
+  <Text style={[styles.menuIcon, { color: derivedColors.primary }]}>
  ☰
  </Text>
  </Pressable>
