@@ -33,6 +33,7 @@ const SETTINGS_KEYS = {
   codeBackground: "setting_codeBackground",
   keyboardHeight: "setting_keyboardHeight",
   editorTheme: "setting_editorTheme",
+  wordWrap: "setting_wordWrap",
   devMode: "setting_devMode",
 };
 
@@ -83,6 +84,7 @@ export default function Settings() {
   const [codeBackground, setCodeBackgroundState] = useState<string>(DEFAULTS.codeBackground);
   const [keyboardHeight, setKeyboardHeightState] = useState<string>(DEFAULTS.keyboardHeight);
   const [editorTheme, setEditorTheme] = useState<string>("p5-learn");
+  const [wordWrap, setWordWrap] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [devMode, setDevMode] = useState(false);
   const [debugToastVisible, setDebugToastVisible] = useState(false);
@@ -101,8 +103,9 @@ export default function Settings() {
       SETTINGS_KEYS.codeBackground,
       SETTINGS_KEYS.keyboardHeight,
       SETTINGS_KEYS.editorTheme,
+      SETTINGS_KEYS.wordWrap,
       SETTINGS_KEYS.devMode,
-    ]).then(([reminder, snippet, hour, minute, fab, fontSize, bg, kb, theme, dev]) => {
+    ]).then(([reminder, snippet, hour, minute, fab, fontSize, bg, kb, theme, wrap, dev]) => {
       setDailyReminder(reminder[1] === "true");
       setSnippetAlternatives(snippet[1] === "true");
       if (hour[1]) setNotificationHour(parseInt(hour[1], 10));
@@ -112,6 +115,7 @@ export default function Settings() {
       if (bg[1]) setCodeBackgroundState(bg[1]);
       if (kb[1]) setKeyboardHeightState(kb[1]);
       if (theme[1]) setEditorTheme(theme[1]);
+      setWordWrap(wrap[1] === "true");
       setDevMode(dev[1] === "true");
     });
     AsyncStorage.getItem("onboardingData").then((val) => {
@@ -191,6 +195,11 @@ export default function Settings() {
   const changeEditorTheme = async (value: string) => {
     setEditorTheme(value);
     await AsyncStorage.setItem(SETTINGS_KEYS.editorTheme, value);
+  };
+
+  const changeWordWrap = async (value: boolean) => {
+    setWordWrap(value);
+    await AsyncStorage.setItem(SETTINGS_KEYS.wordWrap, value.toString());
   };
 
   const handleDisplayNameChange = useCallback(async (text: string) => {

@@ -115,6 +115,7 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  const [codeFontSize, setCodeFontSize] = useState<number>(DEFAULTS.codeFontSize);
  const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
  const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
+ const [wordWrap, setWordWrap] = useState(false);
  const [toastKey, setToastKey] = useState(0);
  const [toastVisible, setToastVisible] = useState(false);
  const [toastMessage, setToastMessage] = useState("");
@@ -145,8 +146,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
     codeFontSize,
     ctaColor,
     validation: state.exercise.validation,
+    wordWrap,
   });
- }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor]);
+ }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap]);
 
  const styles = useMemo(
  () =>
@@ -512,10 +514,13 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  AsyncStorage.getItem("setting_codeFontSize").then((val) => {
  setCodeFontSize(val ? parseInt(val, 10) : DEFAULTS.codeFontSize);
  });
- AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
- setKeyboardHeight(val || "medium");
- });
- }, [])
+  AsyncStorage.getItem("setting_keyboardHeight").then((val) => {
+  setKeyboardHeight(val || "medium");
+  });
+  AsyncStorage.getItem("setting_wordWrap").then((val) => {
+  setWordWrap(val === "true");
+  });
+  }, [])
 );
 
  const changeCodeFontSize = useCallback((delta: number) => {
@@ -538,9 +543,14 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  }, []);
 
  const changeKeyboardHeight = useCallback((value: string) => {
- setKeyboardHeight(value);
- AsyncStorage.setItem("setting_keyboardHeight", value);
- }, []);
+  setKeyboardHeight(value);
+  AsyncStorage.setItem("setting_keyboardHeight", value);
+  }, []);
+
+ const changeWordWrap = useCallback((value: boolean) => {
+  setWordWrap(value);
+  AsyncStorage.setItem("setting_wordWrap", value.toString());
+  }, []);
 
  useEffect(() => {
  if (!state.completed || !state.exercise) return;
@@ -814,7 +824,7 @@ if (state.loading) {
  accessibilityRole="button"
  accessibilityLabel="Show custom keyboard"
  >
- <MaterialCommunityIcons name="keyboard-variant" size={24} color={colors.onSurface} />
+  <MaterialCommunityIcons name="keyboard-variant" size={24} color={derivedColors.primary} />
  </Pressable>
 )}
 
@@ -935,19 +945,19 @@ if (state.loading) {
  </View>
  </View>
 
- <View style={styles.modalSection}>
- <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Keyboard Height</Text>
- <View style={styles.modalRow}>
- {["small", "medium", "tall"].map((opt) => (
- <Pressable
- key={opt}
- onPress={() => changeKeyboardHeight(opt)}
- style={({ pressed }) => ({
- paddingHorizontal: 12,
- paddingVertical: 6,
- borderRadius: 6,
- minWidth: 42,
- alignItems: "center",
+  <View style={styles.modalSection}>
+  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Keyboard Height</Text>
+  <View style={styles.modalRow}>
+  {["small", "medium", "tall"].map((opt) => (
+  <Pressable
+  key={opt}
+  onPress={() => changeKeyboardHeight(opt)}
+  style={({ pressed }) => ({
+  paddingHorizontal: 12,
+  paddingVertical: 6,
+  borderRadius: 6,
+  minWidth: 42,
+  alignItems: "center",
   borderBottomWidth: keyboardHeight === opt ? 2 : 0,
   borderBottomColor: keyboardHeight === opt ? derivedColors.primary : "transparent",
   backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainer,
@@ -960,13 +970,49 @@ if (state.loading) {
   textTransform: "uppercase",
   letterSpacing: 0.5,
   color: colors.onSurfaceVariant,
- }}>
- {opt === "small" ? "S" : opt === "medium" ? "M" : "T"}
- </Text>
- </Pressable>
+  }}>
+  {opt === "small" ? "S" : opt === "medium" ? "M" : "T"}
+  </Text>
+  </Pressable>
 ))}
- </View>
- </View>
+  </View>
+  </View>
+
+  <View style={styles.modalSection}>
+  <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Word Wrap</Text>
+  <View style={styles.modalRow}>
+  {[
+    { label: "Off", value: false },
+    { label: "On", value: true },
+  ].map((opt) => (
+  <Pressable
+  key={opt.label}
+  onPress={() => changeWordWrap(opt.value)}
+  style={({ pressed }) => ({
+  paddingHorizontal: 12,
+  paddingVertical: 6,
+  borderRadius: 6,
+  minWidth: 42,
+  alignItems: "center",
+  borderBottomWidth: wordWrap === opt.value ? 2 : 0,
+  borderBottomColor: wordWrap === opt.value ? derivedColors.primary : "transparent",
+  backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainer,
+  })}
+  >
+  <Text style={{
+  fontFamily: "JetBrainsMono",
+  fontSize: 11,
+  fontWeight: "700",
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  color: colors.onSurfaceVariant,
+  }}>
+  {opt.label}
+  </Text>
+  </Pressable>
+))}
+  </View>
+  </View>
  </Pressable>
  </Pressable>
  </Modal>
