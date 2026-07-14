@@ -733,7 +733,7 @@ if (state.loading) {
  style={[styles.header, { paddingTop: insets.top + 4 }]}
  >
  <Pressable
- onPress={() => router.back()}
+ onPress={() => router.push(`/learn/${course}`)}
  style={styles.menuButton}
  accessibilityRole="button"
  accessibilityLabel="Go back"

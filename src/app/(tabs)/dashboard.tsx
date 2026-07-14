@@ -228,7 +228,7 @@ export default function Dashboard() {
  },
   statCard: {
   flex: 1,
-  backgroundColor: derivedColors.primary + "1A",
+   backgroundColor: derivedColors.primary + "26",
   borderRadius: 16,
   paddingHorizontal: 16,
   paddingVertical: 16,
@@ -353,7 +353,7 @@ export default function Dashboard() {
 
  return (
  <View style={styles.container}>
- <Header title="Dashboard" />
+ <Header title="Dashboard" showBack={false} />
  <ScrollView
  style={styles.inner}
  contentContainerStyle={{ paddingBottom: 32 }}

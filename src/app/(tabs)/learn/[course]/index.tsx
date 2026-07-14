@@ -113,7 +113,7 @@ if (loading) {
  { backgroundColor: colors.surface },
  ]}
  >
- <Pressable onPress={() => router.back()} style={styles.backButton}>
+ <Pressable onPress={() => router.push("/learn")} style={styles.backButton}>
  <MaterialCommunityIcons
  name="arrow-left"
  size={24}
@@ -136,7 +136,7 @@ if (loading) {
  </Text>
  <View style={styles.notFoundButtonWrapper}>
  <Pressable
- onPress={() => router.back()}
+ onPress={() => router.push("/learn")}
  style={({ pressed }) => [
  styles.backButton,
  pressed && styles.backButtonPressed,
@@ -163,7 +163,7 @@ if (loading) {
  { backgroundColor: colors.surface },
  ]}
  >
- <Pressable onPress={() => router.back()} style={styles.backButton}>
+ <Pressable onPress={() => router.push("/learn")} style={styles.backButton}>
  <MaterialCommunityIcons
  name="arrow-left"
  size={24}
@@ -197,13 +197,13 @@ if (loading) {
  { backgroundColor: colors.surface },
  ]}
   >
-  <Pressable onPress={() => router.back()} style={styles.backButton}>
-  <MaterialCommunityIcons
-    name="arrow-left"
-    size={24}
-    color={derivedColors.primary}
-  />
-  </Pressable>
+   <Pressable onPress={() => router.push("/learn")} style={styles.backButton}>
+   <MaterialCommunityIcons
+     name="arrow-left"
+     size={24}
+     color={derivedColors.primary}
+   />
+   </Pressable>
   <View style={{ flex: 1 }} />
   </View>
 

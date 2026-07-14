@@ -244,9 +244,9 @@ function SymbolDetail({ symbol, onOpenSearch }: { symbol: string; onOpenSearch: 
  };
 
  if (!sym) {
- return (
- <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
- <Header title="Reference" />
+  return (
+  <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
+  <Header title="Reference" onBack={() => router.push("/ref")} />
  <View style={[styles.flex1, { alignItems: "center", justifyContent: "center", paddingHorizontal: 24 }]}>
  <MaterialCommunityIcons name="book-search-outline" size={48} color={derivedColors.primary} />
  <Text style={[styles.headlineXl, { color: colors.onSurface, marginTop: 16 }]}>
@@ -277,9 +277,9 @@ function SymbolDetail({ symbol, onOpenSearch }: { symbol: string; onOpenSearch: 
  const syntaxTokens = highlightSyntax(sym.syntax.replace(/\n/g, " "), colorScheme);
  const refUrl = `https://p5js.org/reference/p5/${sym.name.toLowerCase()}/`;
 
- return (
- <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
- <Header title={sym.name} />
+  return (
+  <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
+  <Header title={sym.name} onBack={() => router.push("/ref")} />
  <FlatList
  style={[styles.flex1, { paddingHorizontal: 16, paddingTop: 24 }]}
  contentContainerStyle={{ paddingBottom: 48 }}
@@ -464,12 +464,21 @@ export default function Reference() {
  }, [router]);
 
  if (symbol) {
- return <SymbolDetail symbol={symbol} onOpenSearch={() => setSearchVisible(true)} />;
+   return (
+     <>
+       <SymbolDetail symbol={symbol} onOpenSearch={() => setSearchVisible(true)} />
+       <SearchOverlay
+         visible={searchVisible}
+         onClose={() => setSearchVisible(false)}
+         onSelectSymbol={handleSelectSymbol}
+       />
+     </>
+   );
  }
 
  return (
  <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
- <Header title="Reference" />
+ <Header title="Reference" showBack={false} />
  <FlatList
  style={[styles.flex1, { paddingHorizontal: 16 }]}
  contentContainerStyle={{ paddingTop: 12, paddingBottom: 80 }}

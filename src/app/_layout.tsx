@@ -13,7 +13,7 @@ import BottomNavFab from "../components/BottomNavFab";
 const TAB_ROUTES = [
   { label: "Dashboard", href: "/dashboard", icon: "view-dashboard-outline" as const },
   { label: "Learning", href: "/learn", icon: "book-open-outline" as const },
-  { label: "Reference", href: "/ref", icon: "bookmark-outline" as const },
+  { label: "Reference", href: "/ref", icon: "book-open-variant" as const },
   { label: "Settings", href: "/settings", icon: "cog-outline" as const },
 ];
 

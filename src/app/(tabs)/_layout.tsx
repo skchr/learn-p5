@@ -36,18 +36,14 @@ export default function TabLayout() {
         name="dashboard"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="view-dashboard-outline" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
         name="learn"
         options={{
           title: "Learning",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="book-open-outline" size={size} color={color} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -55,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: "Reference",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bookmark-outline" size={size} color={color} />
+            <MaterialCommunityIcons name="book-open-variant" size={size} color={color} />
           ),
         }}
       />
