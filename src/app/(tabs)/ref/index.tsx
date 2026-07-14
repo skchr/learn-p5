@@ -2,14 +2,14 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useMemo, useState, useCallback } from "react";
 import { View, Text, FlatList, Pressable, Alert, StyleSheet, Linking, TextInput } from "react-native";
 import { WebView } from "react-native-webview";
-import Header from "../../components/Header";
-import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, GENERATED_REFERENCE, P5SymbolView as P5Symbol } from "../../data/reference";
+import Header from "../../../components/Header";
+import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, GENERATED_REFERENCE, P5SymbolView as P5Symbol } from "../../../data/reference";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useThemeContext } from "../../components/ThemeProvider";
-import { Colors } from "../../constants/Colors";
-import { useModuleProgress } from "../../hooks/useModuleProgress";
-import { getEditorTheme } from "../../utils/editor/themes";
-import { getExampleHtml } from "../../utils/editor/exampleHtml";
+import { useThemeContext } from "../../../components/ThemeProvider";
+import { Colors } from "../../../constants/Colors";
+import { useModuleProgress } from "../../../hooks/useModuleProgress";
+import { getEditorTheme } from "../../../utils/editor/themes";
+import { getExampleHtml } from "../../../utils/editor/exampleHtml";
 import Fuse from "fuse.js";
 
 const MODULE_GROUPS = P5_SYMBOLS.reduce<{ module: string; symbols: P5Symbol[] }[]>((acc, sym) => {
@@ -186,6 +186,18 @@ function SymbolDetail({ symbol }: { symbol: string }) {
  return (
  <View style={[styles.flex1, { backgroundColor: colors.surface }]}>
  <Header title={sym.name} />
+ <Pressable
+ onPress={() => router.push("/ref")}
+ style={[
+ styles.searchContainer,
+ { backgroundColor: colors.surfaceContainer, borderColor: colors.outlineVariant, marginHorizontal: 16, marginTop: 12 },
+ ]}
+ >
+ <MaterialCommunityIcons name="magnify" size={18} color={colors.onSurfaceVariant} />
+ <Text style={[styles.searchInput, { color: colors.onSurfaceVariant }]}>
+   Search symbols...
+ </Text>
+ </Pressable>
  <FlatList
  style={[styles.flex1, { paddingHorizontal: 16, paddingTop: 24 }]}
  contentContainerStyle={{ paddingBottom: 48 }}

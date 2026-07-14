@@ -5,20 +5,21 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WebView } from "react-native-webview";
-import { useDrawerContext } from "../../../contexts/DrawerContext";
-import { useThemeContext } from "../../../components/ThemeProvider";
-import { Colors } from "../../../constants/Colors";
-import { DEFAULTS } from "../../../constants/Defaults";
-import ProgrammingKeyboard from "../../../components/ProgrammingKeyboard";
-import QwertyKeyboard from "../../../components/QwertyKeyboard";
-import Toast from "../../../components/Toast";
-import StreakToast from "../../../components/StreakToast";
-import { loadExercise, loadCourse } from "../../../utils/courseLoader";
-import { Lesson } from "../../../data/types";
-import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/reference";
-import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
-import { EDITOR_THEMES, getThemeSwatches } from "../../../utils/editor/themes";
-import { useStreak } from "../../../hooks/useStreak";
+import { useBottomNavContext } from "../../../../contexts/BottomNavContext";
+import { useThemeContext } from "../../../../components/ThemeProvider";
+import { Colors } from "../../../../constants/Colors";
+import { DEFAULTS } from "../../../../constants/Defaults";
+import ProgrammingKeyboard from "../../../../components/ProgrammingKeyboard";
+import QwertyKeyboard from "../../../../components/QwertyKeyboard";
+import BottomNavFab from "../../../../components/BottomNavFab";
+import Toast from "../../../../components/Toast";
+import StreakToast from "../../../../components/StreakToast";
+import { loadExercise, loadCourse } from "../../../../utils/courseLoader";
+import { Lesson } from "../../../../data/types";
+import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../../data/reference";
+import { getExerciseHtml } from "../../../../utils/editor/exerciseHtml";
+import { EDITOR_THEMES, getThemeSwatches } from "../../../../utils/editor/themes";
+import { useStreak } from "../../../../hooks/useStreak";
 
 const EXERCISE_CODE_PREFIX = "exerciseCode_";
 
@@ -91,7 +92,7 @@ export default function Exercise() {
  const { course, id } = useLocalSearchParams<{ course: string; id: string }>();
  const router = useRouter();
  const insets = useSafeAreaInsets();
- const { openDrawer } = useDrawerContext();
+  const { hide, show, toggle } = useBottomNavContext();
 const [state, dispatch] = useReducer(exerciseReducer, {
  exercise: null,
  loading: true,
@@ -107,6 +108,10 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  const [webViewReady, setWebViewReady] = useState(false);
  const [editorViewReady, setEditorViewReady] = useState(false);
  const [keyboardVisible, setKeyboardVisible] = useState(true);
+
+ useEffect(() => {
+   if (keyboardVisible) hide();
+ }, [keyboardVisible]);
  const [keyboardMode, setKeyboardMode] = useState<"programming" | "qwerty">("programming");
  const [codeSyncKey, setCodeSyncKey] = useState(0);
  const codeRef = useRef(state.code);
@@ -149,6 +154,11 @@ const [state, dispatch] = useReducer(exerciseReducer, {
     wordWrap,
   });
  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap]);
+
+ useEffect(() => {
+   setEditorViewReady(false);
+   setWebViewReady(false);
+ }, [exerciseHtml]);
 
  const styles = useMemo(
  () =>
@@ -474,7 +484,11 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  }, [editorViewReady]);
 
  const handleToggleKeyboard = useCallback(() => {
- setKeyboardVisible((prev) => !prev);
+ setKeyboardVisible((prev) => {
+   const next = !prev;
+   if (!next) show();
+   return next;
+ });
  }, []);
 
  const handleToggleKeyboardMode = useCallback(() => {
@@ -718,10 +732,10 @@ if (state.loading) {
  style={[styles.header, { paddingTop: insets.top + 4 }]}
  >
  <Pressable
- onPress={openDrawer}
+ onPress={toggle}
  style={styles.menuButton}
  accessibilityRole="button"
- accessibilityLabel="Open navigation menu"
+ accessibilityLabel="Toggle navigation"
  >
  <MaterialCommunityIcons name="menu" size={24} color={colors.onSurfaceVariant} />
  </Pressable>
@@ -1032,6 +1046,7 @@ if (state.loading) {
  </Pressable>
  </Pressable>
  </Modal>
+ <BottomNavFab />
  </View>
 );
 }

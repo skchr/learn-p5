@@ -899,30 +899,30 @@ function handleMessage(data) {
         break;
       case 'runSketch':
         if (!view) { console.error('Editor not initialized'); break; }
-        if (typeof prettierLib !== 'undefined' && prettierLib.format) {
-          var rawCode = view.state.doc.toString();
-          var pw2 = WORD_WRAP ? 80 : 120;
-          prettierLib.format(rawCode, { parser: 'acorn', plugins: [prettierEstree, prettierAcorn], printWidth: pw2, semi: true, singleQuote: false }).then(function(formatted) {
-            if (formatted !== rawCode) {
-              view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });
-            }
-          }).catch(function() {});
-        }
         var userCode = view.state.doc.toString();
+        if (!userCode || !userCode.trim()) {
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'validationFailed', reason: 'Editor is empty — write some code first' }));
+          }
+          break;
+        }
         renderSketch('user-sketch', userCode);
         if (typeof window.__tutRun === 'function') window.__tutRun();
         var validationPassed = false;
+        try {
         if (VALIDATION_RULES.length > 0) {
           var allPassed = true;
           var failReason = '';
           for (var ri = 0; ri < VALIDATION_RULES.length; ri++) {
             var rule = VALIDATION_RULES[ri];
             if (rule.type === 'functionCall') {
-              var callRe = new RegExp('\\b' + rule.name + '\\s*\\(([^)]*)\\)', 'g');
+              var callRe = new RegExp('\\b' + rule.name + '[\\s]*\\(', 'g');
+              var argRe = new RegExp('\\b' + rule.name + '[\\s]*\\(([^)]*)\\)', 'g');
               var matches = [];
               var rm;
-              while ((rm = callRe.exec(userCode)) !== null) {
-                var args = rm[1].split(',').map(function(a) { return a.trim(); }).filter(Boolean);
+              while ((rm = argRe.exec(userCode)) !== null) {
+                var rawArgs = rm[1];
+                var args = rawArgs.split(',').map(function(a) { return a.trim(); }).filter(function(a) { return a.length > 0; });
                 matches.push(args);
               }
               if (matches.length === 0) {
@@ -963,10 +963,20 @@ function handleMessage(data) {
         } else {
           validationPassed = SOLUTION_CODE && userCode.trim() === SOLUTION_CODE.trim();
         }
+        } catch(ve) { console.error('Validation error:', ve); }
         if (validationPassed) {
           if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
             window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'exerciseComplete' }));
           }
+        }
+        if (typeof prettierLib !== 'undefined' && prettierLib.format) {
+          var postCode = view.state.doc.toString();
+          var pw2 = WORD_WRAP ? 80 : 120;
+          prettierLib.format(postCode, { parser: 'acorn', plugins: [prettierEstree, prettierAcorn], printWidth: pw2, semi: true, singleQuote: false }).then(function(formatted) {
+            if (formatted !== postCode) {
+              view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });
+            }
+          }).catch(function() {});
         }
         setTimeout(function() {
           var el = document.getElementById('user-sketch');
