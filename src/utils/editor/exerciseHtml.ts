@@ -736,12 +736,12 @@ function postOpenRef(symbol) {
   }
 }
 
-function renderSketch(containerId, code) {
+async function renderSketch(containerId, code) {
   var container = document.getElementById(containerId);
   if (!container) return;
 
   if (container.__p5) {
-    container.__p5.remove();
+    try { await container.__p5.remove(); } catch (e) { console.error('Error removing p5 instance:', e); }
     container.__p5 = null;
   }
   container.innerHTML = '';
@@ -760,6 +760,9 @@ function renderSketch(containerId, code) {
   } catch(e) {
     console.error('Sketch render error:', e);
     container.innerHTML = '<div style="color:${cta};padding:16px;font-family:\\"JetBrains Mono\\",monospace">\\u26A0 ' + e.message + '</div>';
+    if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'sketchError', error: e.message, container: containerId }));
+    }
   }
 }
 

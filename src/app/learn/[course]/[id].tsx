@@ -409,6 +409,22 @@ const [state, dispatch] = useReducer(exerciseReducer, {
     case "validationFailed":
       showToast(msg.reason || "Not quite right — check the instructions");
       break;
+    case "sketchError":
+      if (msg.error) {
+        (async () => {
+          const logEntry = {
+            timestamp: new Date().toISOString(),
+            route: `/learn/${course}/${id}`,
+            error: `[Sketch] ${msg.error}`,
+            context: msg.container || "unknown",
+          };
+          const existing = await AsyncStorage.getItem("error_log");
+          const logs = existing ? JSON.parse(existing) : [];
+          logs.push(logEntry);
+          await AsyncStorage.setItem("error_log", JSON.stringify(logs.slice(-20)));
+        })();
+      }
+      break;
  case "goToNextLesson":
  loadCourse(course).then((courseData) => {
  if (!courseData) return;
