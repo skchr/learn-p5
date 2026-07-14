@@ -993,6 +993,27 @@ function handleMessage(data) {
 window.addEventListener('message', function(event) { handleMessage(event.data); });
 document.addEventListener('message', function(event) { handleMessage(event.data); });
 
+(function() {
+  var lastScrollY = window.scrollY || 0;
+  var scrollTicking = false;
+  window.addEventListener('scroll', function() {
+    if (!scrollTicking) {
+      requestAnimationFrame(function() {
+        var currentY = window.scrollY || 0;
+        var diff = currentY - lastScrollY;
+        if (Math.abs(diff) > 10) {
+          if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: diff > 0 ? 'scrollDown' : 'scrollUp' }));
+          }
+          lastScrollY = currentY;
+        }
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  }, { passive: true });
+})();
+
 document.querySelectorAll('.symbol').forEach(function(el) {
   el.addEventListener('click', function() {
     postOpenRef(el.getAttribute('data-symbol'));

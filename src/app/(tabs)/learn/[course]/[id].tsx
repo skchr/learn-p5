@@ -11,7 +11,7 @@ import { Colors } from "../../../../constants/Colors";
 import { DEFAULTS } from "../../../../constants/Defaults";
 import ProgrammingKeyboard from "../../../../components/ProgrammingKeyboard";
 import QwertyKeyboard from "../../../../components/QwertyKeyboard";
-import BottomNavFab from "../../../../components/BottomNavFab";
+
 import Toast from "../../../../components/Toast";
 import StreakToast from "../../../../components/StreakToast";
 import { loadExercise, loadCourse } from "../../../../utils/courseLoader";
@@ -92,7 +92,7 @@ export default function Exercise() {
  const { course, id } = useLocalSearchParams<{ course: string; id: string }>();
  const router = useRouter();
  const insets = useSafeAreaInsets();
-  const { hide, show, toggle } = useBottomNavContext();
+  const { hide, show } = useBottomNavContext();
 const [state, dispatch] = useReducer(exerciseReducer, {
  exercise: null,
  loading: true,
@@ -154,11 +154,6 @@ const [state, dispatch] = useReducer(exerciseReducer, {
     wordWrap,
   });
  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap]);
-
- useEffect(() => {
-   setEditorViewReady(false);
-   setWebViewReady(false);
- }, [exerciseHtml]);
 
  const styles = useMemo(
  () =>
@@ -435,18 +430,24 @@ const [state, dispatch] = useReducer(exerciseReducer, {
         })();
       }
       break;
- case "goToNextLesson":
- loadCourse(course).then((courseData) => {
- if (!courseData) return;
- const currentIndex = courseData.lessons.findIndex((l) => l.id === id);
- if (currentIndex >= 0 && currentIndex < courseData.lessons.length - 1) {
- const nextLesson = courseData.lessons[currentIndex + 1];
- router.replace(`/learn/${course}/${nextLesson.id}`);
- } else {
- router.replace(`/learn/${course}`);
- }
- });
- break;
+  case "goToNextLesson":
+  loadCourse(course).then((courseData) => {
+  if (!courseData) return;
+  const currentIndex = courseData.lessons.findIndex((l) => l.id === id);
+  if (currentIndex >= 0 && currentIndex < courseData.lessons.length - 1) {
+  const nextLesson = courseData.lessons[currentIndex + 1];
+  router.replace(`/learn/${course}/${nextLesson.id}`);
+  } else {
+  router.replace(`/learn/${course}`);
+  }
+  });
+  break;
+    case "scrollUp":
+      show();
+      break;
+    case "scrollDown":
+      if (keyboardVisible) hide();
+      break;
  }
  } catch {}
  },
@@ -732,12 +733,12 @@ if (state.loading) {
  style={[styles.header, { paddingTop: insets.top + 4 }]}
  >
  <Pressable
- onPress={toggle}
+ onPress={() => router.back()}
  style={styles.menuButton}
  accessibilityRole="button"
- accessibilityLabel="Toggle navigation"
+ accessibilityLabel="Go back"
  >
- <MaterialCommunityIcons name="menu" size={24} color={colors.onSurfaceVariant} />
+ <MaterialCommunityIcons name="arrow-left" size={24} color={colors.onSurfaceVariant} />
  </Pressable>
   <Text style={styles.logoText} numberOfLines={1}>
   {state.exercise?.title ?? ""}
@@ -1046,7 +1047,6 @@ if (state.loading) {
  </Pressable>
  </Pressable>
  </Modal>
- <BottomNavFab />
  </View>
 );
 }

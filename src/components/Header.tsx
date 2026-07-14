@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "./ThemeProvider";
 import { Colors } from "../constants/Colors";
 
@@ -11,6 +13,7 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle, right }: HeaderProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { colorScheme } = useThemeContext();
   const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
 
@@ -22,6 +25,14 @@ export default function Header({ title, subtitle, right }: HeaderProps) {
       ]}
     >
       <View style={styles.leftSection}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.onSurfaceVariant} />
+        </Pressable>
         <View>
           <Text style={[styles.title, { color: colors.onSurface }]}>
             {title}
@@ -50,6 +61,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+  },
+  backButton: {
+    padding: 8,
   },
   title: {
     fontFamily: "JetBrainsMono",

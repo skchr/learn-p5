@@ -4,7 +4,7 @@ import { useBottomNavContext } from "../contexts/BottomNavContext";
 import { useThemeContext } from "./ThemeProvider";
 
 export default function BottomNavFab() {
-  const { toggle, visible } = useBottomNavContext();
+  const { toggle } = useBottomNavContext();
   const { derivedColors } = useThemeContext();
 
   return (
@@ -12,19 +12,13 @@ export default function BottomNavFab() {
       onPress={toggle}
       style={({ pressed }) => [
         styles.fab,
-        {
-          backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary,
-          opacity: pressed ? 0.8 : 1,
-        },
+        { backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primary },
+        pressed && { opacity: 0.8 },
       ]}
       accessibilityRole="button"
-      accessibilityLabel={visible ? "Hide navigation" : "Show navigation"}
+      accessibilityLabel="Toggle navigation"
     >
-      <MaterialCommunityIcons
-        name={visible ? "chevron-down" : "chevron-up"}
-        size={20}
-        color="#FFFFFF"
-      />
+      <MaterialCommunityIcons name="menu" size={18} color="#FFFFFF" />
     </Pressable>
   );
 }
@@ -32,18 +26,20 @@ export default function BottomNavFab() {
 const styles = StyleSheet.create({
   fab: {
     position: "absolute",
-    bottom: 70,
-    alignSelf: "center",
-    width: 40,
-    height: 24,
-    borderRadius: 12,
+    left: 0,
+    top: "50%",
+    marginTop: -50,
+    width: 14,
+    height: 100,
+    borderTopRightRadius: 6,
+    borderBottomRightRadius: 6,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 35,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 2, height: 0 },
     shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 8,
   },
 });

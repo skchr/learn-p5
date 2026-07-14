@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeContext } from "../../components/ThemeProvider";
 import { useBottomNavContext } from "../../contexts/BottomNavContext";
-import { Platform, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 
 export default function TabLayout() {
   const { derivedColors } = useThemeContext();
@@ -35,7 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: "Home",
+          title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="view-dashboard-outline" size={size} color={color} />
           ),
@@ -44,7 +44,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="learn"
         options={{
-          title: "Learn",
+          title: "Learning",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="book-open-outline" size={size} color={color} />
           ),

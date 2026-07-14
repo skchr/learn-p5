@@ -4,14 +4,15 @@ import { useFonts } from "expo-font";
 import { Pressable, Text, View, useWindowDimensions, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ThemeProvider from "../components/ThemeProvider";
-import { BottomNavProvider, useBottomNavContext } from "../contexts/BottomNavContext";
+import { BottomNavProvider } from "../contexts/BottomNavContext";
 import { useThemeContext } from "../components/ThemeProvider";
 import { Colors } from "../constants/Colors";
 import { APP_VERSION } from "../constants/Version";
+import BottomNavFab from "../components/BottomNavFab";
 
 const TAB_ROUTES = [
-  { label: "Home", href: "/dashboard", icon: "view-dashboard-outline" as const },
-  { label: "Learn", href: "/learn", icon: "book-open-outline" as const },
+  { label: "Dashboard", href: "/dashboard", icon: "view-dashboard-outline" as const },
+  { label: "Learning", href: "/learn", icon: "book-open-outline" as const },
   { label: "Reference", href: "/ref", icon: "bookmark-outline" as const },
   { label: "Settings", href: "/settings", icon: "cog-outline" as const },
 ];
@@ -70,7 +71,6 @@ function TabletRail() {
 function RootStack() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
-  const { visible } = useBottomNavContext();
 
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
@@ -84,6 +84,7 @@ function RootStack() {
           }}
         />
       </View>
+      {!isTablet && <BottomNavFab />}
     </View>
   );
 }
