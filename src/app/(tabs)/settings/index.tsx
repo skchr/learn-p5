@@ -1,19 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { View, Text, TextInput, Switch, Pressable, ScrollView, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-import Header from "../../components/Header";
-import TimePicker from "../../components/TimePicker";
-import Toast from "../../components/Toast";
-import StreakToast from "../../components/StreakToast";
-import { useThemeContext } from "../../components/ThemeProvider";
-import { Colors } from "../../constants/Colors";
-import { DEFAULTS } from "../../constants/Defaults";
+import Header from "../../../components/Header";
+import TimePicker from "../../../components/TimePicker";
+import Toast from "../../../components/Toast";
+import StreakToast from "../../../components/StreakToast";
+import { useThemeContext } from "../../../components/ThemeProvider";
+import { Colors } from "../../../constants/Colors";
+import { DEFAULTS } from "../../../constants/Defaults";
 
-import { EDITOR_THEMES, getThemeSwatches } from "../../utils/editor/themes";
-import { loadAllCourses } from "../../utils/courseLoader";
-import { PROCESSING_COLOR_HEX } from "../../constants/ProcessingColors";
+import { EDITOR_THEMES, getThemeSwatches } from "../../../utils/editor/themes";
+import { loadAllCourses } from "../../../utils/courseLoader";
+import { PROCESSING_COLOR_HEX } from "../../../constants/ProcessingColors";
 
 const STREAK_KEYS = {
   count: "streak_count",
@@ -28,7 +29,6 @@ const SETTINGS_KEYS = {
   snippetAlternatives: "setting_snippetAlternatives",
   notificationHour: "setting_notificationHour",
   notificationMinute: "setting_notificationMinute",
-  showDrawerFab: "setting_showDrawerFab",
   codeFontSize: "setting_codeFontSize",
   codeBackground: "setting_codeBackground",
   keyboardHeight: "setting_keyboardHeight",
@@ -79,7 +79,6 @@ export default function Settings() {
   const [snippetAlternatives, setSnippetAlternatives] = useState(false);
   const [notificationHour, setNotificationHour] = useState(18);
   const [notificationMinute, setNotificationMinute] = useState(0);
-  const [showDrawerFab, setShowDrawerFab] = useState(false);
   const [codeFontSize, setCodeFontSize] = useState(DEFAULTS.codeFontSize);
   const [codeBackground, setCodeBackgroundState] = useState<string>(DEFAULTS.codeBackground);
   const [keyboardHeight, setKeyboardHeightState] = useState<string>(DEFAULTS.keyboardHeight);
@@ -98,19 +97,17 @@ export default function Settings() {
       SETTINGS_KEYS.snippetAlternatives,
       SETTINGS_KEYS.notificationHour,
       SETTINGS_KEYS.notificationMinute,
-      SETTINGS_KEYS.showDrawerFab,
       SETTINGS_KEYS.codeFontSize,
       SETTINGS_KEYS.codeBackground,
       SETTINGS_KEYS.keyboardHeight,
       SETTINGS_KEYS.editorTheme,
       SETTINGS_KEYS.wordWrap,
       SETTINGS_KEYS.devMode,
-    ]).then(([reminder, snippet, hour, minute, fab, fontSize, bg, kb, theme, wrap, dev]) => {
+    ]).then(([reminder, snippet, hour, minute, fontSize, bg, kb, theme, wrap, dev]) => {
       setDailyReminder(reminder[1] === "true");
       setSnippetAlternatives(snippet[1] === "true");
       if (hour[1]) setNotificationHour(parseInt(hour[1], 10));
       if (minute[1]) setNotificationMinute(parseInt(minute[1], 10));
-      setShowDrawerFab(fab[1] === "true");
       if (fontSize[1]) setCodeFontSize(parseInt(fontSize[1], 10));
       if (bg[1]) setCodeBackgroundState(bg[1]);
       if (kb[1]) setKeyboardHeightState(kb[1]);
@@ -169,11 +166,6 @@ export default function Settings() {
   const toggleSnippetAlternatives = async (value: boolean) => {
     setSnippetAlternatives(value);
     await AsyncStorage.setItem(SETTINGS_KEYS.snippetAlternatives, value.toString());
-  };
-
-  const toggleShowDrawerFab = async (value: boolean) => {
-    setShowDrawerFab(value);
-    await AsyncStorage.setItem(SETTINGS_KEYS.showDrawerFab, value.toString());
   };
 
   const changeCodeFontSize = async (delta: number) => {
@@ -552,22 +544,21 @@ export default function Settings() {
         </View>
 
         {/* Accessibility */}
-        <Text style={[styles.sectionTitle, styles.sectionMargin]}>Accessibility</Text>
+        {/* About */}
+        <Text style={[styles.sectionTitle, styles.sectionMargin]}>About</Text>
         <View style={styles.card}>
-          <View style={styles.cardRow}>
+          <Pressable
+            onPress={() => router.push("/settings/about")}
+            style={styles.cardRow}
+          >
             <View style={styles.flexChild}>
-              <Text style={styles.settingTitle}>Drawer FAB</Text>
+              <Text style={styles.settingTitle}>About Learn p5.js</Text>
               <Text style={styles.settingDescription}>
-                Show a floating button to open the navigation drawer
+                Learn about p5.js and Processing
               </Text>
             </View>
-            <Switch
-              value={showDrawerFab}
-              onValueChange={toggleShowDrawerFab}
-              trackColor={{ false: "#767577", true: ctaColor }}
-              thumbColor="#ffffff"
-            />
-          </View>
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} />
+          </Pressable>
         </View>
 
         {/* Debugging */}
