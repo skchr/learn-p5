@@ -843,18 +843,52 @@ if (state.loading) {
   <ShakeModal
   visible={shakeModalVisible}
   onDismiss={() => setShakeModalVisible(false)}
-  onHint={() => {
-    setShakeModalVisible(false);
-    showToast("Hint: Check the reference for function syntax", "Open Ref", () => {
-      if (exerciseSymbols.length > 0) {
-        router.push(`/ref?symbol=${exerciseSymbols[0]}`);
-      }
-    });
-  }}
-  onReset={() => {
-    setShakeModalVisible(false);
-    handleReset();
-  }}
+  title="Exercise"
+  subtitle="What would you like to do?"
+  actions={[
+    {
+      icon: "lightbulb-outline",
+      label: "Get Hint",
+      variant: "primary",
+      onPress: () => {
+        setShakeModalVisible(false);
+        const hint = "Read the instructions above and check the reference for function syntax.";
+        showToast(hint, "Open Ref", () => {
+          if (exerciseSymbols.length > 0) {
+            router.push(`/ref?symbol=${exerciseSymbols[0]}`);
+          }
+        });
+      },
+    },
+    {
+      icon: "restart",
+      label: "Reset Code",
+      variant: "secondary",
+      onPress: () => {
+        setShakeModalVisible(false);
+        handleReset();
+      },
+    },
+    {
+      icon: "book-open-variant",
+      label: "View Reference",
+      variant: "secondary",
+      onPress: () => {
+        setShakeModalVisible(false);
+        if (exerciseSymbols.length > 0) {
+          router.push(`/ref?symbol=${exerciseSymbols[0]}`);
+        } else {
+          router.push("/ref");
+        }
+      },
+    },
+    {
+      icon: "close",
+      label: "Dismiss",
+      variant: "ghost",
+      onPress: () => setShakeModalVisible(false),
+    },
+  ]}
   />
 
  <Toast
