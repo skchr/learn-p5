@@ -160,7 +160,7 @@ export function getExerciseHtml(params: {
     height: 400px;
     border-radius: 0;
   }
-  .sketch-box canvas { display: block; }
+   .sketch-box canvas { display: block; touch-action: pan-y !important; }
   .run-btn {
     position: absolute;
     bottom: 8px;
@@ -759,6 +759,11 @@ async function renderSketch(containerId, code) {
 
   try {
     container.__p5 = new p5(undefined, container);
+    var cnv = container.querySelector('canvas');
+    if (cnv) {
+      cnv.style.touchAction = 'pan-y';
+      cnv.onwheel = null;
+    }
   } catch(e) {
     console.error('Sketch render error:', e);
     container.innerHTML = '<div style="color:${cta};padding:16px;font-family:\\"JetBrains Mono\\",monospace">\\u26A0 ' + e.message + '</div>';
