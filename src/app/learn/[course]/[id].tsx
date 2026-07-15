@@ -13,12 +13,14 @@ import QwertyKeyboard from "../../../components/QwertyKeyboard";
 
 import Toast from "../../../components/Toast";
 import StreakToast from "../../../components/StreakToast";
+import ShakeModal from "../../../components/ShakeModal";
 import { loadExercise, loadCourse } from "../../../utils/courseLoader";
 import { Lesson } from "../../../data/types";
 import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/reference";
 import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
 import { EDITOR_THEMES, getThemeSwatches } from "../../../utils/editor/themes";
 import { useStreak } from "../../../hooks/useStreak";
+import { useShakeDetection } from "../../../hooks/useShakeDetection";
 
 const EXERCISE_CODE_PREFIX = "exerciseCode_";
 
@@ -121,8 +123,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  const [toastMessage, setToastMessage] = useState("");
  const [toastActionLabel, setToastActionLabel] = useState<string | undefined>(undefined);
  const toastActionRef = useRef<(() => void) | undefined>(undefined);
- const streak = useStreak();
- const [streakToastVisible, setStreakToastVisible] = useState(false);
+  const streak = useStreak();
+  const [streakToastVisible, setStreakToastVisible] = useState(false);
+  const [shakeModalVisible, setShakeModalVisible] = useState(false);
 
  const showToast = useCallback((message: string, actionLabel?: string, onAction?: () => void) => {
  setToastMessage(message);
@@ -518,13 +521,19 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  }
  }, [editorViewReady]);
 
- useEffect(() => {
- streak.consumePendingToast().then((data) => {
- if (data) {
- setStreakToastVisible(true);
- }
- });
- }, []);
+  useEffect(() => {
+    streak.consumePendingToast().then((data) => {
+      if (data) {
+        setStreakToastVisible(true);
+      }
+    });
+  }, []);
+
+  const handleShake = useCallback(() => {
+    setShakeModalVisible(true);
+  }, []);
+
+  useShakeDetection(handleShake, { enabled: !state.loading && !!state.exercise });
 
  useFocusEffect(
  useCallback(() => {
@@ -788,13 +797,30 @@ if (state.loading) {
  </Pressable>
  </View>
 
- <StreakToast
- visible={streakToastVisible}
- streakCount={streak.count}
- tierProgress={streak.tierProgress}
- nextTier={streak.nextTier}
- onDismiss={() => setStreakToastVisible(false)}
- />
+  <StreakToast
+  visible={streakToastVisible}
+  streakCount={streak.count}
+  tierProgress={streak.tierProgress}
+  nextTier={streak.nextTier}
+  onDismiss={() => setStreakToastVisible(false)}
+  />
+
+  <ShakeModal
+  visible={shakeModalVisible}
+  onDismiss={() => setShakeModalVisible(false)}
+  onHint={() => {
+    setShakeModalVisible(false);
+    showToast("Hint: Check the reference for function syntax", "Open Ref", () => {
+      if (exerciseSymbols.length > 0) {
+        router.push(`/ref?symbol=${exerciseSymbols[0]}`);
+      }
+    });
+  }}
+  onReset={() => {
+    setShakeModalVisible(false);
+    handleReset();
+  }}
+  />
 
  <Toast
  key={toastKey}
