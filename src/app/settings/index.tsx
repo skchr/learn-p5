@@ -4,17 +4,17 @@ import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-import Header from "../../../components/Header";
-import TimePicker from "../../../components/TimePicker";
-import Toast from "../../../components/Toast";
-import StreakToast from "../../../components/StreakToast";
-import { useThemeContext } from "../../../components/ThemeProvider";
-import { Colors } from "../../../constants/Colors";
-import { DEFAULTS } from "../../../constants/Defaults";
+import Header from "../../components/Header";
+import TimePicker from "../../components/TimePicker";
+import Toast from "../../components/Toast";
+import StreakToast from "../../components/StreakToast";
+import { useThemeContext } from "../../components/ThemeProvider";
+import { Colors } from "../../constants/Colors";
+import { DEFAULTS } from "../../constants/Defaults";
 
-import { EDITOR_THEMES, getThemeSwatches } from "../../../utils/editor/themes";
-import { loadAllCourses } from "../../../utils/courseLoader";
-import { PROCESSING_COLOR_HEX } from "../../../constants/ProcessingColors";
+import { EDITOR_THEMES, getThemeSwatches } from "../../utils/editor/themes";
+import { loadAllCourses } from "../../utils/courseLoader";
+import { PROCESSING_COLOR_HEX } from "../../constants/ProcessingColors";
 
 const STREAK_KEYS = {
   count: "streak_count",

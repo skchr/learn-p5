@@ -2,15 +2,15 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useMemo, useState, useCallback } from "react";
 import { View, Text, FlatList, Pressable, Alert, StyleSheet, Linking, TextInput, Modal, Keyboard } from "react-native";
 import { WebView } from "react-native-webview";
-import Header from "../../../components/Header";
-import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, GENERATED_REFERENCE, P5SymbolView as P5Symbol } from "../../../data/reference";
+import Header from "../../components/Header";
+import { P5_SYMBOLS_BY_NAME, P5_SYMBOLS, P5_FUNCTION_NAMES, GENERATED_REFERENCE, P5SymbolView as P5Symbol } from "../../data/reference";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useThemeContext } from "../../../components/ThemeProvider";
-import { Colors } from "../../../constants/Colors";
-import { useModuleProgress } from "../../../hooks/useModuleProgress";
-import { useShakeDetection } from "../../../hooks/useShakeDetection";
-import { getEditorTheme } from "../../../utils/editor/themes";
-import { getExampleHtml } from "../../../utils/editor/exampleHtml";
+import { useThemeContext } from "../../components/ThemeProvider";
+import { Colors } from "../../constants/Colors";
+import { useModuleProgress } from "../../hooks/useModuleProgress";
+import { useShakeDetection } from "../../hooks/useShakeDetection";
+import { getEditorTheme } from "../../utils/editor/themes";
+import { getExampleHtml } from "../../utils/editor/exampleHtml";
 import Fuse from "fuse.js";
 
 const MODULE_GROUPS = P5_SYMBOLS.reduce<{ module: string; symbols: P5Symbol[] }[]>((acc, sym) => {

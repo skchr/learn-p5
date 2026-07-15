@@ -3,11 +3,11 @@ import { View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Button from "../../../../components/Button";
-import { loadCourse } from "../../../../utils/courseLoader";
-import { Course } from "../../../../data/types";
-import { useThemeContext } from "../../../../components/ThemeProvider";
-import { Colors } from "../../../../constants/Colors";
+import Button from "../../../components/Button";
+import { loadCourse } from "../../../utils/courseLoader";
+import { Course } from "../../../data/types";
+import { useThemeContext } from "../../../components/ThemeProvider";
+import { Colors } from "../../../constants/Colors";
 
 export default function CourseDetail() {
  const { course } = useLocalSearchParams<{ course: string }>();
