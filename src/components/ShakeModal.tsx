@@ -69,7 +69,7 @@ export default function ShakeModal({ visible, onDismiss, onHint, onReset }: Shak
           />
         </View>
         <Text style={[styles.title, { color: derivedColors.onPrimaryContainer }]}>
-          Shake Detected
+          Shake to...
         </Text>
         <Text style={[styles.subtitle, { color: derivedColors.onPrimaryContainer + "CC" }]}>
           What would you like to do?

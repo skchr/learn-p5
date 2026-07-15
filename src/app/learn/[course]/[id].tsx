@@ -15,7 +15,7 @@ import Toast from "../../../components/Toast";
 import StreakToast from "../../../components/StreakToast";
 import ShakeModal from "../../../components/ShakeModal";
 import { loadExercise, loadCourse } from "../../../utils/courseLoader";
-import { Lesson } from "../../../data/types";
+import { Exercise } from "../../../data/types";
 import { P5_FUNCTION_NAMES, ONCE_ONLY_P5_FUNCTIONS } from "../../../data/reference";
 import { getExerciseHtml } from "../../../utils/editor/exerciseHtml";
 import { EDITOR_THEMES, getThemeSwatches } from "../../../utils/editor/themes";
@@ -29,7 +29,7 @@ function getExerciseCodeKey(course: string, id: string): string {
 }
 
 interface ExerciseState {
- exercise: Lesson | null;
+ exercise: Exercise | null;
  loading: boolean;
  code: string;
  startingCode: string;
@@ -40,7 +40,7 @@ interface ExerciseState {
 
 type ExerciseAction =
  | { type: "LOAD_START" }
- | { type: "LOAD_DONE"; exercise: Lesson | null; course: string; id: string }
+ | { type: "LOAD_DONE"; exercise: Exercise | null; course: string; id: string }
  | { type: "LOAD_ERROR"; error: string }
  | { type: "SET_CODE"; code: string }
  | { type: "RESET_CODE"; course: string; id: string }
@@ -431,9 +431,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
   case "goToNextLesson":
   loadCourse(course).then((courseData) => {
   if (!courseData) return;
-  const currentIndex = courseData.lessons.findIndex((l) => l.id === id);
-  if (currentIndex >= 0 && currentIndex < courseData.lessons.length - 1) {
-  const nextLesson = courseData.lessons[currentIndex + 1];
+  const currentIndex = courseData.exercises.findIndex((l) => l.id === id);
+  if (currentIndex >= 0 && currentIndex < courseData.exercises.length - 1) {
+  const nextLesson = courseData.exercises[currentIndex + 1];
   router.replace(`/learn/${course}/${nextLesson.id}`);
   } else {
   router.replace(`/learn/${course}`);
@@ -600,9 +600,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  if (!courseData) return;
  AsyncStorage.getItem("completedLessons").then((val) => {
  const completed: string[] = val ? JSON.parse(val) : [];
- const allDone = courseData.lessons.every((l) =>
+ const allDone = courseData.exercises.every((l) =>
  completed.includes(`${course}/${l.id}`)
-);
+ );
  if (allDone) {
  AsyncStorage.getItem("completedCourses").then((prev) => {
  const arr: string[] = prev ? JSON.parse(prev) : [];
@@ -621,9 +621,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  if (!state.exercise) return;
  loadCourse(course).then((courseData) => {
  if (!courseData) return;
- const currentIndex = courseData.lessons.findIndex((l) => l.id === id);
- if (currentIndex >= 0 && currentIndex < courseData.lessons.length - 1) {
- const nextLesson = courseData.lessons[currentIndex + 1];
+ const currentIndex = courseData.exercises.findIndex((l) => l.id === id);
+ if (currentIndex >= 0 && currentIndex < courseData.exercises.length - 1) {
+ const nextLesson = courseData.exercises[currentIndex + 1];
  router.replace(`/learn/${course}/${nextLesson.id}`);
  } else {
  router.replace(`/learn/${course}`);
