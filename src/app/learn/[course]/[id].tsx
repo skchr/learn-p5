@@ -36,6 +36,8 @@ interface ExerciseState {
  isRunning: boolean;
  completed: boolean;
  error: string | null;
+ currentTaskIndex: number;
+ completedTasks: number[];
 }
 
 type ExerciseAction =
@@ -47,7 +49,8 @@ type ExerciseAction =
  | { type: "APPEND_CODE"; text: string; cursorOffset?: number }
  | { type: "RUN_START" }
  | { type: "RUN_DONE" }
- | { type: "EXERCISE_COMPLETE" };
+ | { type: "EXERCISE_COMPLETE" }
+ | { type: "TASK_COMPLETE"; taskIndex: number };
 
 function exerciseReducer(state: ExerciseState, action: ExerciseAction): ExerciseState {
  switch (action.type) {
@@ -84,6 +87,16 @@ function exerciseReducer(state: ExerciseState, action: ExerciseAction): Exercise
  return { ...state, isRunning: false };
  case "EXERCISE_COMPLETE":
  return { ...state, completed: true };
+ case "TASK_COMPLETE": {
+ const completedTasks = [...state.completedTasks, action.taskIndex];
+ const hasMoreTasks = state.exercise?.tasks && action.taskIndex < state.exercise.tasks.length - 1;
+ return {
+ ...state,
+ completedTasks,
+ currentTaskIndex: hasMoreTasks ? action.taskIndex + 1 : state.currentTaskIndex,
+ completed: !hasMoreTasks,
+ };
+ }
  default:
  return state;
  }
@@ -93,7 +106,7 @@ export default function Exercise() {
  const { course, id } = useLocalSearchParams<{ course: string; id: string }>();
  const router = useRouter();
  const insets = useSafeAreaInsets();
-const [state, dispatch] = useReducer(exerciseReducer, {
+ const [state, dispatch] = useReducer(exerciseReducer, {
  exercise: null,
  loading: true,
  code: "",
@@ -101,7 +114,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
  isRunning: false,
  completed: false,
  error: null,
-});
+ currentTaskIndex: 0,
+ completedTasks: [],
+ });
  const { colorScheme, toggleTheme, ctaColor, derivedColors } = useThemeContext();
  const colors = Colors[colorScheme === "dark" ? "dark" : "light"];
  const webViewRef = useRef<WebView>(null);
@@ -150,8 +165,10 @@ const [state, dispatch] = useReducer(exerciseReducer, {
     ctaColor,
     validation: state.exercise.validation,
     wordWrap,
+    tasks: state.exercise.tasks,
+    activeTaskIndex: state.currentTaskIndex,
   });
- }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap]);
+ }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap, state.currentTaskIndex]);
 
  const styles = useMemo(
  () =>
@@ -409,6 +426,9 @@ const [state, dispatch] = useReducer(exerciseReducer, {
     case "exerciseComplete":
       dispatch({ type: "EXERCISE_COMPLETE" });
       break;
+    case "taskComplete":
+      dispatch({ type: "TASK_COMPLETE", taskIndex: msg.taskIndex });
+      break;
     case "validationFailed":
       showToast(msg.reason || "Not quite right — check the instructions");
       break;
@@ -535,7 +555,26 @@ const [state, dispatch] = useReducer(exerciseReducer, {
 
   useShakeDetection(handleShake, { enabled: !state.loading && !!state.exercise });
 
- useFocusEffect(
+  useEffect(() => {
+    if (editorViewReady && webViewRef.current && state.exercise?.tasks) {
+      const task = state.exercise.tasks[state.currentTaskIndex];
+      if (task) {
+        const instructionHtml = task.instruction
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        webViewRef.current.postMessage(
+          JSON.stringify({
+            type: "setActiveTask",
+            taskIndex: state.currentTaskIndex,
+            instructionHtml,
+          })
+        );
+      }
+    }
+  }, [state.currentTaskIndex, editorViewReady, state.exercise]);
+
+  useFocusEffect(
  useCallback(() => {
  AsyncStorage.getItem("setting_editorTheme").then((val) => {
  setEditorTheme(val || "p5-learn");
