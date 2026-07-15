@@ -114,7 +114,7 @@ export function getExerciseHtml(params: {
 
   .preview-section {
     margin-top: 16px;
-    padding: 0 16px;
+    padding: 0;
     position: relative;
   }
   .preview-label {
@@ -131,6 +131,7 @@ export function getExerciseHtml(params: {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
+    padding: 0 16px;
   }
   .maximize-btn {
     background: ${colors.surfaceContainerHigh};
@@ -147,7 +148,7 @@ export function getExerciseHtml(params: {
   .sketch-box {
     height: 180px;
     background: #000000;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -157,6 +158,7 @@ export function getExerciseHtml(params: {
   }
   .sketch-box.expanded {
     height: 400px;
+    border-radius: 0;
   }
   .sketch-box canvas { display: block; }
   .run-btn {
