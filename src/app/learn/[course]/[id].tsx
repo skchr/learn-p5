@@ -215,12 +215,11 @@ export default function Exercise() {
  transform: [{ translateY: 2 }],
  },
  backButtonText: {
- fontFamily: "JetBrainsMono",
- fontWeight: "900",
- fontSize: 13,
- textTransform: "uppercase",
- letterSpacing: 0.5,
- color: colors.onPrimary,
+  fontFamily: "JetBrainsMono",
+  fontWeight: "900",
+  fontSize: 13,
+  letterSpacing: 0.5,
+  color: colors.onPrimary,
  },
  container: {
  flex: 1,
@@ -329,7 +328,6 @@ export default function Exercise() {
  modalSectionTitle: {
  fontFamily: "JetBrainsMono",
  fontSize: 11,
- textTransform: "uppercase",
  letterSpacing: 1,
  marginBottom: 8,
  },

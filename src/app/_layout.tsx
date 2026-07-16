@@ -3,6 +3,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import { Text, View } from "react-native";
 import ThemeProvider from "../components/ThemeProvider";
+import StatusBarAccent from "../components/StatusBarAccent";
 import DrawerProvider from "../contexts/DrawerContext";
 import SideDrawer from "../components/SideDrawer";
 import DrawerFab from "../components/DrawerFab";
@@ -27,6 +28,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <DrawerProvider>
         <ThemeProvider>
+          <StatusBarAccent />
           <Stack screenOptions={{ headerShown: false, animation: "slide_from_right", animationDuration: 500 }} />
           <SideDrawer />
           <DrawerFab />
