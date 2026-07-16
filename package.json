@@ -1,7 +1,7 @@
 {
   "name": "learn-p5",
   "main": "expo-router/entry",
-  "version": "0.6.83",
+  "version": "0.6.84",
   "scripts": {
     "postinstall": "npm run gen-reference && npm run bundle-editor",
     "start": "npm run gen-reference && npm run bundle-editor && expo start",
@@ -20,7 +20,6 @@
     "@codemirror/state": "6.5.2",
     "@codemirror/view": "6.36.5",
     "@expo/vector-icons": "^15.0.2",
-    "@howincodes/expo-dynamic-app-icon": "3.0.2",
     "@lezer/highlight": "1.2.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.6.0",

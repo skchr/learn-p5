@@ -2,7 +2,7 @@
   "expo": {
     "name": "Learn P5",
     "slug": "learn-p5",
-    "version": "0.6.83",
+    "version": "0.6.84",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "learnp5",
@@ -40,82 +40,7 @@
         }
       ],
       "expo-font",
-      "@react-native-community/datetimepicker",
-      [
-        "@howincodes/expo-dynamic-app-icon",
-        {
-          "icon-ed225d": {
-            "ios": "./assets/icons/icon-ed225d.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-ed225d-fg.png",
-              "backgroundColor": "#ED225D"
-            }
-          },
-          "icon-9c27b0": {
-            "ios": "./assets/icons/icon-9c27b0.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-9c27b0-fg.png",
-              "backgroundColor": "#9C27B0"
-            }
-          },
-          "icon-2196f3": {
-            "ios": "./assets/icons/icon-2196f3.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-2196f3-fg.png",
-              "backgroundColor": "#2196F3"
-            }
-          },
-          "icon-009688": {
-            "ios": "./assets/icons/icon-009688.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-009688-fg.png",
-              "backgroundColor": "#009688"
-            }
-          },
-          "icon-ff9800": {
-            "ios": "./assets/icons/icon-ff9800.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-ff9800-fg.png",
-              "backgroundColor": "#FF9800"
-            }
-          },
-          "icon-3f51b5": {
-            "ios": "./assets/icons/icon-3f51b5.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-3f51b5-fg.png",
-              "backgroundColor": "#3F51B5"
-            }
-          },
-          "icon-00bcd4": {
-            "ios": "./assets/icons/icon-00bcd4.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-00bcd4-fg.png",
-              "backgroundColor": "#00BCD4"
-            }
-          },
-          "icon-ff5722": {
-            "ios": "./assets/icons/icon-ff5722.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-ff5722-fg.png",
-              "backgroundColor": "#FF5722"
-            }
-          },
-          "icon-4caf50": {
-            "ios": "./assets/icons/icon-4caf50.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-4caf50-fg.png",
-              "backgroundColor": "#4CAF50"
-            }
-          },
-          "icon-e91e63": {
-            "ios": "./assets/icons/icon-e91e63.png",
-            "android": {
-              "foregroundImage": "./assets/icons/android-e91e63-fg.png",
-              "backgroundColor": "#E91E63"
-            }
-          }
-        }
-      ]
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
