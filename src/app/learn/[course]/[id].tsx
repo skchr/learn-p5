@@ -168,7 +168,7 @@ export default function Exercise() {
     tasks: state.exercise.tasks,
     activeTaskIndex: state.currentTaskIndex,
   });
- }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap, state.currentTaskIndex]);
+  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap]);
 
  const styles = useMemo(
  () =>
