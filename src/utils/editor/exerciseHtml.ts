@@ -807,7 +807,7 @@ function handleMessage(data) {
         }
         break;
       case 'setActiveTask':
-        ACTIVE_TASK_INDEX = msg.taskIndex || 0;
+        ACTIVE_TASK_INDEX = typeof msg.taskIndex === 'number' ? msg.taskIndex : 0;
         if (msg.instructionHtml || msg.instruction) {
           var descEl = document.querySelector('.description-text');
           if (descEl) descEl.innerHTML = msg.instructionHtml || msg.instruction;
