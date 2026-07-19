@@ -452,7 +452,7 @@ var Decoration = _CM.Decoration;
 var DecorationSet = _CM.DecorationSet;
 var autocompletion = _CM.autocompletion;
 var CompletionContext = _CM.CompletionContext;
-var lineWrapping = _CM.EditorView.lineWrapping;
+var lineWrapping = _CM.lineWrapping;
 var prettierLib = _CM.prettier;
 var prettierEstree = _CM.prettierPluginEstree;
 var prettierAcorn = _CM.prettierPluginAcorn;
@@ -654,54 +654,6 @@ function initEditorView(code) {
 function initEditor() {
   try {
     initEditorView(INITIAL_CODE);
-    view.dom.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var coords = { x: e.clientX, y: e.clientY };
-      var pos = view.posAtCoords(coords);
-      if (pos !== null) {
-        view.dispatch({ selection: { anchor: pos, head: pos } });
-      }
-      view.focus();
-      if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'editorTapped' }));
-      }
-    });
-    var touchStartY = 0;
-    var touchStartX = 0;
-    var isScrolling = false;
-    view.dom.addEventListener('touchstart', function(e) {
-      var touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-      isScrolling = false;
-    }, { passive: true });
-    view.dom.addEventListener('touchmove', function(e) {
-      if (!isScrolling) {
-        var touch = e.touches[0];
-        var dx = Math.abs(touch.clientX - touchStartX);
-        var dy = Math.abs(touch.clientY - touchStartY);
-        if (dy > 10 || dx > 10) {
-          isScrolling = true;
-        }
-      }
-    }, { passive: true });
-    view.dom.addEventListener('touchend', function(e) {
-      if (!isScrolling) {
-        e.preventDefault();
-        e.stopPropagation();
-        var touch = e.changedTouches[0];
-        var coords = { x: touch.clientX, y: touch.clientY };
-        var pos = view.posAtCoords(coords);
-        if (pos !== null) {
-          view.dispatch({ selection: { anchor: pos, head: pos } });
-        }
-        view.focus();
-        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'editorTapped' }));
-        }
-      }
-    }, { passive: false });
     postReady();
     postEditorReady();
     setTimeout(function() {
