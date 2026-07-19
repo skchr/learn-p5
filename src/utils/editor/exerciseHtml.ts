@@ -269,8 +269,6 @@ export function getExerciseHtml(params: {
   .cm-editor .cm-gutters { background: ${editorBg}; border-right: 1px solid ${params.colorScheme === 'dark' ? '#292A2E' : '#E5E7EB'}; color: ${params.colorScheme === 'dark' ? '#6B7280' : '#9CA3AF'}; }
   .cm-editor .cm-activeLineGutter { background: ${params.colorScheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; }
   .cm-editor .cm-activeLine { background: ${params.colorScheme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; }
-  .cm-editor .cm-cursor { border-left-color: ${ctaColor}; animation: cm-blink 1s step-end infinite; }
-  @keyframes cm-blink { 50% { border-left-color: transparent; } }
   .cm-editor .cm-selectionBackground,
   .cm-editor.cm-focused .cm-selectionBackground { background: ${params.colorScheme === 'dark' ? 'rgba(255, 105, 180, 0.2)' : 'rgba(255, 105, 180, 0.15)'} !important; }
   .cm-editor .cm-matchingBracket {
@@ -533,7 +531,8 @@ var p5Theme = EditorView.theme({
   '.cm-gutters': { backgroundColor: '${editorBg}', color: '${gutterFg}', borderRight: '1px solid ${gutterBorder}' },
   '.cm-activeLineGutter': { backgroundColor: '${activeBg}' },
   '.cm-activeLine': { backgroundColor: '${activeBg}' },
-  '.cm-cursor': { borderLeft: '2px solid ${cta}' },
+  '.cm-cursor': { borderLeft: '2px solid ${cta}', animation: 'cm-blink 1s step-end infinite' },
+  '@keyframes cm-blink': { '50%': { borderLeftColor: 'transparent' } },
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
   '.cm-matchingBracket': { backgroundColor: 'rgba(${ctaRgb}, 0.3)', outline: '1px solid ${cta}' },
   '.cm-p5-fn': { fontWeight: '600' },
@@ -893,7 +892,8 @@ function handleMessage(data) {
         if (view) {
           try {
             var codeToFormat = view.state.doc.toString();
-            var pw = WORD_WRAP ? 80 : 120;
+            // Use mobile-friendly printWidth (60) for better readability on small screens
+            var pw = 60;
             if (typeof prettierLib !== 'undefined' && prettierLib.format) {
               prettierLib.format(codeToFormat, {
                 parser: 'acorn',
@@ -901,9 +901,16 @@ function handleMessage(data) {
                 printWidth: pw,
                 semi: true,
                 singleQuote: false,
+                trailingComma: 'es5',
+                bracketSpacing: true,
+                arrowParens: 'avoid',
+                endOfLine: 'lf',
               }).then(function(formatted) {
-                if (formatted !== codeToFormat) {
-                  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });
+                // Also strip trailing whitespace from each line
+                var lines = formatted.split('\n');
+                var cleaned = lines.map(function(line) { return line.replace(/\s+$/, ''); }).join('\n');
+                if (cleaned !== codeToFormat) {
+                  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: cleaned } });
                 }
                 view.focus();
               }).catch(function() { view.focus(); });
@@ -1065,10 +1072,14 @@ function handleMessage(data) {
 
         if (typeof prettierLib !== 'undefined' && prettierLib.format) {
           var postCode = view.state.doc.toString();
-          var pw2 = WORD_WRAP ? 80 : 120;
-          prettierLib.format(postCode, { parser: 'acorn', plugins: [prettierEstree, prettierAcorn], printWidth: pw2, semi: true, singleQuote: false }).then(function(formatted) {
-            if (formatted !== postCode) {
-              view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: formatted } });
+          // Use mobile-friendly printWidth (60) for better readability on small screens
+          var pw2 = 60;
+          prettierLib.format(postCode, { parser: 'acorn', plugins: [prettierEstree, prettierAcorn], printWidth: pw2, semi: true, singleQuote: false, trailingComma: 'es5', bracketSpacing: true, arrowParens: 'avoid', endOfLine: 'lf' }).then(function(formatted) {
+            // Strip trailing whitespace from each line
+            var lines = formatted.split('\n');
+            var cleaned = lines.map(function(line) { return line.replace(/\s+$/, ''); }).join('\n');
+            if (cleaned !== postCode) {
+              view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: cleaned } });
             }
           }).catch(function() {});
         }
