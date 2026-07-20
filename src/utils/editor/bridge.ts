@@ -304,7 +304,6 @@ function handleMessage(data) {
 }
 
 window.addEventListener('message', function(event) { handleMessage(event.data); });
-document.addEventListener('message', function(event) { handleMessage(event.data); });
 
 document.getElementById('formatBtn').addEventListener('click', function() {
   if (view) {

@@ -527,12 +527,16 @@ export default function Exercise() {
  }
  }, [editorViewReady]);
 
+  const runStartTimeRef = useRef<number>(0);
+
   const handleRun = useCallback(() => {
     if (!state.exercise) return;
     dispatch({ type: "RUN_START" });
+    runStartTimeRef.current = Date.now();
     if (webViewRef.current && editorViewReady) {
       webViewRef.current.postMessage(JSON.stringify({ type: "runSketch" }));
     }
+    setTimeout(() => dispatch({ type: "RUN_DONE" }), 3000);
   }, [state.exercise, editorViewReady]);
 
  const handleFormat = useCallback(() => {

@@ -1057,7 +1057,6 @@ function handleMessage(data) {
 }
 
 window.addEventListener('message', function(event) { handleMessage(event.data); });
-document.addEventListener('message', function(event) { handleMessage(event.data); });
 
 (function() {
   var lastScrollY = window.scrollY || 0;
