@@ -868,8 +868,8 @@ function handleMessage(data) {
                 endOfLine: 'lf',
               }).then(function(formatted) {
                 // Also strip trailing whitespace from each line
-                var lines = formatted.split('\n');
-                var cleaned = lines.map(function(line) { return line.replace(/\s+$/, ''); }).join('\n');
+                var lines = formatted.split('\\n');
+                var cleaned = lines.map(function(line) { return line.replace(/\\s+$/, ''); }).join('\\n');
                 if (cleaned !== codeToFormat) {
                   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: cleaned } });
                 }
@@ -877,7 +877,7 @@ function handleMessage(data) {
               }).catch(function() { view.focus(); });
             } else {
               view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
-              indentSelection({ state: view.state, dispatch: view.dispatch });
+              indentSelection({ state: state, dispatch: view.dispatch });
               view.dispatch({ selection: { anchor: view.state.doc.length } });
               view.focus();
             }
@@ -1037,8 +1037,8 @@ function handleMessage(data) {
           var pw2 = 60;
           prettierLib.format(postCode, { parser: 'acorn', plugins: [prettierEstree, prettierAcorn], printWidth: pw2, semi: true, singleQuote: false, trailingComma: 'es5', bracketSpacing: true, arrowParens: 'avoid', endOfLine: 'lf' }).then(function(formatted) {
             // Strip trailing whitespace from each line
-            var lines = formatted.split('\n');
-            var cleaned = lines.map(function(line) { return line.replace(/\s+$/, ''); }).join('\n');
+            var lines = formatted.split('\\n');
+            var cleaned = lines.map(function(line) { return line.replace(/\\s+$/, ''); }).join('\\n');
             if (cleaned !== postCode) {
               view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: cleaned } });
             }
