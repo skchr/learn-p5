@@ -703,12 +703,12 @@ function postOpenRef(symbol) {
   }
 }
 
-async function renderSketch(containerId, code) {
+function renderSketch(containerId, code) {
   var container = document.getElementById(containerId);
   if (!container) return;
 
   if (container.__p5) {
-    try { await container.__p5.remove(); } catch (e) { console.error('Error removing p5 instance:', e); }
+    try { container.__p5.remove(); } catch (e) { console.error('Error removing p5 instance:', e); }
     container.__p5 = null;
   }
   container.innerHTML = '';
@@ -877,7 +877,7 @@ function handleMessage(data) {
               }).catch(function() { view.focus(); });
             } else {
               view.dispatch({ selection: { anchor: 0, head: view.state.doc.length } });
-              indentSelection({ state: state, dispatch: view.dispatch });
+              indentSelection({ state: view.state, dispatch: view.dispatch });
               view.dispatch({ selection: { anchor: view.state.doc.length } });
               view.focus();
             }
