@@ -174,7 +174,7 @@ export default function Exercise() {
       tasks: state.exercise.tasks,
       activeTaskIndex: state.currentTaskIndex,
     });
-  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap, state.currentTaskIndex]);
+  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap]);
 
  const styles = useMemo(
  () =>
@@ -809,16 +809,17 @@ return (
   )}
 
  {exerciseHtml && (
- <WebView
- ref={webViewRef}
- source={{ html: exerciseHtml }}
- style={styles.webview}
- onMessage={handleMessage}
- javaScriptEnabled
- domStorageEnabled
- originWhitelist={["*"]}
- scrollEnabled={true}
- bounces={false}
+  <WebView
+  ref={webViewRef}
+  source={{ html: exerciseHtml }}
+  style={styles.webview}
+  onMessage={handleMessage}
+  onLoadStart={() => setEditorViewReady(false)}
+  javaScriptEnabled
+  domStorageEnabled
+  originWhitelist={["*"]}
+  scrollEnabled={true}
+  bounces={false}
   {...({
     hideKeyboardAccessoryView: true,
     keyboardDisplayRequiresUserAction: true,

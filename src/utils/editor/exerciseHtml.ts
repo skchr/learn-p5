@@ -666,7 +666,10 @@ function initEditor() {
     postReady();
     postEditorReady();
     setTimeout(function() {
-      if (view) view.dom.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (view) {
+        view.focus();
+        view.dom.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }, 300);
   } catch(e) {
     console.error('Editor init failed:', e);
@@ -707,6 +710,11 @@ function renderSketch(containerId, code) {
   var container = document.getElementById(containerId);
   if (!container) return;
 
+  if (container._pendingRender) {
+    cancelAnimationFrame(container._pendingRender);
+    container._pendingRender = null;
+  }
+
   if (container.__p5) {
     try { container.__p5.remove(); } catch (e) { console.error('Error removing p5 instance:', e); }
     container.__p5 = null;
@@ -715,27 +723,31 @@ function renderSketch(containerId, code) {
 
   if (!code) return;
 
-  delete window.setup;
-  delete window.draw;
+  container._pendingRender = requestAnimationFrame(function() {
+    container._pendingRender = null;
 
-  var script = document.createElement('script');
-  script.textContent = code;
-  document.body.appendChild(script);
+    delete window.setup;
+    delete window.draw;
 
-  try {
-    container.__p5 = new p5(undefined, container);
-    var cnv = container.querySelector('canvas');
-    if (cnv) {
-      cnv.style.touchAction = 'pan-y';
-      cnv.onwheel = null;
+    var script = document.createElement('script');
+    script.textContent = code;
+    document.body.appendChild(script);
+
+    try {
+      container.__p5 = new p5(undefined, container);
+      var cnv = container.querySelector('canvas');
+      if (cnv) {
+        cnv.style.touchAction = 'pan-y';
+        cnv.onwheel = null;
+      }
+    } catch(e) {
+      console.error('Sketch render error:', e);
+      container.innerHTML = '<div style="color:${cta};padding:16px;font-family:\\"JetBrains Mono\\",monospace">\\u26A0 ' + e.message + '</div>';
+      if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'sketchError', error: e.message, container: containerId }));
+      }
     }
-  } catch(e) {
-    console.error('Sketch render error:', e);
-    container.innerHTML = '<div style="color:${cta};padding:16px;font-family:\\"JetBrains Mono\\",monospace">\\u26A0 ' + e.message + '</div>';
-    if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'sketchError', error: e.message, container: containerId }));
-    }
-  }
+  });
 }
 
 function smoothScrollTo(el, duration) {
