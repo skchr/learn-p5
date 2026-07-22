@@ -135,6 +135,7 @@ export default function Exercise() {
  const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
  const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
  const [wordWrap, setWordWrap] = useState(false);
+ const [disableSystemKeyboard, setDisableSystemKeyboard] = useState(false);
  const [toastKey, setToastKey] = useState(0);
  const [toastVisible, setToastVisible] = useState(false);
  const [toastMessage, setToastMessage] = useState("");
@@ -175,6 +176,7 @@ export default function Exercise() {
       wordWrap,
       tasks: state.exercise.tasks,
       activeTaskIndex: state.currentTaskIndex,
+      disableSystemKeyboard,
     });
   }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor]);
 
@@ -496,8 +498,14 @@ export default function Exercise() {
  }
  };
 
- useEffect(() => {
- if (editorViewReady && pendingInserts.current.length > 0) {
+  useEffect(() => {
+  if (editorViewReady && webViewRef.current) {
+  webViewRef.current.postMessage(JSON.stringify({ type: "setWordWrap", wordWrap }));
+  }
+  }, [editorViewReady, wordWrap]);
+
+  useEffect(() => {
+  if (editorViewReady && pendingInserts.current.length > 0) {
  for (const item of pendingInserts.current) {
  if (webViewRef.current) {
  webViewRef.current.postMessage(
@@ -617,6 +625,9 @@ export default function Exercise() {
   AsyncStorage.getItem("setting_wordWrap").then((val) => {
   setWordWrap(val === "true");
   });
+  AsyncStorage.getItem("setting_disableSystemKeyboard").then((val) => {
+  setDisableSystemKeyboard(val === "true");
+  });
   }, [])
 );
 
@@ -647,10 +658,7 @@ export default function Exercise() {
   const changeWordWrap = useCallback((value: boolean) => {
   setWordWrap(value);
   AsyncStorage.setItem("setting_wordWrap", value.toString());
-  if (webViewRef.current && editorViewReady) {
-  webViewRef.current.postMessage(JSON.stringify({ type: "setWordWrap", wordWrap: value }));
-  }
-  }, [editorViewReady]);
+  }, []);
 
  const handleToastNext = useCallback(() => {
   setToastVisible(false);
@@ -963,7 +971,6 @@ return (
  onBackspace={handleBackspace}
  onNewline={handleNewline}
  onFormat={handleFormat}
- onCursorMove={handleCursorMove}
  onOpenReference={(symbol) => router.push(`/ref?symbol=${symbol}`)}
  keyboardVisible={keyboardVisible}
  usedFunctions={usedFunctions}
@@ -978,6 +985,7 @@ return (
  onNewline={handleNewline}
  onCursorMove={handleCursorMove}
  onToggleProgramming={handleToggleKeyboardMode}
+ onHideKeyboard={handleToggleKeyboard}
  height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
  />
 )}
@@ -1118,31 +1126,31 @@ return (
   <View style={styles.modalSection}>
   <Text style={[styles.modalSectionTitle, { color: colors.textSecondary }]}>Keyboard Height</Text>
   <View style={styles.modalRow}>
-  {["small", "medium", "tall"].map((opt) => (
-  <Pressable
-  key={opt}
-  onPress={() => changeKeyboardHeight(opt)}
-  style={({ pressed }) => ({
-  paddingHorizontal: 12,
-  paddingVertical: 6,
-  borderRadius: 6,
-  minWidth: 42,
-  alignItems: "center",
-  borderBottomWidth: keyboardHeight === opt ? 2 : 0,
-  borderBottomColor: keyboardHeight === opt ? derivedColors.primary : "transparent",
-  backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainer,
-  })}
-  >
-  <Text style={{
-  fontFamily: "JetBrainsMono",
-  fontSize: 11,
-  fontWeight: "700",
-  textTransform: "uppercase",
-  letterSpacing: 0.5,
-  color: colors.onSurfaceVariant,
-  }}>
-  {opt === "small" ? "S" : opt === "medium" ? "M" : "T"}
-  </Text>
+   {["small", "medium"].map((opt) => (
+   <Pressable
+   key={opt}
+   onPress={() => changeKeyboardHeight(opt)}
+   style={({ pressed }) => ({
+   paddingHorizontal: 12,
+   paddingVertical: 6,
+   borderRadius: 6,
+   minWidth: 42,
+   alignItems: "center",
+   borderBottomWidth: keyboardHeight === opt ? 2 : 0,
+   borderBottomColor: keyboardHeight === opt ? derivedColors.primary : "transparent",
+   backgroundColor: pressed ? derivedColors.primaryContainer + "33" : colors.surfaceContainer,
+   })}
+   >
+   <Text style={{
+   fontFamily: "JetBrainsMono",
+   fontSize: 11,
+   fontWeight: "700",
+   textTransform: "uppercase",
+   letterSpacing: 0.5,
+   color: colors.onSurfaceVariant,
+   }}>
+   {opt === "small" ? "S" : "M"}
+   </Text>
   </Pressable>
 ))}
   </View>

@@ -64,6 +64,7 @@ export function getExerciseHtml(params: {
   wordWrap?: boolean;
   tasks?: ExerciseTask[];
   activeTaskIndex?: number;
+  disableSystemKeyboard?: boolean;
 }): string {
   const colors = Colors[params.colorScheme === "dark" ? "dark" : "light"];
   const ctaColor = params.ctaColor ?? colors.cta;
@@ -274,7 +275,6 @@ export function getExerciseHtml(params: {
   .cm-editor.cm-focused .cm-selectionBackground { background: ${params.colorScheme === 'dark' ? 'rgba(255, 105, 180, 0.2)' : 'rgba(255, 105, 180, 0.15)'} !important; }
   .cm-editor .cm-matchingBracket {
     background: rgba(255, 105, 180, 0.3);
-    outline: 1px solid ${ctaColor};
   }
   body { padding-bottom: 80px; }
 
@@ -394,7 +394,7 @@ ${
 <script>${p5Source}</script>
 <script>${CODEMIRROR_BUNDLE}</script>
 <script>
-${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber, ctaColor, params.wordWrap, tasksJson, activeTaskIdx)}
+ ${getBridgeScript(params.startingCode, params.solution, themeColors, params.colorScheme, params.exerciseNumber, ctaColor, params.wordWrap, tasksJson, activeTaskIdx, params.disableSystemKeyboard)}
 </script>
 
 ${params.exerciseNumber === 1 ? `
@@ -412,7 +412,7 @@ ${params.exerciseNumber === 1 ? `
 </html>`;
 }
 
-function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number, ctaColor?: string, wordWrap?: boolean, tasksJson?: string, activeTaskIdx?: number): string {
+function getBridgeScript(startingCode: string, solution: string, theme: EditorThemeColors, colorScheme: "light" | "dark", exerciseNumber?: number, ctaColor?: string, wordWrap?: boolean, tasksJson?: string, activeTaskIdx?: number, disableSystemKeyboard?: boolean): string {
   const codeArg = jsString(startingCode);
   const solutionArg = jsString(solution);
   const cta = ctaColor ?? '#FF69B4';
@@ -544,7 +544,7 @@ var p5Theme = EditorView.theme({
   '.cm-cursor': { borderLeft: '2px solid ${cta}', animation: 'cm-blink 1s step-end infinite' },
   '@keyframes cm-blink': { '50%': { borderLeftColor: 'transparent' } },
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
-  '.cm-matchingBracket': { backgroundColor: 'rgba(${ctaRgb}, 0.3)', outline: '1px solid ${cta}' },
+  '.cm-matchingBracket': { backgroundColor: 'rgba(${ctaRgb}, 0.3)' },
   '.cm-p5-fn': { fontWeight: '600' },
 });
 
@@ -664,6 +664,10 @@ function initEditorView(code) {
 function initEditor() {
   try {
     initEditorView(INITIAL_CODE);
+    if (${disableSystemKeyboard ? 'true' : 'false'}) {
+      var cmContent = document.querySelector('.cm-content');
+      if (cmContent) cmContent.setAttribute('inputmode', 'none');
+    }
     postReady();
     postEditorReady();
     setTimeout(function() {
@@ -712,7 +716,12 @@ async function renderSketch(containerId, code) {
   if (!container) return;
 
   if (container.__p5) {
-    try { await container.__p5.remove(); } catch (e) { console.error('Error removing p5 instance:', e); }
+    try {
+      await Promise.race([
+        container.__p5.remove(),
+        new Promise(function(_, reject) { setTimeout(function() { reject(new Error('p5 remove timeout')); }, 1000); })
+      ]);
+    } catch (e) { console.error('Error removing p5 instance:', e); }
     container.__p5 = null;
   }
   container.innerHTML = '';
@@ -814,7 +823,7 @@ function handleMessage(data) {
         if (scroller) scroller.style.fontSize = msg.fontSize + 'px';
         break;
       case 'setWordWrap':
-        if (view) {
+        if (view && msg.wordWrap !== WORD_WRAP) {
           WORD_WRAP = msg.wordWrap;
           var savedDoc = view.state.doc.toString();
           var savedSel = view.state.selection.main.head;
@@ -828,6 +837,10 @@ function handleMessage(data) {
           });
           view.dispatch({ selection: { anchor: savedSel, head: savedSel } });
           view.focus();
+          if (${disableSystemKeyboard ? 'true' : 'false'}) {
+            var cmContent2 = document.querySelector('.cm-content');
+            if (cmContent2) cmContent2.setAttribute('inputmode', 'none');
+          }
         }
         break;
       case 'backspace':
@@ -1073,6 +1086,10 @@ function handleMessage(data) {
             if (el) smoothScrollTo(el, 600);
           }, 100);
         }).catch(function(e) { console.error('Render error:', e); });
+        break;
+
+      case 'editorReady':
+        postEditorReady();
         break;
 
     }
