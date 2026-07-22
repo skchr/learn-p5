@@ -116,17 +116,6 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <View style={styles.toolbarRow}>
  <View style={styles.toolbarFixed}>
  <Pressable
- onPress={onToggleQwerty}
- style={({ pressed }) => [
- styles.keyboardIcon,
- { backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primaryContainer + "33" },
- ]}
- accessibilityRole="button"
- accessibilityLabel="QWERTY keyboard"
- >
- <MaterialCommunityIcons name="keyboard" size={20} color={derivedColors.primary} />
- </Pressable>
- <Pressable
  onPressIn={startBackspaceRepeat}
  onPressOut={clearBackspaceRepeat}
  style={({ pressed }) => [
@@ -258,8 +247,8 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <Pressable
  onPress={() => onCursorMove?.('up')}
  style={({ pressed }) => [
- styles.dpadBtn,
- { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
+  styles.dpadBtn,
+  { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
  ]}
  accessibilityRole="button"
  accessibilityLabel="Move cursor up"
@@ -271,8 +260,8 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <Pressable
  onPress={() => onCursorMove?.('left')}
  style={({ pressed }) => [
- styles.dpadBtn,
- { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
+  styles.dpadBtn,
+  { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
  ]}
  accessibilityRole="button"
  accessibilityLabel="Move cursor left"
@@ -283,8 +272,8 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <Pressable
  onPress={() => onCursorMove?.('right')}
  style={({ pressed }) => [
- styles.dpadBtn,
- { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
+  styles.dpadBtn,
+  { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
  ]}
  accessibilityRole="button"
  accessibilityLabel="Move cursor right"
@@ -296,8 +285,8 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <Pressable
  onPress={() => onCursorMove?.('down')}
  style={({ pressed }) => [
- styles.dpadBtn,
- { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
+  styles.dpadBtn,
+  { backgroundColor: pressed ? derivedColors.primaryContainer : colors.surfaceContainer },
  ]}
  accessibilityRole="button"
  accessibilityLabel="Move cursor down"
@@ -306,12 +295,24 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  </Pressable>
  </View>
  </View>
+ <Pressable
+ onPress={onToggleQwerty}
+ style={({ pressed }) => [
+  styles.dpadBtn,
+  { backgroundColor: pressed ? derivedColors.primaryContainer : derivedColors.primaryContainer + "33" },
+ ]}
+ accessibilityRole="button"
+ accessibilityLabel="QWERTY keyboard"
+ >
+ <MaterialCommunityIcons name="keyboard" size={20} color={derivedColors.primary} />
+ </Pressable>
  </View>
 )}
 
  <Modal transparent visible={popupSymbol !== null} onRequestClose={() => setPopupSymbol(null)}>
  <Pressable style={styles.popupOverlay} onPress={() => setPopupSymbol(null)}>
  <Animated.View style={[styles.popupCard, { backgroundColor: colors.surfaceContainerHigh, opacity: popupAnim, transform: [{ scale: popupAnim.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1] }) }] }]}>
+ <ScrollView showsVerticalScrollIndicator={false}>
  {popupSymbol && (() => {
  const ref = P5_SYMBOLS.find(s => s.name === popupSymbol);
  return ref ? (
@@ -329,6 +330,7 @@ export default function ProgrammingKeyboard({ onInsert, exerciseSymbols = [], on
  <Text style={[popupTextStyles.popupTitle, { color: colors.onSurface }]}>{popupSymbol}</Text>
 );
  })()}
+ </ScrollView>
  </Animated.View>
  </Pressable>
  </Modal>

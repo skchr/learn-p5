@@ -135,6 +135,7 @@ export default function Exercise() {
  const [keyboardHeight, setKeyboardHeight] = useState<string>(DEFAULTS.keyboardHeight);
  const [settingsMenuVisible, setSettingsMenuVisible] = useState(false);
  const [wordWrap, setWordWrap] = useState(false);
+ const [disableSystemKeyboard, setDisableSystemKeyboard] = useState(false);
  const [toastKey, setToastKey] = useState(0);
  const [toastVisible, setToastVisible] = useState(false);
  const [toastMessage, setToastMessage] = useState("");
@@ -175,8 +176,9 @@ export default function Exercise() {
       wordWrap,
       tasks: state.exercise.tasks,
       activeTaskIndex: state.currentTaskIndex,
+      disableSystemKeyboard,
     });
-  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor]);
+  }, [state.exercise, colorScheme, id, editorTheme, codeFontSize, ctaColor, wordWrap, disableSystemKeyboard]);
 
  const styles = useMemo(
  () =>
@@ -617,6 +619,9 @@ export default function Exercise() {
   AsyncStorage.getItem("setting_wordWrap").then((val) => {
   setWordWrap(val === "true");
   });
+  AsyncStorage.getItem("setting_disableSystemKeyboard").then((val) => {
+  setDisableSystemKeyboard(val === "true");
+  });
   }, [])
 );
 
@@ -978,6 +983,7 @@ return (
  onNewline={handleNewline}
  onCursorMove={handleCursorMove}
  onToggleProgramming={handleToggleKeyboardMode}
+ onHideKeyboard={handleToggleKeyboard}
  height={DEFAULTS.keyboardHeightPixels[keyboardHeight] ?? DEFAULTS.keyboardHeightPixels.medium}
  />
 )}

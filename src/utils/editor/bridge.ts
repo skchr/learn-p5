@@ -92,7 +92,7 @@ const p5Theme = EditorView.theme({
   '@keyframes cm-blink': { '50%': { borderLeftColor: 'transparent' } },
 
   '.cm-selectionBackground': { backgroundColor: '${selBg}' },
-  '.cm-matchingBracket': { backgroundColor: 'rgba(${ctaRgb}, 0.3)', outline: '1px solid ${cta}' },
+  '.cm-matchingBracket': { backgroundColor: 'rgba(${ctaRgb}, 0.3)' },
   '.cm-foldPlaceholder': { backgroundColor: 'transparent', color: '${gutterFg}', border: '1px solid ${gutterFg}' },
   '.cm-foldGutter .cm-gutterElement': { color: '${gutterFg}', cursor: 'pointer' },
   '.cm-foldGutter .cm-gutterElement.cm-activeLineGutter': { color: '${cta}' },
