@@ -719,10 +719,15 @@ async function renderSketch(containerId, code) {
 
   if (!code) return;
 
+  var tagId = 'sketch-script-' + containerId;
+  var oldScript = document.getElementById(tagId);
+  if (oldScript) oldScript.remove();
+
   delete window.setup;
   delete window.draw;
 
   var script = document.createElement('script');
+  script.id = tagId;
   script.textContent = code;
   document.body.appendChild(script);
 
@@ -807,6 +812,23 @@ function handleMessage(data) {
       case 'setFontSize':
         var scroller = view && view.dom && view.dom.querySelector('.cm-scroller');
         if (scroller) scroller.style.fontSize = msg.fontSize + 'px';
+        break;
+      case 'setWordWrap':
+        if (view) {
+          WORD_WRAP = msg.wordWrap;
+          var savedDoc = view.state.doc.toString();
+          var savedSel = view.state.selection.main.head;
+          view.destroy();
+          view = new EditorView({
+            state: EditorState.create({
+              doc: savedDoc,
+              extensions: getExtensions(),
+            }),
+            parent: document.getElementById('editor'),
+          });
+          view.dispatch({ selection: { anchor: savedSel, head: savedSel } });
+          view.focus();
+        }
         break;
       case 'backspace':
         if (view) {
