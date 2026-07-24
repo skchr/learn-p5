@@ -1098,7 +1098,9 @@ function handleMessage(data) {
   }
 }
 
-window.addEventListener('message', function(event) { handleMessage(event.data); });
+function handleMessageEvent(event) { handleMessage(event.data); }
+window.addEventListener('message', handleMessageEvent);
+document.addEventListener('message', handleMessageEvent);
 
 (function() {
   var lastScrollY = window.scrollY || 0;

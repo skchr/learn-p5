@@ -322,7 +322,9 @@ function handleMessage(data) {
   } catch(e) {}
 }
 
-window.addEventListener('message', function(event) { handleMessage(event.data); });
+function handleMessageEvent(event) { handleMessage(event.data); }
+window.addEventListener('message', handleMessageEvent);
+document.addEventListener('message', handleMessageEvent);
 
 document.getElementById('formatBtn').addEventListener('click', function() {
   if (view) {
