@@ -1,0 +1,15 @@
+Explore this project thoroughly to understand the codebase structure and find all files related to:
+1. The in-app keyboard (virtual keyboard, custom keyboard component)
+2. Codeblock components
+3. Input handling, focus management, and event handling between keyboard and code blocks
+4. Any state management related to keyboard input
+
+Start by reading the top-level directory structure, package.json, and then dig into src/ or similar directories. Look for keywords like "keyboard", "codeblock", "code-block", "CodeBlock", "Keyboard", "input", "onPress", "onKey", "editor", "textarea" etc.
+
+Return:
+- The overall project structure (key directories and their purpose)
+- All files that are related to the keyboard component
+- All files that are related to codeblock/code editor components
+- Any shared state or context files that connect these two
+- Key code snippets showing how keyboard input is supposed to be sent to codeblocks
+- Any obvious issues you can spot
